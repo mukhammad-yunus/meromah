@@ -1,22 +1,30 @@
 import { useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { mockPosts, boardsData } from "../../utils/constants";
 import PostCard from "./components/PostCard";
 import BoardHeader from "../../components/BoardHeader";
 import { useDispatch } from "react-redux";
 import { addRecentCommunity } from "../../app/recentCommunitiesSlice";
+import { useGetPostsForBoardQuery } from "../../services/postsApi";
+import Loading from "../../components/Loading";
+import { useGetBoardQuery } from "../../services/boardsApi";
+import { FaRegFileAlt } from "react-icons/fa";
 
 const BoardPage = () => {
   const { boardId } = useParams();
   const { pathname } = useLocation();
+  const {
+    data: boardData,
+    error: errorBoard,
+    isLoading: isBoardLoading,
+  } = useGetBoardQuery(boardId);
+  const {
+    data: postData,
+    error: postError,
+    isLoading: isPostLoading,
+  } = useGetPostsForBoardQuery({ board: boardId });
   const dispatch = useDispatch();
-  // Find the board data - this is just a mock data. i have to implement an api call for this to retrieve respective board data.
-  const board = boardsData.find((b) => b.id === boardId);
-
-  // Filter posts for this board
-  const boardPosts = mockPosts.filter((post) => post.board === boardId);
   useEffect(() => {
-    if (!boardId || !pathname || !board) return;
+    if (!boardId || !pathname || boardData === undefined) return;
     dispatch(
       addRecentCommunity({
         id: `b/${boardId}`,
@@ -25,30 +33,19 @@ const BoardPage = () => {
       })
     );
   }, [boardId, pathname]);
+  if (isPostLoading || isBoardLoading) return <Loading />;
   return (
     <div className="min-h-screen bg-primary-bg">
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Board Header */}
-        <BoardHeader board={board} />
+        <BoardHeader board={boardData.data} />
 
         {/* Posts Feed */}
         <div className="bg-white rounded-lg shadow-sm">
-          {boardPosts.length === 0 ? (
+          {boardData.data.post_count === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 px-4">
               <div className="bg-neutral-100 rounded-full p-6 mb-4">
-                <svg
-                  className="w-12 h-12 text-neutral-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
+                <FaRegFileAlt className="text-4xl text-neutral-700" />
               </div>
               <h3 className="text-lg font-medium text-neutral-900 mb-2">
                 No posts yet
@@ -59,9 +56,9 @@ const BoardPage = () => {
             </div>
           ) : (
             <div>
-              {boardPosts.map((post, i) => {
+              {postData.data.map((post, i) => {
                 const isFirst = i === 0;
-                const isLast = i === boardPosts.length - 1;
+                const isLast = i === postData.data.length - 1;
                 return (
                   <PostCard
                     key={post.id}
