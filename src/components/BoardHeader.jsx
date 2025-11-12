@@ -1,7 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaUsers, FaFileAlt, FaHeart } from "react-icons/fa";
+import { FiChevronDown } from "react-icons/fi";
+import { LiaCrownSolid } from "react-icons/lia";
+import RelativeTime from "./RelativeTime";
+import { Link } from "react-router-dom";
 
 const BoardHeader = ({ board }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   if (!board) {
     return (
       <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -12,49 +17,99 @@ const BoardHeader = ({ board }) => {
       </div>
     );
   }
-
+  const onJoin = async () => {
+    console.log("Here will be join query");
+  };
   return (
-    <div className="bg-white rounded-lg shadow-sm mb-6 overflow-hidden">
+    <div className="bg-white rounded-xl shadow-sm border border-neutral-200 mb-6 overflow-hidden">
       {/* Cover Image */}
-      <div className="relative h-48 bg-gradient-to-r from-blue-500 to-purple-600">
-        <img
-          src={board.coverImage}
-          alt={`${board.name} cover`}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+      <div className="relative h-32 bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600">
+        {/* After backend has an image, I can uncomment or fix below code */}
+        {/* <img
+      src={board.coverImage}
+      alt={`${board.name} cover`}
+      className="w-full h-full object-cover"
+    />
+    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20"></div> */}
       </div>
 
       {/* Board Info */}
       <div className="p-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-neutral-900 mb-2">
-              {board.name}
-            </h1>
-            <p className="text-neutral-700 mb-4">
-              {board.description}
-            </p>
-            
-            {/* Stats */}
-            <div className="flex items-center gap-6 text-sm text-neutral-600">
-              <div className="flex items-center gap-2">
-                <FaUsers className="text-primary-blue" />
-                <span>{board.memberCount} members</span>
+        {/* Board Name and Join Button */}
+        <div className="flex justify-between items-start gap-4 mb-4">
+          <h1 className="text-3xl font-bold text-neutral-900">
+            b/{board.name}
+          </h1>
+          <button
+            className="flex items-center gap-2 px-5 py-2.5 bg-primary-blue text-white rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-200 font-medium text-sm whitespace-nowrap shadow-sm cursor-pointer"
+            onClick={onJoin}
+          >
+            <span>Join</span>
+          </button>
+        </div>
+
+        {/* Stats */}
+        <div className="flex items-center gap-6 mb-4 pb-4 border-b border-neutral-200">
+          <div className="flex items-center gap-2 text-sm">
+            <FaUsers className="text-blue-600 text-base" />
+            <span className="text-neutral-700 font-medium">
+              {board.subscribers_count.toLocaleString()}
+            </span>
+            <span className="text-neutral-500">
+              {board.subscribers_count === 1 ? "member" : "members"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <FaFileAlt className="text-blue-600 text-base" />
+            <span className="text-neutral-700 font-medium">
+              {board.posts_count.toLocaleString()}
+            </span>
+            <span className="text-neutral-500">
+              {board.posts_count === 1 ? "post" : "posts"}
+            </span>
+          </div>
+        </div>
+
+        {/* Expandable About Section */}
+        <div>
+          <button
+            onClick={() => setIsExpanded((p) => !p)}
+            className="w-full flex items-center justify-between py-2 text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors group"
+          >
+            <span>About this board</span>
+            <FiChevronDown
+              className={`text-lg transition-transform duration-200 text-neutral-400 group-hover:text-blue-600 ${
+                isExpanded ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+
+          <div
+            className={`transition-all duration-300 ease-in-out ${
+              isExpanded ? "max-h-96 opacity-100 mt-3" : "max-h-0 opacity-0"
+            } overflow-hidden`}
+          >
+            <div className="space-y-2 text-sm">
+              <div>
+                <span className="font-semibold text-neutral-900">
+                  Description:{" "}
+                </span>
+                <span className="text-neutral-600">{board.description}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <FaFileAlt className="text-primary-blue" />
-                <span>{board.postCount} posts</span>
+              <div className="flex items-center gap-1.5 text-neutral-600">
+                <span className="font-semibold text-neutral-900">Author:</span>
+                <Link
+                  to={`/user/${board.author.username}`}
+                  className="hover:underline hover:text-blue-600 cursor-pointer transition-colors"
+                >
+                  u/{board.author.username}
+                </Link>
+              </div>
+              <div className="flex items-center gap-1.5 text-neutral-600">
+                <span className="font-semibold text-neutral-900">Created:</span>
+                <RelativeTime date={board.created_at} />
               </div>
             </div>
-          </div>
-
-          {/* Follow Button */}
-          <div className="flex-shrink-0">
-            <button className="flex items-center gap-2 px-6 py-2 bg-primary-blue text-white rounded-lg hover:bg-primary-blue/90 transition-colors duration-200 font-medium">
-              <FaHeart className="text-sm" />
-              Follow
-            </button>
           </div>
         </div>
       </div>
