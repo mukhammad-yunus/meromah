@@ -7,16 +7,6 @@ import { Link } from "react-router-dom";
 
 const BoardHeader = ({ board }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  if (!board) {
-    return (
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <div className="animate-pulse">
-          <div className="h-4 bg-neutral-200 rounded w-1/3 mb-2"></div>
-          <div className="h-3 bg-neutral-200 rounded w-2/3"></div>
-        </div>
-      </div>
-    );
-  }
   const onJoin = async () => {
     console.log("Here will be join query");
   };
