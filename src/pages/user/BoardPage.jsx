@@ -161,10 +161,6 @@ const BoardPage = () => {
     console.log("Sorting by:", sortType);
   };
 
-  // Sort and filter posts
-  const sortedAndFilteredPosts = () => {
-    console.log("Sort Posts");
-  };
   const onShowCreatePost = () => {
     if (!isAuthenticated) return navigate("/login");
     setShowCreatePost(true);
