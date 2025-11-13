@@ -141,6 +141,9 @@ const BoardPage = () => {
 
     await createPost({ board: boardId, postData });
     // Reset form
+    onResetPostForm();
+  };
+  const onResetPostForm = () => {
     setPostTitle("");
     setPostBody("");
     uploadedImages.forEach((img) => URL.revokeObjectURL(img.url));
@@ -335,16 +338,7 @@ const BoardPage = () => {
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-neutral-200">
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowCreatePost(false);
-                    setPostTitle("");
-                    setPostBody("");
-                    uploadedImages.forEach((img) =>
-                      URL.revokeObjectURL(img.url)
-                    );
-                    setUploadedImages([]);
-                    setUploadedFiles([]);
-                  }}
+                  onClick={onResetPostForm}
                   className="px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
                 >
                   Cancel
