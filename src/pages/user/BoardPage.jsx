@@ -6,6 +6,8 @@ import { useDispatch } from "react-redux";
 import { addRecentCommunity } from "../../app/recentCommunitiesSlice";
 import { useGetPostsForBoardQuery } from "../../services/postsApi";
 import Loading from "../../components/Loading";
+import NotFound from "../../components/NotFound";
+import ErrorDisplay from "../../components/ErrorDisplay";
 import { useGetBoardQuery } from "../../services/boardsApi";
 import { FaRegFileAlt } from "react-icons/fa";
 
@@ -14,13 +16,15 @@ const BoardPage = () => {
   const { pathname } = useLocation();
   const {
     data: boardData,
-    error: errorBoard,
+    error: boardError,
     isLoading: isBoardLoading,
+    isError: isBoardError,
   } = useGetBoardQuery(boardId);
   const {
     data: postData,
     error: postError,
     isLoading: isPostLoading,
+    isError: isPostError,
   } = useGetPostsForBoardQuery({ board: boardId });
   const dispatch = useDispatch();
   useEffect(() => {
@@ -34,6 +38,15 @@ const BoardPage = () => {
     );
   }, [boardId, pathname]);
   if (isPostLoading || isBoardLoading) return <Loading />;
+
+  if (isPostError || isBoardError) {
+    const statusBoard = boardError?.status;
+    const statusPost = postError?.status;
+    if (statusBoard === 404 || statusPost === 404) return <NotFound />;
+    return <ErrorDisplay />;
+  }
+
+  if (!boardData || !postData) return null;
   return (
     <div className="min-h-screen bg-primary-bg">
       <div className="max-w-4xl mx-auto px-4 py-8">
