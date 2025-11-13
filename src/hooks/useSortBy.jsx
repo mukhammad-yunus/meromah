@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { FiChevronDown } from "react-icons/fi";
 
-const useSortBy = (isAuthenticated, username = undefined) => {
+const useSortBy = (isAuthenticated, username = null) => {
   // we now can add/edit/remove sorting options, by simply modifying this array
   const sortOptionsConfig = useMemo(
     () => [
@@ -34,7 +34,7 @@ const useSortBy = (isAuthenticated, username = undefined) => {
         emptyStateMessage: "Be the first to share something in this board!",
       },
       {
-        id: "author=",
+        id: `author=${username}`,
         label: "My Posts",
         requiresAuth: true,
         emptyStateTitle: "No posts from you yet",
@@ -70,11 +70,7 @@ const useSortBy = (isAuthenticated, username = undefined) => {
 
   // Handle sorting/filtering
   const handleSortChange = (sortType) => {
-    if (sortType == "author=" && isAuthenticated && username) {
-      setSortBy(sortType+username);
-    } else{
-      setSortBy(sortType)
-    }
+    setSortBy(sortType)
     setShowSortDropdown(false);
   };
 

@@ -27,7 +27,7 @@ const BoardPage = () => {
   const navigate = useNavigate();
   // Get current user from Redux
   const { profileData } = useSelector((state) => state.myProfile);
-  const username = useMemo(()=>profileData?.username ||undefined, [profileData])
+  const username = useMemo(()=>profileData?.username ||null, [profileData])
   const { isAuthenticated } = useSelector((state) => state.auth);
   // Helper function to get initials
   const getInitials = (name) => {
