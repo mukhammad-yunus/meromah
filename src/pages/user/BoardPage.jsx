@@ -124,12 +124,14 @@ const BoardPage = () => {
       }
       setUpload((prev) => {
         const element = prev[index];
-        return [...prev, { ...element, error: false }];
+        prev[index] = { ...element, error: false }
+        return prev;
       });
     } catch (err) {
       setUpload((prev) => {
         const element = prev[index];
-        return [...prev, { ...element, error: true }];
+        prev[index] = { ...element, error: true }
+        return prev;
       });
     }
   };
@@ -341,7 +343,7 @@ const BoardPage = () => {
               {/* File Previews */}
               {uploadedFiles.length > 0 && (
                 <div className="space-y-2">
-                  {uploadedFiles.map((file) => (
+                  {uploadedFiles.map((file, i) => (
                     <div
                       key={file.id}
                       className={`flex items-center justify-between p-2 bg-neutral-50 rounded-lg border border-neutral-200 ${
@@ -494,6 +496,7 @@ const BoardPage = () => {
                     post={post}
                     isFirst={isFirst}
                     isLast={isLast}
+                    postType="post"
                   />
                 );
               })}
