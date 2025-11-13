@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import PostCard from "./components/PostCard";
 import BoardHeader from "../../components/BoardHeader";
@@ -13,11 +13,12 @@ import NotFound from "../../components/NotFound";
 import ErrorDisplay from "../../components/ErrorDisplay";
 import { useGetBoardQuery } from "../../services/boardsApi";
 import { FaRegFileAlt, FaFileAlt, FaImage } from "react-icons/fa";
-import { FiChevronDown, FiX } from "react-icons/fi";
+import { FiX } from "react-icons/fi";
 import { IoMdAttach } from "react-icons/io";
 import { getFile, getImage } from "../../utils";
 import { useUploadPostFilesMutation } from "../../services/fileApi";
 import { IoReload } from "react-icons/io5";
+import useSortBy from "../../hooks/useSortBy";
 
 const BoardPage = () => {
   const { boardId } = useParams();
@@ -26,6 +27,7 @@ const BoardPage = () => {
   const navigate = useNavigate();
   // Get current user from Redux
   const { profileData } = useSelector((state) => state.myProfile);
+  const username = useMemo(()=>profileData?.username ||undefined, [profileData])
   const { isAuthenticated } = useSelector((state) => state.auth);
   // Helper function to get initials
   const getInitials = (name) => {
@@ -48,10 +50,11 @@ const BoardPage = () => {
   const fileInputRef = useRef(null);
   const uploadingIds = useRef(new Set());
   const fileHashes = useRef(new Array());
-  // Sorting/Filtering State
-  const [sortBy, setSortBy] = useState("newest");
-  const [showSortDropdown, setShowSortDropdown] = useState(false);
-
+  
+  // Use custom hook for sorting
+  const { sortBy, SortByComponent, emptyStateMessages } = useSortBy(
+    isAuthenticated, username
+  );
   const {
     data: boardData,
     error: boardError,
@@ -63,7 +66,7 @@ const BoardPage = () => {
     error: postError,
     isLoading: isPostLoading,
     isError: isPostError,
-  } = useGetPostsForBoardQuery({ board: boardId });
+  } = useGetPostsForBoardQuery({ board: boardId, queryParams: sortBy });
   const [uploadPostFiles] = useUploadPostFilesMutation();
   const [createPost] = useCreatePostMutation();
   useEffect(() => {
@@ -181,13 +184,6 @@ const BoardPage = () => {
     setShowCreatePost(false);
     uploadingIds.current.clear();
     fileHashes.current = [];
-  };
-
-  // Handle sorting/filtering
-  const handleSortChange = (sortType) => {
-    setSortBy(sortType);
-    setShowSortDropdown(false);
-    console.log("Sorting by:", sortType);
   };
 
   const onShowCreatePost = () => {
@@ -403,68 +399,7 @@ const BoardPage = () => {
         {/* Sorting/Filtering Controls */}
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-neutral-900">Posts</h2>
-          <div className="relative">
-            <button
-              onClick={() => setShowSortDropdown(!showSortDropdown)}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-neutral-700 bg-white border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors"
-            >
-              <span>
-                {sortBy === "newest"
-                  ? "Newest"
-                  : sortBy === "hottest"
-                  ? "Hottest"
-                  : "My Posts"}
-              </span>
-              <FiChevronDown
-                className={`w-4 h-4 transition-transform ${
-                  showSortDropdown ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            {showSortDropdown && (
-              <>
-                <div
-                  className="fixed inset-0 z-10"
-                  onClick={() => setShowSortDropdown(false)}
-                />
-                <div className="absolute right-0 mt-2 w-40 bg-white border border-neutral-200 rounded-lg shadow-lg z-20">
-                  <button
-                    onClick={() => handleSortChange("newest")}
-                    className={`w-full text-left px-4 py-2 text-sm hover:bg-neutral-50 transition-colors ${
-                      sortBy === "newest"
-                        ? "text-primary-blue font-medium bg-primary-blue/5"
-                        : "text-neutral-700"
-                    }`}
-                  >
-                    Newest
-                  </button>
-                  <button
-                    onClick={() => handleSortChange("hottest")}
-                    className={`w-full text-left px-4 py-2 text-sm hover:bg-neutral-50 transition-colors ${
-                      sortBy === "hottest"
-                        ? "text-primary-blue font-medium bg-primary-blue/5"
-                        : "text-neutral-700"
-                    }`}
-                  >
-                    Hottest
-                  </button>
-                  {isAuthenticated && (
-                    <button
-                      onClick={() => handleSortChange("myPosts")}
-                      className={`w-full text-left px-4 py-2 text-sm hover:bg-neutral-50 transition-colors ${
-                        sortBy === "myPosts"
-                          ? "text-primary-blue font-medium bg-primary-blue/5"
-                          : "text-neutral-700"
-                      }`}
-                    >
-                      My Posts
-                    </button>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
+          <SortByComponent />
         </div>
 
         {/* Posts Feed */}
@@ -475,14 +410,10 @@ const BoardPage = () => {
                 <FaRegFileAlt className="text-4xl text-neutral-700" />
               </div>
               <h3 className="text-lg font-medium text-neutral-900 mb-2">
-                {sortBy === "myPosts"
-                  ? "No posts from you yet"
-                  : "No posts yet"}
+                {emptyStateMessages.title}
               </h3>
               <p className="text-neutral-600 text-sm text-center max-w-sm">
-                {sortBy === "myPosts"
-                  ? "Start sharing your thoughts!"
-                  : "Be the first to share something in this board!"}
+                {emptyStateMessages.message}
               </p>
             </div>
           ) : (
