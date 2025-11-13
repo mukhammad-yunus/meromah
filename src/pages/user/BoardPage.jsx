@@ -108,12 +108,12 @@ const BoardPage = () => {
     });
   };
   // Handle file uploads
-  const onImageUpload = (e) => {
+  const onImageSelect = (e) => {
     const newImages = getImage(e);
     setUploadedImages((prev) => [...prev, ...newImages]);
   };
 
-  const onFileUpload = (e) => {
+  const onFileSelect = (e) => {
     const newFiles = getFile(e);
     setUploadedFiles((prev) => [...prev, ...newFiles]);
   };
@@ -250,7 +250,7 @@ const BoardPage = () => {
                   type="file"
                   accept="image/*"
                   multiple
-                  onChange={onImageUpload}
+                  onChange={onImageSelect}
                   className="hidden"
                 />
 
@@ -266,7 +266,7 @@ const BoardPage = () => {
                   ref={fileInputRef}
                   type="file"
                   multiple
-                  onChange={onFileUpload}
+                  onChange={onFileSelect}
                   className="hidden"
                 />
               </div>
