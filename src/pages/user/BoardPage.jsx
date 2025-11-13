@@ -430,7 +430,7 @@ const BoardPage = () => {
 
         {/* Posts Feed */}
         <div className="bg-white rounded-lg shadow-sm border border-neutral-200">
-          {sortedAndFilteredPosts.length === 0 ? (
+          {postData.data.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 px-4">
               <div className="bg-neutral-100 rounded-full p-6 mb-4">
                 <FaRegFileAlt className="text-4xl text-neutral-700" />
@@ -448,9 +448,9 @@ const BoardPage = () => {
             </div>
           ) : (
             <div>
-              {sortedAndFilteredPosts.map((post, i) => {
+              {postData.data.map((post, i) => {
                 const isFirst = i === 0;
-                const isLast = i === sortedAndFilteredPosts.length - 1;
+                const isLast = i === postData.data.length - 1;
                 return (
                   <PostCard
                     key={post.id}
