@@ -17,6 +17,7 @@ import { FiChevronDown, FiX } from "react-icons/fi";
 import { IoMdAttach } from "react-icons/io";
 import { getFile, getImage } from "../../utils";
 import { useUploadPostFilesMutation } from "../../services/fileApi";
+import { IoReload } from "react-icons/io5";
 
 const BoardPage = () => {
   const { boardId } = useParams();
@@ -110,6 +111,27 @@ const BoardPage = () => {
         }
       }
     });
+  };
+  const handleReUpload = async (item, index, setUpload) => {
+    try {
+      const res = await uploadPostFiles([
+        { file: item.file, id: item.id },
+      ]).unwrap();
+      if (res.files && Array.isArray(res.files)) {
+        res.files.forEach((fileObj) => {
+          fileHashes.current.push(fileObj);
+        });
+      }
+      setUpload((prev) => {
+        const element = prev[index];
+        return [...prev, { ...element, error: false }];
+      });
+    } catch (err) {
+      setUpload((prev) => {
+        const element = prev[index];
+        return [...prev, { ...element, error: true }];
+      });
+    }
   };
   // Handle file uploads
   const onImageUpload = (e) => {
@@ -278,23 +300,35 @@ const BoardPage = () => {
               {/* Image Previews */}
               {uploadedImages.length > 0 && (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {uploadedImages.map((image) => (
+                  {uploadedImages.map((image, i) => (
                     <div
                       key={image.id}
-                      className="relative group rounded-lg overflow-hidden border border-neutral-200"
+                      className={`relative group rounded-lg overflow-hidden border border-neutral-200 ${
+                        image.error && "ring-2 ring-red-500"
+                      }`}
                     >
                       <img
                         src={image.url}
                         alt={image.name}
                         className="w-full h-32 object-cover"
                       />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(image.id)}
-                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <FiX className="w-4 h-4" />
-                      </button>
+                      {image.error ? (
+                        <button
+                          type="button"
+                          onClick={() => handleReUpload(image, i, setUploadedImages)}
+                          className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full"
+                        >
+                          <IoReload className="w-7 h-7" />
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => removeImage(image.id)}
+                          className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <FiX className="w-4 h-4" />
+                        </button>
+                      )}
                       <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-2 truncate">
                         {image.name}
                       </div>
@@ -311,6 +345,8 @@ const BoardPage = () => {
                       key={file.id}
                       className={`flex items-center justify-between p-2 bg-neutral-50 rounded-lg border border-neutral-200 ${
                         file.isUploading && "animate-pulse"
+                      } ${
+                        file.error && "ring-2 ring-red-500"
                       }`}
                     >
                       <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -322,13 +358,19 @@ const BoardPage = () => {
                           {(file.size / 1024).toFixed(1)} KB
                         </span>
                       </div>
-                      <button
+                      {file.error? <button
+                        type="button"
+                        onClick={() => handleReUpload(file, i, setUploadedFiles)}
+                        className="p-1 text-red-500 hover:text-red-700 transition-colors cursor-pointer"
+                      >
+                        <IoReload className="w-4 h-4" />
+                      </button>:<button
                         type="button"
                         onClick={() => removeFile(file.id)}
-                        className="p-1 text-red-500 hover:text-red-700 transition-colors"
+                        className="p-1 text-red-500 hover:text-red-700 transition-colors cursor-pointer"
                       >
                         <FiX className="w-4 h-4" />
-                      </button>
+                      </button>}
                     </div>
                   ))}
                 </div>

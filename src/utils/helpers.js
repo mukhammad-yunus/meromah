@@ -15,6 +15,7 @@ export const getImage = (e) => {
       size: file.size,
       url: URL.createObjectURL(file),
       isUploading: true,
+      error: false
     }));
   return newImages;
 };
@@ -29,6 +30,7 @@ export const getFile = (e) => {
       size: file.size,
       type: file.type,
       isUploading: true,
+      error: false
     }));
   return newFiles;
 };
