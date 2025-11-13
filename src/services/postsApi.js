@@ -31,6 +31,10 @@ const PrivatePostApi = baseApi.injectEndpoints({
         method: "POST",
         body: postData,
       }),
+      invalidatesTags: (result, error, { board }) => [
+        { type: "boardPosts", id: `board-${board}` },
+      ],
+
     }),
     deletePost: builder.mutation({
       query: ({ board, post }) => ({
@@ -53,6 +57,9 @@ const PublicPostApi = baseApi.injectEndpoints({
     getPostsForBoard: builder.query({
       query: ({ board, queryParams }) =>
         `/boards/${board}/posts${toQueryString(queryParams)}`,
+      providesTags: (result, error, { board }) => [
+        { type: "boardPosts", id: `board-${board}` },
+      ],
     }),
     getPostFromBoardByPostId: builder.query({
       query: ({ board, postId }) => `/boards/${board}/posts/${postId}`,
