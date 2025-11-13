@@ -1,5 +1,5 @@
-import { useEffect, useState, useRef, useMemo } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useEffect, useState, useRef } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import PostCard from "./components/PostCard";
 import BoardHeader from "../../components/BoardHeader";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,16 +17,15 @@ import { FiChevronDown, FiX } from "react-icons/fi";
 import { IoMdAttach } from "react-icons/io";
 import { getFile, getImage } from "../../utils";
 import { useUploadPostFilesMutation } from "../../services/fileApi";
+
 const BoardPage = () => {
   const { boardId } = useParams();
   const { pathname } = useLocation();
   const dispatch = useDispatch();
-
+  const navigate = useNavigate();
   // Get current user from Redux
   const { profileData } = useSelector((state) => state.myProfile);
-  const currentUsername = profileData?.username;
-  const currentUserName = profileData?.name || profileData?.username || "User";
-
+  const { isAuthenticated } = useSelector((state) => state.auth);
   // Helper function to get initials
   const getInitials = (name) => {
     if (!name) return "U";
@@ -160,9 +159,13 @@ const BoardPage = () => {
   };
 
   // Sort and filter posts
-  const sortedAndFilteredPosts = ()=>{
-    console.log("Sort Posts")
-  }
+  const sortedAndFilteredPosts = () => {
+    console.log("Sort Posts");
+  };
+  const onShowCreatePost = () => {
+    if (!isAuthenticated) return navigate("/login");
+    setShowCreatePost(true);
+  };
 
   if (isPostLoading || isBoardLoading) return <Loading />;
 
@@ -186,32 +189,32 @@ const BoardPage = () => {
             <div className="flex items-center gap-3 p-4">
               {/* Avatar */}
               <div
-                onClick={() => setShowCreatePost(true)}
+                onClick={onShowCreatePost}
                 className="rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white text-xs font-semibold shadow-md hover:shadow-lg transition-shadow cursor-pointer ring-2 ring-white flex-shrink-0"
               >
                 <p className="w-11 h-11 flex items-center justify-center rounded-full">
-                  {getInitials(currentUserName)}
+                  {getInitials(isAuthenticated ? profileData?.name : "User")}
                 </p>
               </div>
 
               {/* Placeholder Text */}
               <div
-                onClick={() => setShowCreatePost(true)}
+                onClick={onShowCreatePost}
                 className="flex-1 px-4 py-2 text-sm text-neutral-500 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors cursor-pointer border border-transparent hover:border-neutral-200"
               >
-                What is on your mind, {currentUsername || "User"}?
+                What is on your mind, {profileData?.username || "User"}?
               </div>
 
               {/* Attachment Icon */}
               <button
-                onClick={() => setShowCreatePost(true)}
+                onClick={onShowCreatePost}
                 className="p-2 text-neutral-500 hover:text-primary-blue hover:bg-primary-blue/10 rounded-lg transition-colors cursor-pointer"
                 aria-label="Attach file"
               >
                 <IoMdAttach className="w-5 h-5" />
               </button>
             </div>
-          ) : (
+          ) : isAuthenticated ? (
             <form onSubmit={handlePostSubmit} className="p-4 space-y-4">
               <div>
                 <input
@@ -355,7 +358,7 @@ const BoardPage = () => {
                 </button>
               </div>
             </form>
-          )}
+          ) : null}
         </div>
 
         {/* Sorting/Filtering Controls */}
@@ -407,7 +410,7 @@ const BoardPage = () => {
                   >
                     Hottest
                   </button>
-                  {currentUsername && (
+                  {isAuthenticated && (
                     <button
                       onClick={() => handleSortChange("myPosts")}
                       className={`w-full text-left px-4 py-2 text-sm hover:bg-neutral-50 transition-colors ${
