@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTogglePostLikeMutation } from "../../../services/postsApi";
 import { useSelector } from "react-redux";
 import RelativeTime from '../../../components/RelativeTime'
+import { getInitials } from "../../../utils";
 const preventNavigation = (e) => {
   e.preventDefault();
   e.stopPropagation();
@@ -35,14 +36,6 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
     navigate(path);
   };
 
-  const getInitials = (name) => {
-    return name
-      .split(" ")
-      .map((word) => word[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
   const onTogglePostLike = async (e) => {
     preventNavigation(e);
     if (!isAuthenticated) {
