@@ -76,19 +76,23 @@ const BoardPage = () => {
     );
   }, [boardId, pathname, boardData, dispatch]);
   useEffect(() => {
-    handleUpload(uploadedFiles, setUploadedFiles, uploadPostFiles);
+    handleUpload(uploadedFiles, setUploadedFiles);
   }, [uploadedFiles]);
   useEffect(() => {
-    handleUpload(uploadedImages, setUploadedImages, uploadPostFiles);
+    handleUpload(uploadedImages, setUploadedImages);
   }, [uploadedImages]);
-  const handleUpload = (upload, setUpload, apiCall) => {
+  const handleUpload = (upload, setUpload) => {
     upload.forEach(async (item) => {
       if (item.isUploading && !uploadingIds.current.has(item.id)) {
         uploadingIds.current.add(item.id);
         try {
-          const res = await apiCall([item.file]).unwrap();
-          for (const hash of res.hash) {
-            fileHashes.current.push(hash);
+          const res = await uploadPostFiles([
+            { file: item.file, id: item.id },
+          ]).unwrap();
+          if (res.files && Array.isArray(res.files)) {
+            res.files.forEach((fileObj) => {
+              fileHashes.current.push(fileObj);
+            });
           }
           setUpload((prev) =>
             prev.map((i) =>
@@ -108,12 +112,12 @@ const BoardPage = () => {
     });
   };
   // Handle file uploads
-  const onImageSelect = (e) => {
+  const onImageUpload = (e) => {
     const newImages = getImage(e);
     setUploadedImages((prev) => [...prev, ...newImages]);
   };
 
-  const onFileSelect = (e) => {
+  const onFileUpload = (e) => {
     const newFiles = getFile(e);
     setUploadedFiles((prev) => [...prev, ...newFiles]);
   };
@@ -250,7 +254,7 @@ const BoardPage = () => {
                   type="file"
                   accept="image/*"
                   multiple
-                  onChange={onImageSelect}
+                  onChange={onImageUpload}
                   className="hidden"
                 />
 
@@ -266,7 +270,7 @@ const BoardPage = () => {
                   ref={fileInputRef}
                   type="file"
                   multiple
-                  onChange={onFileSelect}
+                  onChange={onFileUpload}
                   className="hidden"
                 />
               </div>

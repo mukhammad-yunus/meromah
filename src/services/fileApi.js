@@ -10,19 +10,22 @@ import { baseApi } from "./baseApi";
 const FileApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     uploadPostFiles: builder.mutation({
-      query: (files) => {
-        if (!Array.isArray(files)) {
-          throw new Error('uploadPostFiles expects an array of File objects');
+      query: (filesWithIds) => {
+        if (!Array.isArray(filesWithIds)) {
+          throw new Error(
+            "uploadPostFiles expects an array of objects with {id, file} structures"
+          );
         }
 
         const formData = new FormData();
-        for (const file of files) {
-          if (file) formData.append('files[]', file);
-        }
 
+        filesWithIds.forEach((item, index) => {
+          formData.append(`payload[${index}][id]`, item.id);
+          formData.append(`payload[${index}][file]`, item.file);
+        });
         return {
-          url: '/files/post',
-          method: 'POST',
+          url: "/files/post",
+          method: "POST",
           body: formData, // fetch will set the correct multipart boundary automatically
         };
       },
@@ -30,17 +33,17 @@ const FileApi = baseApi.injectEndpoints({
     uploadCommentFiles: builder.mutation({
       query: (files) => {
         if (!Array.isArray(files)) {
-          throw new Error('uploadPostFiles expects an array of File objects');
+          throw new Error("uploadPostFiles expects an array of File objects");
         }
 
         const formData = new FormData();
         for (const file of files) {
-          if (file) formData.append('files[]', file);
+          if (file) formData.append("files[]", file);
         }
 
         return {
-          url: '/files/comment',
-          method: 'POST',
+          url: "/files/comment",
+          method: "POST",
           body: formData, // fetch will set the correct multipart boundary automatically
         };
       },
@@ -48,17 +51,17 @@ const FileApi = baseApi.injectEndpoints({
     uploadQuestionFiles: builder.mutation({
       query: (files) => {
         if (!Array.isArray(files)) {
-          throw new Error('uploadPostFiles expects an array of File objects');
+          throw new Error("uploadPostFiles expects an array of File objects");
         }
 
         const formData = new FormData();
         for (const file of files) {
-          if (file) formData.append('files[]', file);
+          if (file) formData.append("files[]", file);
         }
 
         return {
-          url: '/files/question',
-          method: 'POST',
+          url: "/files/question",
+          method: "POST",
           body: formData, // fetch will set the correct multipart boundary automatically
         };
       },
@@ -66,17 +69,17 @@ const FileApi = baseApi.injectEndpoints({
     uploadTestFiles: builder.mutation({
       query: (files) => {
         if (!Array.isArray(files)) {
-          throw new Error('uploadPostFiles expects an array of File objects');
+          throw new Error("uploadPostFiles expects an array of File objects");
         }
 
         const formData = new FormData();
         for (const file of files) {
-          if (file) formData.append('files[]', file);
+          if (file) formData.append("files[]", file);
         }
 
         return {
-          url: '/files/test',
-          method: 'POST',
+          url: "/files/test",
+          method: "POST",
           body: formData, // fetch will set the correct multipart boundary automatically
         };
       },
@@ -84,17 +87,17 @@ const FileApi = baseApi.injectEndpoints({
     uploadBoardBannerFiles: builder.mutation({
       query: ({ files, board }) => {
         if (!Array.isArray(files)) {
-          throw new Error('uploadPostFiles expects an array of File objects');
+          throw new Error("uploadPostFiles expects an array of File objects");
         }
 
         const formData = new FormData();
         for (const file of files) {
-          if (file) formData.append('files[]', file);
+          if (file) formData.append("files[]", file);
         }
 
         return {
           url: `/files/boards/${board}/banner`,
-          method: 'POST',
+          method: "POST",
           body: formData, // fetch will set the correct multipart boundary automatically
         };
       },
@@ -102,17 +105,17 @@ const FileApi = baseApi.injectEndpoints({
     uploadDescBannerFiles: builder.mutation({
       query: ({ desc, files }) => {
         if (!Array.isArray(files)) {
-          throw new Error('uploadPostFiles expects an array of File objects');
+          throw new Error("uploadPostFiles expects an array of File objects");
         }
 
         const formData = new FormData();
         for (const file of files) {
-          if (file) formData.append('files[]', file);
+          if (file) formData.append("files[]", file);
         }
 
         return {
           url: `/files/descs/${desc}/banner`,
-          method: 'POST',
+          method: "POST",
           body: formData, // fetch will set the correct multipart boundary automatically
         };
       },
@@ -120,17 +123,17 @@ const FileApi = baseApi.injectEndpoints({
     uploadUserAvatarFiles: builder.mutation({
       query: (files) => {
         if (!Array.isArray(files)) {
-          throw new Error('uploadPostFiles expects an array of File objects');
+          throw new Error("uploadPostFiles expects an array of File objects");
         }
 
         const formData = new FormData();
         for (const file of files) {
-          if (file) formData.append('files[]', file);
+          if (file) formData.append("files[]", file);
         }
 
         return {
           url: `/files/me/avatar`,
-          method: 'POST',
+          method: "POST",
           body: formData, // fetch will set the correct multipart boundary automatically
         };
       },
@@ -138,17 +141,17 @@ const FileApi = baseApi.injectEndpoints({
     uploadUserBannerFiles: builder.mutation({
       query: (files) => {
         if (!Array.isArray(files)) {
-          throw new Error('uploadPostFiles expects an array of File objects');
+          throw new Error("uploadPostFiles expects an array of File objects");
         }
 
         const formData = new FormData();
         for (const file of files) {
-          if (file) formData.append('files[]', file);
+          if (file) formData.append("files[]", file);
         }
 
         return {
           url: `/files/me/banner`,
-          method: 'POST',
+          method: "POST",
           body: formData, // fetch will set the correct multipart boundary automatically
         };
       },
@@ -160,7 +163,7 @@ const FileApi = baseApi.injectEndpoints({
         // Ensure we get a Blob instead of attempting JSON parse
         responseHandler: (response) => response.blob(),
         headers: {
-          Accept: 'application/octet-stream',
+          Accept: "application/octet-stream",
         },
       }),
     }),
