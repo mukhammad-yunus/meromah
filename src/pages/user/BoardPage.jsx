@@ -158,11 +158,12 @@ const BoardPage = () => {
 
   // Handle post submission
   const handlePostSubmit = async (e) => {
+    const file_hashes = fileHashes.current.map(hash=> Object.values(hash)[0])
     e.preventDefault();
     const postData = {
       title: postTitle,
       body: postBody,
-      file_hashes: fileHashes.current,
+      file_hashes
     };
 
     await createPost({ board: boardId, postData });
