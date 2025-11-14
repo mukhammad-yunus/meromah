@@ -45,6 +45,7 @@ const PublicBoardApi = baseApi.injectEndpoints({
     // get all boards
     getBoards: builder.query({
       query: (queryParams) => `/boards${toQueryString(queryParams)}`,
+      providesTags: [{ type: "Board", id: "all-boards" }],
     }),
     getBoard: builder.query({
       query: (board) => `/boards/${board}`,

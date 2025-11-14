@@ -15,7 +15,8 @@ const PrivateBoardSubscriptionsApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: (result, error, { board }) => [
         { type: "Board", id: `board-${board}` },
-        { type: "Board", id: 'board-subscriptions' }
+        { type: "Board", id: 'board-subscriptions' },
+        { type: "Board", id: "all-boards" }
       ]
     }),
 
@@ -27,7 +28,8 @@ const PrivateBoardSubscriptionsApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: (result, error, { board }) => [
         { type: "Board", id: `board-${board}` },
-        { type: "Board", id: 'board-subscriptions' }
+        { type: "Board", id: 'board-subscriptions' },
+        { type: "Board", id: "all-boards" }
       ]
     }),
 
