@@ -48,12 +48,12 @@ const BoardHeader = ({ board }) => {
       {/* Board Info */}
       <div className="p-6">
         {/* Board Name and Join Button */}
-        <div className="flex justify-between items-start gap-4 mb-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4">
           <h1 className="text-3xl font-bold text-neutral-900">
             b/{board.name}
           </h1>
           <div
-            className={`flex items-center gap-2  rounded-lg border ${
+            className={`flex w-full sm:w-fit items-center justify-center rounded-lg border ${
               board.youSubscribed
                 ? "border-red-500"
                 : "bg-primary-blue  hover:bg-blue-700 border-primary-blue hover:border-blue-700"
