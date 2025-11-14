@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   FiShare2,
@@ -22,6 +22,8 @@ import NotFound from "../../components/NotFound";
 import ErrorDisplay from "../../components/ErrorDisplay";
 import { useSelector } from "react-redux";
 import RelativeTime from "../../components/RelativeTime";
+import PostImages from "./components/PostImages";
+import PostFiles from "./components/PostFiles";
 
 const getType = {
   post: ["b", "board"],
@@ -149,7 +151,7 @@ const Comment = ({
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
                     if (replyText.trim()) {
-                    onReplySubmit(e);
+                      onReplySubmit(e);
                     }
                   }
                 }}
@@ -256,6 +258,19 @@ const Post = ({ postType }) => {
     postId,
     queryParams: undefined,
   });
+  // Separate images and files based on mimetype
+  const { images, files } = useMemo(() => {
+    if (!postData?.data?.files || postData.data.files.length === 0) {
+      return { images: [], files: [] };
+    }
+    const imageFiles = postData.data.files.filter((file) =>
+      file.mimetype.startsWith("image/")
+    );
+    const nonImageFiles = postData.data.files.filter(
+      (file) => !file.mimetype.startsWith("image/")
+    );
+    return { images: imageFiles, files: nonImageFiles };
+  }, [postData?.data?.files]);
   useEffect(() => {
     if (postData === undefined) return;
     if (isPostError) return;
@@ -267,6 +282,7 @@ const Post = ({ postType }) => {
     if (postError.status === 404) return <NotFound />;
     return <ErrorDisplay />;
   }
+  if (!postData || !commentsData) return null;
   const handleCommentSubmit = async (e, parent_id, body = "", setEmpty) => {
     e.preventDefault();
     if (body.trim()) {
@@ -407,27 +423,14 @@ const Post = ({ postType }) => {
                     Start
                   </button>
                 </div>
-              ) : postData.data.type === "library" ? (
-                <div className="flex flex-col gap-3">
-                  <p className="font-bold text-2xl">{postData.data.title}</p>
-                  <div className="flex items-center gap-3 border-l-4 border-green-500 bg-green-50 p-4 rounded hover:bg-green-100 transition-colors duration-200 cursor-pointer">
-                    <div className="bg-blue-500 text-white rounded-full p-3 text-xl flex-shrink-0">
-                      <FaArrowDown />
-                    </div>
-                    <div className="flex flex-col gap-1 text-neutral-500">
-                      <p className="text-neutral-900 text-sm font-medium">
-                        {postData.data.file?.name}
-                      </p>
-                      <p className="text-xs">
-                        {postData.data.file?.size || "3.5mb"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
               ) : (
                 <div className="flex flex-col gap-2">
                   <h1 className="font-bold text-2xl">{postData.data.title}</h1>
                   <p className="text-gray-700">{postData.data.body}</p>
+                  {/* Display images if available */}
+                  {images.length > 0 && <PostImages images={images} />}
+                  {/* Display files if available */}
+                  {files.length > 0 && <PostFiles files={files} />}
                 </div>
               )}
             </div>
