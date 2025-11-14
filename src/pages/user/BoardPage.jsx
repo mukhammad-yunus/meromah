@@ -27,7 +27,7 @@ const BoardPage = () => {
   const navigate = useNavigate();
   // Get current user from Redux
   const { profileData } = useSelector((state) => state.myProfile);
-  const username = useMemo(()=>profileData?.username ||null, [profileData])
+  const username = useMemo(() => profileData?.username || null, [profileData]);
   const { isAuthenticated } = useSelector((state) => state.auth);
   // Helper function to get initials
   const getInitials = (name) => {
@@ -50,10 +50,11 @@ const BoardPage = () => {
   const fileInputRef = useRef(null);
   const uploadingIds = useRef(new Set());
   const fileHashes = useRef(new Array());
-  
+
   // Use custom hook for sorting
   const { sortBy, SortByComponent, emptyStateMessages } = useSortBy(
-    isAuthenticated, username
+    isAuthenticated,
+    username
   );
   const {
     data: boardData,
@@ -127,13 +128,13 @@ const BoardPage = () => {
       }
       setUpload((prev) => {
         const element = prev[index];
-        prev[index] = { ...element, error: false }
+        prev[index] = { ...element, error: false };
         return prev;
       });
     } catch (err) {
       setUpload((prev) => {
         const element = prev[index];
-        prev[index] = { ...element, error: true }
+        prev[index] = { ...element, error: true };
         return prev;
       });
     }
@@ -154,21 +155,32 @@ const BoardPage = () => {
     if (imageToRemove) {
       URL.revokeObjectURL(imageToRemove.url);
     }
+    fileHashes.current = fileHashes.current.filter((obj) => {
+      const key = Object.keys(obj)[0];
+      return key !== String(imageId);
+    });
+
     setUploadedImages((prev) => prev.filter((img) => img.id !== imageId));
   };
 
   const removeFile = (fileId) => {
+    fileHashes.current = fileHashes.current.filter(obj => {
+    const key = Object.keys(obj)[0];
+    return key !== String(fileId);
+  });
     setUploadedFiles((prev) => prev.filter((file) => file.id !== fileId));
   };
 
   // Handle post submission
   const handlePostSubmit = async (e) => {
-    const file_hashes = fileHashes.current.map(hash=> Object.values(hash)[0])
+    const file_hashes = fileHashes.current.map(
+      (hash) => Object.values(hash)[0]
+    );
     e.preventDefault();
     const postData = {
       title: postTitle,
       body: postBody,
-      file_hashes
+      file_hashes,
     };
 
     await createPost({ board: boardId, postData });
@@ -314,7 +326,9 @@ const BoardPage = () => {
                       {image.error ? (
                         <button
                           type="button"
-                          onClick={() => handleReUpload(image, i, setUploadedImages)}
+                          onClick={() =>
+                            handleReUpload(image, i, setUploadedImages)
+                          }
                           className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full"
                         >
                           <IoReload className="w-7 h-7" />
@@ -323,7 +337,7 @@ const BoardPage = () => {
                         <button
                           type="button"
                           onClick={() => removeImage(image.id)}
-                          className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                         >
                           <FiX className="w-4 h-4" />
                         </button>
@@ -344,9 +358,7 @@ const BoardPage = () => {
                       key={file.id}
                       className={`flex items-center justify-between p-2 bg-neutral-50 rounded-lg border border-neutral-200 ${
                         file.isUploading && "animate-pulse"
-                      } ${
-                        file.error && "ring-2 ring-red-500"
-                      }`}
+                      } ${file.error && "ring-2 ring-red-500"}`}
                     >
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <FaFileAlt className="w-4 h-4 text-neutral-400 flex-shrink-0" />
@@ -357,19 +369,25 @@ const BoardPage = () => {
                           {(file.size / 1024).toFixed(1)} KB
                         </span>
                       </div>
-                      {file.error? <button
-                        type="button"
-                        onClick={() => handleReUpload(file, i, setUploadedFiles)}
-                        className="p-1 text-red-500 hover:text-red-700 transition-colors cursor-pointer"
-                      >
-                        <IoReload className="w-4 h-4" />
-                      </button>:<button
-                        type="button"
-                        onClick={() => removeFile(file.id)}
-                        className="p-1 text-red-500 hover:text-red-700 transition-colors cursor-pointer"
-                      >
-                        <FiX className="w-4 h-4" />
-                      </button>}
+                      {file.error ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleReUpload(file, i, setUploadedFiles)
+                          }
+                          className="p-1 text-red-500 hover:text-red-700 transition-colors cursor-pointer"
+                        >
+                          <IoReload className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => removeFile(file.id)}
+                          className="p-1 text-red-500 hover:text-red-700 transition-colors cursor-pointer"
+                        >
+                          <FiX className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
