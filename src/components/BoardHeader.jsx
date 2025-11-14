@@ -4,11 +4,22 @@ import { FiChevronDown } from "react-icons/fi";
 import { LiaCrownSolid } from "react-icons/lia";
 import RelativeTime from "./RelativeTime";
 import { Link } from "react-router-dom";
+import {
+  useSubscribeToBoardMutation,
+  useUnsubscribeFromBoardMutation,
+} from "../services/boardSubscriptionsApi";
 
 const BoardHeader = ({ board }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const onJoin = async () => {
-    console.log("Here will be join query");
+  const [subscribeToBoard, { isLoading: isSubscribing }] =
+    useSubscribeToBoardMutation();
+  const [unsubscribeFromBoard, { isLoading: isUnsubscribing }] =
+    useUnsubscribeFromBoardMutation();
+  const onSubscribe = async () => {
+    await subscribeToBoard({ board: board.name }).unwrap();
+  };
+  const onUnSubscribe = async () => {
+    await unsubscribeFromBoard({ board: board.name }).unwrap();
   };
   return (
     <div className="bg-white rounded-xl shadow-sm border border-neutral-200 mb-6 overflow-hidden">
@@ -30,12 +41,31 @@ const BoardHeader = ({ board }) => {
           <h1 className="text-3xl font-bold text-neutral-900">
             b/{board.name}
           </h1>
-          <button
-            className="flex items-center gap-2 px-5 py-2.5 bg-primary-blue text-white rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-200 font-medium text-sm whitespace-nowrap shadow-sm cursor-pointer"
-            onClick={onJoin}
+          <div
+            className={`flex items-center gap-2  rounded-lg border ${
+              board.youSubscribed
+                ? "border-red-500"
+                : "bg-primary-blue  hover:bg-blue-700 border-primary-blue hover:border-blue-700"
+            } `}
           >
-            <span>Join</span>
-          </button>
+            {board.youSubscribed ? (
+              <button
+                className="px-5 py-2.5 text-red-500 active:scale-95 transition-all duration-200 font-medium text-sm whitespace-nowrap cursor-pointer"
+                onClick={onUnSubscribe}
+                disabled={isUnsubscribing}
+              >
+                <span>Unsubscribe</span>
+              </button>
+            ) : (
+              <button
+                className="px-5 py-2.5 text-white active:scale-95 transition-all duration-200 font-medium text-sm whitespace-nowrap cursor-pointer"
+                onClick={onSubscribe}
+                disabled={isSubscribing}
+              >
+                <span>Subscribe</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Stats */}
