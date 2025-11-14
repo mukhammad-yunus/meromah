@@ -141,27 +141,38 @@ const Comment = ({
 
           {/* Reply Input */}
           {isAuthenticated && isReplying && (
-            <div className="flex items-start gap-2">
+            <div className="flex items-end gap-2">
               <textarea
-                type="text"
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
-                onKeyPress={(e) => {
+                onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
+                    if (replyText.trim()) {
                     onReplySubmit(e);
+                    }
                   }
                 }}
                 placeholder={`Reply to u/${comment.author.username}...`}
                 autoFocus
-                className="flex-1 w-full px-3 py-2 min-h-10 text-sm rounded border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                rows={1}
+                className="flex-1 px-3 py-2.5 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 placeholder-neutral-400 resize-none overflow-hidden"
+                style={{
+                  minHeight: "40px",
+                  maxHeight: "120px",
+                }}
+                onInput={(e) => {
+                  e.target.style.height = "auto";
+                  e.target.style.height =
+                    Math.min(e.target.scrollHeight, 120) + "px";
+                }}
               />
               <button
                 onClick={onReplySubmit}
                 disabled={!replyText.trim()}
-                className="px-4 py-2 bg-blue-500 text-white min-h-9 rounded-lg font-bold hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm"
+                className="px-4 h-10 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center text-sm flex-shrink-0"
               >
-                <FiSend />
+                <FiSend className="w-4 h-4" />
               </button>
             </div>
           )}
@@ -461,28 +472,44 @@ const Post = ({ postType }) => {
                     U
                   </div>
                 </div>
-                <div className="flex-1 flex items-start gap-2">
+                <div className="flex-1 flex items-end gap-2">
                   <textarea
-                    type="text"
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
-                    onKeyPress={(e) => {
+                    onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {
                         e.preventDefault();
-                        handleCommentSubmit(e, null, newComment, setNewComment);
+                        if (newComment.trim()) {
+                          handleCommentSubmit(
+                            e,
+                            null,
+                            newComment,
+                            setNewComment
+                          );
+                        }
                       }
                     }}
                     placeholder="Add a comment..."
-                    className="flex-1 px-4 py-2 min-h-10 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-blue/30 focus:border-primary-blue placeholder-neutral-400"
+                    rows={1}
+                    className="flex-1 px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-blue/30 focus:border-primary-blue placeholder-neutral-400 resize-none overflow-hidden"
+                    style={{
+                      minHeight: "40px",
+                      maxHeight: "120px",
+                    }}
+                    onInput={(e) => {
+                      e.target.style.height = "auto";
+                      e.target.style.height =
+                        Math.min(e.target.scrollHeight, 120) + "px";
+                    }}
                   />
                   <button
                     onClick={(e) =>
                       handleCommentSubmit(e, null, newComment, setNewComment)
                     }
                     disabled={!newComment.trim()}
-                    className="px-4 py-2 bg-primary-blue text-white min-h-9 rounded-lg hover:bg-primary-blue/90 disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors flex items-center text-sm font-medium"
+                    className="px-4 h-10 bg-primary-blue text-white rounded-lg hover:bg-primary-blue/90 disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center text-sm font-medium flex-shrink-0"
                   >
-                    <FiSend />
+                    <FiSend className="w-4 h-4" />
                   </button>
                 </div>
               </div>
