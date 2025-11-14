@@ -1,14 +1,26 @@
 import { Link, useParams } from "react-router-dom";
 import { useGetBoardsQuery } from "../../../services/boardsApi";
 import RelativeTime from "../../../components/RelativeTime";
+import {
+  useSubscribeToBoardMutation,
+  useUnsubscribeFromBoardMutation,
+} from "../../../services/boardSubscriptionsApi";
 
 const ExploreBoards = () => {
   const { data: result, isLoading, error } = useGetBoardsQuery();
-  const handleJoin = (e, elementName) => {
+  const [subscribeToBoard, { isLoading: isSubscribing }] =
+    useSubscribeToBoardMutation();
+  const [unsubscribeFromBoard, { isLoading: isUnsubscribing }] =
+    useUnsubscribeFromBoardMutation();
+  const onSubscribe = async (e, board) => {
     e.preventDefault();
     e.stopPropagation();
-    // TODO: Add your join logic here
-    console.log(`Joining ${elementName}`);
+    await subscribeToBoard({ board: board.name }).unwrap();
+  };
+  const onUnSubscribe = async (e, board) => {
+    e.preventDefault();
+    e.stopPropagation();
+    await unsubscribeFromBoard({ board: board.name }).unwrap();
   };
   // Handle loading state
   if (isLoading) {
@@ -120,13 +132,32 @@ const ExploreBoards = () => {
                 </div>
               </Link>
 
-              {/* Join Button */}
-              <button
-                onClick={(e) => handleJoin(e, element.name)}
-                className="bg-white text-primary-blue px-4 py-1.5 rounded-full text-xs font-bold hover:bg-primary-blue/10 border border-primary-blue transition-colors cursor-pointer flex-shrink-0"
+              <div
+                className={`flex items-center gap-2  rounded-full border ${
+                  element.youSubscribed
+                    ? "border-red-500"
+                    : "border-primary-blue hover:border-blue-700"
+                }
+                ${(isSubscribing || isUnsubscribing) && "animate-pulse"} `}
               >
-                Join
-              </button>
+                {element.youSubscribed ? (
+                  <button
+                    className="px-3 py-2 text-red-500 active:scale-95 transition-all duration-200 font-medium text-sm whitespace-nowrap cursor-pointer"
+                    onClick={(e) => onUnSubscribe(e, element)}
+                    disabled={isUnsubscribing}
+                  >
+                    <span>Unsubscribe</span>
+                  </button>
+                ) : (
+                  <button
+                    className="px-3 py-2 text-primary-blue active:scale-95 transition-all duration-200 font-medium text-sm whitespace-nowrap cursor-pointer"
+                    onClick={(e) => onSubscribe(e, element)}
+                    disabled={isSubscribing}
+                  >
+                    <span>Subscribe</span>
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>
