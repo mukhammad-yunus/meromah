@@ -6,7 +6,6 @@ import ErrorDisplay from "../../../components/ErrorDisplay";
 const DeletePostModal = ({
   isOpen,
   onClose,
-  onSuccess,
   board,
   postId,
 }) => {
@@ -46,9 +45,8 @@ const DeletePostModal = ({
       }).unwrap();
       setSuccess(true);
       setTimeout(() => {
-        if (onSuccess) onSuccess();
         onClose(e);
-      }, 1500);
+      }, 3000);
     } catch (err) {
       console.error("Failed to delete post:", err);
       setError(err);
@@ -86,7 +84,7 @@ const DeletePostModal = ({
         </button>
         {/* Success Message */}
         {success ? (
-          <div className="p-6">
+          <div className="p-6 my-8">
             <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
               <p className="text-sm text-green-800">Post deleted successfully.</p>
             </div>

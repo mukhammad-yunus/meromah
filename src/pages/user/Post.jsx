@@ -628,7 +628,6 @@ const Post = ({ postType }) => {
       <DeletePostModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        onSuccess={handleReload}
         board={board}
         postId={postId}
       />

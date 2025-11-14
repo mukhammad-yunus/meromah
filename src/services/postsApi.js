@@ -42,6 +42,10 @@ const PrivatePostApi = baseApi.injectEndpoints({
         url: `/boards/${board}/posts/${post}`,
         method: "DELETE",
       }),
+      invalidatesTags: (result, error, { board }) => [
+        { type: "boardPosts", id: `board-${board}` },
+        { type: "Board", id: `board-${board}` },
+      ],
     }),
     togglePostLike: builder.mutation({
       query: ({ board, post }) => ({

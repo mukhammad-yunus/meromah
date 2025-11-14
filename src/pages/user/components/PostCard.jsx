@@ -264,7 +264,6 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
     <DeletePostModal
       isOpen={isDeleteModalOpen}
       onClose={() => setIsDeleteModalOpen(false)}
-      onSuccess={handleReload}
       board={post.board.name}
       postId={post.id}
     />
