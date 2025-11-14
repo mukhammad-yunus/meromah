@@ -1,8 +1,8 @@
 import React, { useRef, useState, useMemo } from "react";
-import { FaRegComment, FaRegHeart, FaHeart, FaArrowDown } from "react-icons/fa";
+import { FaRegComment, FaRegHeart, FaHeart } from "react-icons/fa";
 import { FiShare2 } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
-import { useTogglePostLikeMutation, useDeletePostMutation } from "../../../services/postsApi";
+import { useTogglePostLikeMutation } from "../../../services/postsApi";
 import { useSelector } from "react-redux";
 import RelativeTime from '../../../components/RelativeTime'
 import { getInitials } from "../../../utils";
@@ -34,7 +34,6 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
   const postLikesCountRef = useRef(null);
   const [togglePostLike, { error: togglePostLikeError }] =
     useTogglePostLikeMutation();
-  const [deletePost, { isLoading: isDeleting }] = useDeletePostMutation();
 
   // Separate images and files based on mimetype
   const { images, files } = useMemo(() => {
@@ -91,30 +90,12 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
     setIsDeleteModalOpen(true);
   };
 
-  const handleDeleteConfirm = async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    try {
-      await deletePost({
-        board: post.board.name,
-        post: post.id,
-      }).unwrap();
-      setIsDeleteModalOpen(false);
-      // Optionally refresh the page or remove the post from the list
-      window.location.reload();
-    } catch (error) {
-      console.error("Failed to delete post:", error);
-      alert("Failed to delete post. Please try again.");
-    }
-  };
-
   const handleReport = (e) => {
     preventNavigation(e);
     setIsReportModalOpen(true);
   };
 
-  const handleEditSuccess = () => {
-    // Optionally refresh the page or update the post data
+  const handleReload = () => {
     window.location.reload();
   };
   return (
@@ -164,7 +145,7 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
               }
               role="button"
               tabIndex={0}
-              onKeyDown={(e) => e.key === "Enter" && handleBoardClick()}
+              onKeyDown={(e) => e.key === "Enter" && handleBoardClick(e, `/${getType[postType][1]}/${post.board.name}`)}
             >
               {getType[postType][0]}/{post.board.name}
             </p>
@@ -225,7 +206,7 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
         <button
           className="flex items-center gap-2 hover:text-neutral-900 p-2 -m-2 rounded transition-colors duration-200 focus:outline-none"
           title="Comments"
-          aria-label={`${post.comments} comments`}
+          aria-label={`${post.comments_count} comments`}
         >
           <FaRegComment /> {post.comments_count}
         </button>
@@ -269,7 +250,7 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
       onClose={() => setIsEditModalOpen(false)}
       post={post}
       boardName={post.board.name}
-      onSuccess={handleEditSuccess}
+      onSuccess={handleReload}
     />
 
     {/* Report Post Modal */}
@@ -283,8 +264,9 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
     <DeletePostModal
       isOpen={isDeleteModalOpen}
       onClose={() => setIsDeleteModalOpen(false)}
-      onConfirm={handleDeleteConfirm}
-      isLoading={isDeleting}
+      onSuccess={handleReload}
+      board={post.board.name}
+      postId={post.id}
     />
     </>
   );

@@ -7,11 +7,10 @@ import {
   FiMinus,
   FiChevronLeft,
 } from "react-icons/fi";
-import { FaArrowDown, FaHeart, FaRegComment, FaRegHeart } from "react-icons/fa";
+import { FaHeart, FaRegComment, FaRegHeart } from "react-icons/fa";
 import {
   useGetPostFromBoardByPostIdQuery,
   useTogglePostLikeMutation,
-  useDeletePostMutation,
 } from "../../services/postsApi";
 import {
   useCreateCommentByBoardPostMutation,
@@ -23,6 +22,7 @@ import NotFound from "../../components/NotFound";
 import ErrorDisplay from "../../components/ErrorDisplay";
 import { useSelector } from "react-redux";
 import RelativeTime from "../../components/RelativeTime";
+import { getInitials } from "../../utils";
 import PostImages from "./components/PostImages";
 import PostFiles from "./components/PostFiles";
 import ShareModal from "./components/ShareModal";
@@ -249,7 +249,6 @@ const Post = ({ postType }) => {
     useCreateCommentByBoardPostMutation();
   const [togglePostLike, { error: togglePostLikeError }] =
     useTogglePostLikeMutation();
-  const [deletePost, { isLoading: isDeleting }] = useDeletePostMutation();
   const {
     data: postData,
     isLoading: isPostLoading,
@@ -269,7 +268,6 @@ const Post = ({ postType }) => {
     postId,
     queryParams: undefined,
   });
-  console.log(postData)
   // Separate images and files based on mimetype
   const { images, files } = useMemo(() => {
     if (!postData?.data?.files || postData.data.files.length === 0) {
@@ -288,11 +286,10 @@ const Post = ({ postType }) => {
     if (isPostError) return;
     setIsPostLiked(postData.data.youLiked);
   }, [postData]);
-  //Handling the Post status for: isLoading, isError
   if (isPostLoading) return <Loading />;
   if (isPostError) {
     if (postError.status === 404) return <NotFound />;
-    return <ErrorDisplay />;
+    return <ErrorDisplay error={postError} />;
   }
   if (!postData || !commentsData) return null;
   const handleCommentSubmit = async (e, parent_id, body = "", setEmpty) => {
@@ -335,14 +332,6 @@ const Post = ({ postType }) => {
         Number(postLikesCountRef.current.textContent) - 1;
     }
   };
-  const getInitials = (name) => {
-    return name
-      .split(" ")
-      .map((word) => word[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
 
   const handleEdit = (e) => {
     e.stopPropagation();
@@ -354,29 +343,12 @@ const Post = ({ postType }) => {
     setIsDeleteModalOpen(true);
   };
 
-  const handleDeleteConfirm = async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    try {
-      await deletePost({
-        board,
-        post: postId,
-      }).unwrap();
-      setIsDeleteModalOpen(false);
-      navigate(-1);
-    } catch (error) {
-      console.error("Failed to delete post:", error);
-      alert("Failed to delete post. Please try again.");
-    }
-  };
-
   const handleReport = (e) => {
     e.stopPropagation();
     setIsReportModalOpen(true);
   };
 
-  const handleEditSuccess = () => {
-    // Refetch the post data or reload
+  const handleReload = () => {
     window.location.reload();
   };
 
@@ -639,7 +611,7 @@ const Post = ({ postType }) => {
           onClose={() => setIsEditModalOpen(false)}
           post={postData.data}
           boardName={board}
-          onSuccess={handleEditSuccess}
+          onSuccess={handleReload}
         />
       )}
 
@@ -656,8 +628,9 @@ const Post = ({ postType }) => {
       <DeletePostModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleDeleteConfirm}
-        isLoading={isDeleting}
+        onSuccess={handleReload}
+        board={board}
+        postId={postId}
       />
     </div>
   );
