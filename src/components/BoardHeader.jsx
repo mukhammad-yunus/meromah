@@ -46,7 +46,9 @@ const BoardHeader = ({ board }) => {
               board.youSubscribed
                 ? "border-red-500"
                 : "bg-primary-blue  hover:bg-blue-700 border-primary-blue hover:border-blue-700"
-            } `}
+            }
+            ${(isSubscribing||isUnsubscribing)&&"animate-pulse"}
+            `}
           >
             {board.youSubscribed ? (
               <button
