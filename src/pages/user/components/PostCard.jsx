@@ -8,6 +8,7 @@ import RelativeTime from '../../../components/RelativeTime'
 import { getInitials } from "../../../utils";
 import PostImages from "./PostImages";
 import PostFiles from "./PostFiles";
+import ShareModal from "./ShareModal";
 const preventNavigation = (e) => {
   e.preventDefault();
   e.stopPropagation();
@@ -22,6 +23,7 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
   const { isAuthenticated } = useSelector((state) => state.auth);
   const [liked, setLiked] = useState(post.youLiked);
   const [imageError, setImageError] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const postLikesCountRef = useRef(null);
   const [togglePostLike, { error: togglePostLikeError }] =
     useTogglePostLikeMutation();
@@ -71,6 +73,7 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
     }
   };
   return (
+    <>
     <Link
       to={`/board/${post.board.name}/post/${post.id}`}
       className={`block bg-white border-x border-b border-gray-200 p-4 hover:bg-primary-bg transition-colors duration-200 ${
@@ -185,14 +188,26 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
           </span>
         </button>
         <button
-          className="flex items-center gap-2 text-slate-600"
+          className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 p-2 -m-2 rounded transition-colors duration-200 focus:outline-none cursor-pointer"
           title="Share"
-          onClick={preventNavigation}
+          onClick={(e) => {
+            preventNavigation(e);
+            setIsShareModalOpen(true);
+          }}
         >
-          <FiShare2 className="hover:text-green-500 transition-colors duration-200 cursor-pointer" />
+          <FiShare2 />
         </button>
       </div>
     </Link>
+
+    {/* Share Modal */}
+    <ShareModal
+      isOpen={isShareModalOpen}
+      onClose={() => setIsShareModalOpen(false)}
+      postUrl={`${window.location.origin}/board/${post.board.name}/post/${post.id}`}
+      postTitle={post.title}
+    />
+    </>
   );
 };
 

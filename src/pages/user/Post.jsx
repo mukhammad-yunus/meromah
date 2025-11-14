@@ -24,6 +24,7 @@ import { useSelector } from "react-redux";
 import RelativeTime from "../../components/RelativeTime";
 import PostImages from "./components/PostImages";
 import PostFiles from "./components/PostFiles";
+import ShareModal from "./components/ShareModal";
 
 const getType = {
   post: ["b", "board"],
@@ -233,6 +234,7 @@ const Post = ({ postType }) => {
   const [newComment, setNewComment] = useState("");
   const [activeReplyId, setActiveReplyId] = useState(null);
   const [isPostLiked, setIsPostLiked] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const commentCountRef = useRef(null);
   const postLikesCountRef = useRef(null);
   const [postComment, { error, isLoading, isError }] =
@@ -457,7 +459,11 @@ const Post = ({ postType }) => {
                 </span>
               </button>
               <button
-                className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 transition-colors duration-200 cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsShareModalOpen(true);
+                }}
+                className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 p-2 -m-2 rounded transition-colors duration-200 focus:outline-none cursor-pointer"
                 title="Share"
               >
                 <FiShare2 />
@@ -559,6 +565,16 @@ const Post = ({ postType }) => {
           </div>
         </div>
       </div>
+
+      {/* Share Modal */}
+      {postData?.data && (
+        <ShareModal
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          postUrl={`${window.location.origin}/board/${postData.data.board.name}/post/${postData.data.id}`}
+          postTitle={postData.data.title}
+        />
+      )}
     </div>
   );
 };
