@@ -2,13 +2,17 @@ import React, { useRef, useState, useMemo } from "react";
 import { FaRegComment, FaRegHeart, FaHeart, FaArrowDown } from "react-icons/fa";
 import { FiShare2 } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
-import { useTogglePostLikeMutation } from "../../../services/postsApi";
+import { useTogglePostLikeMutation, useDeletePostMutation } from "../../../services/postsApi";
 import { useSelector } from "react-redux";
 import RelativeTime from '../../../components/RelativeTime'
 import { getInitials } from "../../../utils";
 import PostImages from "./PostImages";
 import PostFiles from "./PostFiles";
 import ShareModal from "./ShareModal";
+import PostMenu from "./PostMenu";
+import EditPostModal from "./EditPostModal";
+import ReportPostModal from "./ReportPostModal";
+import DeletePostModal from "./DeletePostModal";
 const preventNavigation = (e) => {
   e.preventDefault();
   e.stopPropagation();
@@ -24,9 +28,13 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
   const [liked, setLiked] = useState(post.youLiked);
   const [imageError, setImageError] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const postLikesCountRef = useRef(null);
   const [togglePostLike, { error: togglePostLikeError }] =
     useTogglePostLikeMutation();
+  const [deletePost, { isLoading: isDeleting }] = useDeletePostMutation();
 
   // Separate images and files based on mimetype
   const { images, files } = useMemo(() => {
@@ -72,6 +80,43 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
         Number(postLikesCountRef.current.textContent) - 1;
     }
   };
+
+  const handleEdit = (e) => {
+    preventNavigation(e);
+    setIsEditModalOpen(true);
+  };
+
+  const handleDelete = (e) => {
+    preventNavigation(e);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await deletePost({
+        board: post.board.name,
+        post: post.id,
+      }).unwrap();
+      setIsDeleteModalOpen(false);
+      // Optionally refresh the page or remove the post from the list
+      window.location.reload();
+    } catch (error) {
+      console.error("Failed to delete post:", error);
+      alert("Failed to delete post. Please try again.");
+    }
+  };
+
+  const handleReport = (e) => {
+    preventNavigation(e);
+    setIsReportModalOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    // Optionally refresh the page or update the post data
+    window.location.reload();
+  };
   return (
     <>
     <Link
@@ -81,60 +126,70 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
       } ${isLast && "rounded-b-lg"}`}
     >
       {/* Author */}
-      <div className="flex items-center gap-3 mb-3">
-        {/* For now I am not going to display avatar
-        {author.avatar ? (
-          <img
-            src={post.author.avatar}
-            alt={`${post.author.username}'s profile picture`}
-            className="w-8 h-8 rounded-full shadow shadow-neutral-200"
-            onClick={(e) =>
-              handleAuthorClick(e, `/user/${post.author.username}`)
-            }
-          />
-        ) : (
-          <div
-            className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-semibold shadow shadow-neutral-200"
-            onClick={(e) =>
-              handleAuthorClick(e, `/user/${post.author.username}`)
-            }
-          >
-            {getInitials(post.author.username)}
-          </div>
-        )} */}
-        <div
-          className="rounded-full bg-blue-500 text-white text-xs font-semibold shadow shadow-neutral-200"
-          onClick={(e) => handleAuthorClick(e, `/user/${post.author.username}`)}
-        >
-          <p className="w-10 h-10 flex items-center justify-center">
-            {getInitials(post.author.username)}
-          </p>
-        </div>
-        <div>
-          <p
-            className="w-fit text-primary-blue text-base cursor-pointer hover:underline truncate"
-            onClick={(e) =>
-              handleBoardClick(e, `/${getType[postType][1]}/${post.board.name}`)
-            }
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => e.key === "Enter" && handleBoardClick()}
-          >
-            {getType[postType][0]}/{post.board.name}
-          </p>
-          <p className="text-[12px] flex items-center gap-1">
-            <span
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-3">
+          {/* For now I am not going to display avatar
+          {author.avatar ? (
+            <img
+              src={post.author.avatar}
+              alt={`${post.author.username}'s profile picture`}
+              className="w-8 h-8 rounded-full shadow shadow-neutral-200"
               onClick={(e) =>
                 handleAuthorClick(e, `/user/${post.author.username}`)
               }
-              className="cursor-pointer hover:underline"
-              role="link"
-              tabIndex={0}
+            />
+          ) : (
+            <div
+              className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-semibold shadow shadow-neutral-200"
+              onClick={(e) =>
+                handleAuthorClick(e, `/user/${post.author.username}`)
+              }
             >
-              u/{post.author.username}
-            </span>
-            <RelativeTime date={post.created_at} className="text-neutral-500"/>
-          </p>
+              {getInitials(post.author.username)}
+            </div>
+          )} */}
+          <div
+            className="rounded-full bg-blue-500 text-white text-xs font-semibold shadow shadow-neutral-200"
+            onClick={(e) => handleAuthorClick(e, `/user/${post.author.username}`)}
+          >
+            <p className="w-10 h-10 flex items-center justify-center">
+              {getInitials(post.author.username)}
+            </p>
+          </div>
+          <div>
+            <p
+              className="w-fit text-primary-blue text-base cursor-pointer hover:underline truncate"
+              onClick={(e) =>
+                handleBoardClick(e, `/${getType[postType][1]}/${post.board.name}`)
+              }
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && handleBoardClick()}
+            >
+              {getType[postType][0]}/{post.board.name}
+            </p>
+            <p className="text-[12px] flex items-center gap-1">
+              <span
+                onClick={(e) =>
+                  handleAuthorClick(e, `/user/${post.author.username}`)
+                }
+                className="cursor-pointer hover:underline"
+                role="link"
+                tabIndex={0}
+              >
+                u/{post.author.username}
+              </span>
+              <RelativeTime date={post.created_at} className="text-neutral-500"/>
+            </p>
+          </div>
+        </div>
+        <div onClick={preventNavigation}>
+          <PostMenu
+            post={post}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onReport={handleReport}
+          />
         </div>
       </div>
 
@@ -206,6 +261,30 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
       onClose={() => setIsShareModalOpen(false)}
       postUrl={`${window.location.origin}/board/${post.board.name}/post/${post.id}`}
       postTitle={post.title}
+    />
+
+    {/* Edit Post Modal */}
+    <EditPostModal
+      isOpen={isEditModalOpen}
+      onClose={() => setIsEditModalOpen(false)}
+      post={post}
+      boardName={post.board.name}
+      onSuccess={handleEditSuccess}
+    />
+
+    {/* Report Post Modal */}
+    <ReportPostModal
+      isOpen={isReportModalOpen}
+      onClose={() => setIsReportModalOpen(false)}
+      post={post}
+    />
+
+    {/* Delete Post Modal */}
+    <DeletePostModal
+      isOpen={isDeleteModalOpen}
+      onClose={() => setIsDeleteModalOpen(false)}
+      onConfirm={handleDeleteConfirm}
+      isLoading={isDeleting}
     />
     </>
   );

@@ -11,6 +11,7 @@ import { FaArrowDown, FaHeart, FaRegComment, FaRegHeart } from "react-icons/fa";
 import {
   useGetPostFromBoardByPostIdQuery,
   useTogglePostLikeMutation,
+  useDeletePostMutation,
 } from "../../services/postsApi";
 import {
   useCreateCommentByBoardPostMutation,
@@ -25,6 +26,10 @@ import RelativeTime from "../../components/RelativeTime";
 import PostImages from "./components/PostImages";
 import PostFiles from "./components/PostFiles";
 import ShareModal from "./components/ShareModal";
+import PostMenu from "./components/PostMenu";
+import EditPostModal from "./components/EditPostModal";
+import ReportPostModal from "./components/ReportPostModal";
+import DeletePostModal from "./components/DeletePostModal";
 
 const getType = {
   post: ["b", "board"],
@@ -235,12 +240,16 @@ const Post = ({ postType }) => {
   const [activeReplyId, setActiveReplyId] = useState(null);
   const [isPostLiked, setIsPostLiked] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const commentCountRef = useRef(null);
   const postLikesCountRef = useRef(null);
   const [postComment, { error, isLoading, isError }] =
     useCreateCommentByBoardPostMutation();
   const [togglePostLike, { error: togglePostLikeError }] =
     useTogglePostLikeMutation();
+  const [deletePost, { isLoading: isDeleting }] = useDeletePostMutation();
   const {
     data: postData,
     isLoading: isPostLoading,
@@ -260,6 +269,7 @@ const Post = ({ postType }) => {
     postId,
     queryParams: undefined,
   });
+  console.log(postData)
   // Separate images and files based on mimetype
   const { images, files } = useMemo(() => {
     if (!postData?.data?.files || postData.data.files.length === 0) {
@@ -334,6 +344,42 @@ const Post = ({ postType }) => {
       .slice(0, 2);
   };
 
+  const handleEdit = (e) => {
+    e.stopPropagation();
+    setIsEditModalOpen(true);
+  };
+
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await deletePost({
+        board,
+        post: postId,
+      }).unwrap();
+      setIsDeleteModalOpen(false);
+      navigate(-1);
+    } catch (error) {
+      console.error("Failed to delete post:", error);
+      alert("Failed to delete post. Please try again.");
+    }
+  };
+
+  const handleReport = (e) => {
+    e.stopPropagation();
+    setIsReportModalOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    // Refetch the post data or reload
+    window.location.reload();
+  };
+
   return (
     <div className="min-h-screen bg-primary-bg">
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -341,70 +387,80 @@ const Post = ({ postType }) => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           {/* Post Header */}
           <div className="px-4 border-b border-gray-200">
-            <div className="flex items-center gap-2 py-4">
-              {/* Back button */}
-              <button
-                onClick={() => navigate(-1)}
-                className="flex items-center text-neutral-600 hover:text-neutral-900 transition-colors font-medium cursor-pointer"
-              >
-                <FiChevronLeft className="text-2xl" />
-              </button>
-              {/* Author */}
-              <div className="flex items-center gap-3">
-                <div
-                  className="rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white text-xs font-semibold shadow-md hover:shadow-lg transition-shadow cursor-pointer ring-2 ring-white"
-                  onClick={(e) =>
-                    handleAuthorClick(
-                      e,
-                      `/user/${postData.data.author.username}`
-                    )
-                  }
+            <div className="flex items-center justify-between gap-2 py-4">
+              <div className="flex items-center gap-2">
+                {/* Back button */}
+                <button
+                  onClick={() => navigate(-1)}
+                  className="flex items-center text-neutral-600 hover:text-neutral-900 transition-colors font-medium cursor-pointer"
                 >
-                  <p className="w-11 h-11 flex items-center justify-center rounded-full">
-                    {getInitials(postData.data.author.username)}
-                  </p>
-                </div>
-                <div>
-                  <p
-                    className="max-w-5/6 w-full text-primary-blue text-base cursor-pointer hover:underline truncate font-medium"
-                    role="button"
-                    tabIndex={0}
+                  <FiChevronLeft className="text-2xl" />
+                </button>
+                {/* Author */}
+                <div className="flex items-center gap-3">
+                  <div
+                    className="rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white text-xs font-semibold shadow-md hover:shadow-lg transition-shadow cursor-pointer ring-2 ring-white"
                     onClick={(e) =>
-                      handleBoardClick(
+                      handleAuthorClick(
                         e,
-                        `/${getType[postType][0]}/${postData.data.board.name}`
-                      )
-                    }
-                    onKeyDown={(e) =>
-                      e.key === "Enter" &&
-                      handleBoardClick(
-                        e,
-                        `/${getType[postType][0]}/${postData.data.board.name}`
+                        `/user/${postData.data.author.username}`
                       )
                     }
                   >
-                    {getType[postType][0]}/{postData.data.board.name}
-                  </p>
-                  <p className="text-[12px] flex items-center gap-1">
-                    <span
+                    <p className="w-11 h-11 flex items-center justify-center rounded-full">
+                      {getInitials(postData.data.author.username)}
+                    </p>
+                  </div>
+                  <div>
+                    <p
+                      className="max-w-5/6 w-full text-primary-blue text-base cursor-pointer hover:underline truncate font-medium"
+                      role="button"
+                      tabIndex={0}
                       onClick={(e) =>
-                        handleAuthorClick(
+                        handleBoardClick(
                           e,
-                          `/user/${postData.data.author.username}`
+                          `/${getType[postType][0]}/${postData.data.board.name}`
                         )
                       }
-                      className="cursor-pointer hover:underline"
-                      role="link"
-                      tabIndex={0}
+                      onKeyDown={(e) =>
+                        e.key === "Enter" &&
+                        handleBoardClick(
+                          e,
+                          `/${getType[postType][0]}/${postData.data.board.name}`
+                        )
+                      }
                     >
-                      u/{postData.data.author.username}
-                    </span>
-                    <RelativeTime
-                      date={postData.data.created_at}
-                      className="flex items-center text-gray-700 ml-1 "
-                    />
-                  </p>
+                      {getType[postType][0]}/{postData.data.board.name}
+                    </p>
+                    <p className="text-[12px] flex items-center gap-1">
+                      <span
+                        onClick={(e) =>
+                          handleAuthorClick(
+                            e,
+                            `/user/${postData.data.author.username}`
+                          )
+                        }
+                        className="cursor-pointer hover:underline"
+                        role="link"
+                        tabIndex={0}
+                      >
+                        u/{postData.data.author.username}
+                      </span>
+                      <RelativeTime
+                        date={postData.data.created_at}
+                        className="flex items-center text-gray-700 ml-1 "
+                      />
+                    </p>
+                  </div>
                 </div>
+              </div>
+              <div onClick={(e) => e.stopPropagation()}>
+                <PostMenu
+                  post={postData.data}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onReport={handleReport}
+                />
               </div>
             </div>
 
@@ -575,6 +631,34 @@ const Post = ({ postType }) => {
           postTitle={postData.data.title}
         />
       )}
+
+      {/* Edit Post Modal */}
+      {postData?.data && (
+        <EditPostModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          post={postData.data}
+          boardName={board}
+          onSuccess={handleEditSuccess}
+        />
+      )}
+
+      {/* Report Post Modal */}
+      {postData?.data && (
+        <ReportPostModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          post={postData.data}
+        />
+      )}
+
+      {/* Delete Post Modal */}
+      <DeletePostModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        isLoading={isDeleting}
+      />
     </div>
   );
 };
