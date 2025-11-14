@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useMemo } from "react";
 import { FaRegComment, FaRegHeart, FaHeart, FaArrowDown } from "react-icons/fa";
 import { FiShare2 } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
@@ -6,6 +6,8 @@ import { useTogglePostLikeMutation } from "../../../services/postsApi";
 import { useSelector } from "react-redux";
 import RelativeTime from '../../../components/RelativeTime'
 import { getInitials } from "../../../utils";
+import PostImages from "./PostImages";
+import PostFiles from "./PostFiles";
 const preventNavigation = (e) => {
   e.preventDefault();
   e.stopPropagation();
@@ -23,6 +25,20 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
   const postLikesCountRef = useRef(null);
   const [togglePostLike, { error: togglePostLikeError }] =
     useTogglePostLikeMutation();
+
+  // Separate images and files based on mimetype
+  const { images, files } = useMemo(() => {
+    if (!post.files || post.files.length === 0) {
+      return { images: [], files: [] };
+    }
+    const imageFiles = post.files.filter((file) =>
+      file.mimetype.startsWith("image/")
+    );
+    const nonImageFiles = post.files.filter(
+      (file) => !file.mimetype.startsWith("image/")
+    );
+    return { images: imageFiles, files: nonImageFiles };
+  }, [post.files]);
 
   const handleAuthorClick = (e, path) => {
     preventNavigation(e);
@@ -133,27 +149,16 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
             Start
           </button>
         </div>
-      ) : postType === "library" ? (
-        <div className="flex flex-col gap-3 mb-3">
-          <p>{post.title}</p>
-          <div className="flex items-center gap-3 border-l-4 border-green-500 bg-green-50 p-3 rounded hover:bg-green-100 transition-colors duration-200 cursor-pointer">
-            <div className="bg-blue-500 text-white rounded-full p-3 text-xl flex-shrink-0">
-              <FaArrowDown />
-            </div>
-            <div className="flex flex-col text-xs gap-0.5 text-neutral-500">
-              <p className="text-neutral-900 text-sm font-medium">
-                post.file?.name
-              </p>
-              <p>{/*post.files?.size */ "3.5mb"}</p>
-            </div>
-          </div>
-        </div>
       ) : (
         <div className="mb-3">
           <div>
             <p className="mb-1 font-medium">{post.title}</p>
             <p className="text-sm text-neutral-600">{post.body}</p>
           </div>
+          {/* Display images if available */}
+          {images.length > 0 && <PostImages images={images} />}
+          {/* Display files if available */}
+          {files.length > 0 && <PostFiles files={files} />}
         </div>
       )}
 
