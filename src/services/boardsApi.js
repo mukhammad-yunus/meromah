@@ -48,10 +48,12 @@ const PublicBoardApi = baseApi.injectEndpoints({
     }),
     getBoard: builder.query({
       query: (board) => `/boards/${board}`,
+      providesTags: (result, error, board) => [
+        { type: "Board", id: `board-${board}` },
+      ],
     }),
   }),
 });
-
 
 export const {
   useUpdateBoardMutation,
@@ -60,7 +62,4 @@ export const {
   useCheckBoardNameIsAvailableQuery,
 } = PrivateBoardApi;
 
-export const {
-  useGetBoardsQuery,
-  useGetBoardQuery
-} = PublicBoardApi;
+export const { useGetBoardsQuery, useGetBoardQuery } = PublicBoardApi;

@@ -33,6 +33,7 @@ const PrivatePostApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: (result, error, { board }) => [
         { type: "boardPosts", id: `board-${board}` },
+        { type: "Board", id: `board-${board}` },
       ],
 
     }),

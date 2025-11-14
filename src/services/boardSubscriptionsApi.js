@@ -13,6 +13,9 @@ const PrivateBoardSubscriptionsApi = baseApi.injectEndpoints({
         url: `/boards/${board}/subscribe`,
         method: "POST",
       }),
+      invalidatesTags: (result, error, { board }) => [
+        { type: "Board", id: `board-${board}` },
+      ]
     }),
 
     // DELETE /boards/{board}/subscribe - Unsubscribe from a board
@@ -21,6 +24,9 @@ const PrivateBoardSubscriptionsApi = baseApi.injectEndpoints({
         url: `/boards/${board}/subscribe`,
         method: "DELETE",
       }),
+      invalidatesTags: (result, error, { board }) => [
+        { type: "Board", id: `board-${board}` },
+      ]
     }),
 
     // GET /boards/{board}/subscribers - Author-only list
