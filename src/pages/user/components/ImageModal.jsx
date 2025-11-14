@@ -5,6 +5,7 @@ import {
   FaChevronLeft,
   FaChevronRight,
 } from "react-icons/fa";
+import { getFileUrl, handleDownload } from "../../../utils";
 const ImageModal = ({ image, images, isOpen, onClose }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -66,32 +67,6 @@ const ImageModal = ({ image, images, isOpen, onClose }) => {
   }, [isOpen, images, onClose, handlePrevious, handleNext]);
 
   if (!isOpen || !image) return null;
-
-  const getFileUrl = (hash) => {
-    const API_BASE_URL = import.meta.env.DEV
-      ? "/api"
-      : import.meta.env.VITE_API_BASE_URL || "/api";
-    return `${API_BASE_URL}/files/${hash}`;
-  };
-
-  const handleDownload = async (e) => {
-    e.stopPropagation();
-    try {
-      const blob = await downloadFile(currentImage.hash).unwrap();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `image-${currentImage.hash}.${
-        currentImage.mimetype.split("/")[1]
-      }`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Failed to download image:", error);
-    }
-  };
 
   return (
     <div
