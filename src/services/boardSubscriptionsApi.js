@@ -15,6 +15,7 @@ const PrivateBoardSubscriptionsApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: (result, error, { board }) => [
         { type: "Board", id: `board-${board}` },
+        { type: "Board", id: 'board-subscriptions' }
       ]
     }),
 
@@ -26,6 +27,7 @@ const PrivateBoardSubscriptionsApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: (result, error, { board }) => [
         { type: "Board", id: `board-${board}` },
+        { type: "Board", id: 'board-subscriptions' }
       ]
     }),
 
@@ -41,6 +43,7 @@ const PrivateBoardSubscriptionsApi = baseApi.injectEndpoints({
       query: () => ({
         url: `/me/board-subscriptions`,
       }),
+      providesTags: [{ type: "Board", id: 'board-subscriptions' }]
     }),
 
     // GET /board-subscriptions/all - Admin list with filters
