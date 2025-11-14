@@ -6,7 +6,6 @@ import {
   FaFileExcel,
   FaFileArchive,
 } from "react-icons/fa";
-import { useDownloadFileMutation } from "../../../services/fileApi";
 import { handleDownload } from "../../../utils";
 
 const PostFiles = ({ files }) => {
