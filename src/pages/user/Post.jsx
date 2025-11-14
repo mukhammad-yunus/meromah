@@ -286,11 +286,11 @@ const Post = ({ postType }) => {
   const handleCommentSubmit = async (e, parent_id, body = "", setEmpty) => {
     e.preventDefault();
     if (body.trim()) {
-      const res = await postComment({
+      await postComment({
         board,
         post: postId,
         bodyData: { parent_id, body },
-      });
+      }).unwrap();
       //It gets the textContent of the comment count and adds 1 when the comment submission is OK
       commentCountRef.current.textContent =
         Number(commentCountRef.current.textContent) + 1;
