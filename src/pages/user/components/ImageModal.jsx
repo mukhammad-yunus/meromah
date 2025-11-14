@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
   FaTimes,
   FaDownload,
@@ -8,7 +8,7 @@ import {
 import { getFileUrl, handleDownload } from "../../../utils";
 const ImageModal = ({ image, images, isOpen, onClose }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-
+const downloadRef = useRef(null)
   const currentImage =
     images && images.length > 0 ? images[currentIndex] : image;
   const hasMultipleImages = images && images.length > 1;
@@ -85,10 +85,10 @@ const ImageModal = ({ image, images, isOpen, onClose }) => {
 
         {/* Download button */}
         <button
-          onClick={handleDownload}
-          disabled={isDownloading}
+          onClick={(e)=> handleDownload(image, e, downloadRef.current)}
           className="absolute top-4 left-4 z-10 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white disabled:opacity-50 cursor-pointer" 
           aria-label="Download image"
+          ref={downloadRef}
         >
           <FaDownload className="w-5 h-5" />
         </button>
