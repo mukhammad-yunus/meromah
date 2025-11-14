@@ -1,18 +1,12 @@
 import React, { useState } from "react";
 import ImageModal from "./ImageModal";
+import { getFileUrl } from "../../../utils";
 
 const PostImages = ({ images }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (!images || images.length === 0) return null;
-
-  const getFileUrl = (hash) => {
-    const API_BASE_URL = import.meta.env.DEV
-      ? "/api"
-      : import.meta.env.VITE_API_BASE_URL || "/api";
-    return `${API_BASE_URL}/files/${hash}`;
-  };
 
   const handleImageClick = (image, e) => {
     e.preventDefault();
