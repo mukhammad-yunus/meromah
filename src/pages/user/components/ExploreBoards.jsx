@@ -1,13 +1,16 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useGetBoardsQuery } from "../../../services/boardsApi";
 import RelativeTime from "../../../components/RelativeTime";
 import {
   useSubscribeToBoardMutation,
   useUnsubscribeFromBoardMutation,
 } from "../../../services/boardSubscriptionsApi";
+import { useSelector } from "react-redux";
 
 const ExploreBoards = () => {
   const { data: result, isLoading, error } = useGetBoardsQuery();
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
   const [subscribeToBoard, { isLoading: isSubscribing }] =
     useSubscribeToBoardMutation();
   const [unsubscribeFromBoard, { isLoading: isUnsubscribing }] =
@@ -15,11 +18,19 @@ const ExploreBoards = () => {
   const onSubscribe = async (e, board) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
     await subscribeToBoard({ board: board.name }).unwrap();
   };
   const onUnSubscribe = async (e, board) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
     await unsubscribeFromBoard({ board: board.name }).unwrap();
   };
   // Handle loading state

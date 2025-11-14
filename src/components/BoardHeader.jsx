@@ -3,22 +3,33 @@ import { FaUsers, FaFileAlt, FaHeart } from "react-icons/fa";
 import { FiChevronDown } from "react-icons/fi";
 import { LiaCrownSolid } from "react-icons/lia";
 import RelativeTime from "./RelativeTime";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   useSubscribeToBoardMutation,
   useUnsubscribeFromBoardMutation,
 } from "../services/boardSubscriptionsApi";
+import { useSelector } from "react-redux";
 
 const BoardHeader = ({ board }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
   const [subscribeToBoard, { isLoading: isSubscribing }] =
     useSubscribeToBoardMutation();
   const [unsubscribeFromBoard, { isLoading: isUnsubscribing }] =
     useUnsubscribeFromBoardMutation();
   const onSubscribe = async () => {
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
     await subscribeToBoard({ board: board.name }).unwrap();
   };
   const onUnSubscribe = async () => {
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
     await unsubscribeFromBoard({ board: board.name }).unwrap();
   };
   return (
@@ -47,7 +58,7 @@ const BoardHeader = ({ board }) => {
                 ? "border-red-500"
                 : "bg-primary-blue  hover:bg-blue-700 border-primary-blue hover:border-blue-700"
             }
-            ${(isSubscribing||isUnsubscribing)&&"animate-pulse"}
+            ${(isSubscribing || isUnsubscribing) && "animate-pulse"}
             `}
           >
             {board.youSubscribed ? (
