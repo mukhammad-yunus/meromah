@@ -5,11 +5,7 @@ import {
   FaChevronLeft,
   FaChevronRight,
 } from "react-icons/fa";
-import { useDownloadFileMutation } from "../../../services/fileApi";
-
 const ImageModal = ({ image, images, isOpen, onClose }) => {
-  const [downloadFile, { isLoading: isDownloading }] =
-    useDownloadFileMutation();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const currentImage =

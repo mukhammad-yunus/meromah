@@ -156,13 +156,6 @@ const FileApi = baseApi.injectEndpoints({
         };
       },
     }),
-    downloadFile: builder.mutation({
-      query: (hashId) => ({
-        url: `/files/${hashId}`,
-        method: "GET",
-        responseHandler: (response) => response.blob(),
-      }),
-    }),
   }),
   overrideExisting: true,
 });
@@ -174,5 +167,4 @@ export const {
   useUploadTestFilesMutation,
   useUploadBoardBannerFilesMutation,
   useUploadDescBannerFilesMutation,
-  useDownloadFileMutation,
 } = FileApi;
