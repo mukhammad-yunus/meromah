@@ -10,7 +10,7 @@ const SuccessModal = ({ onClose, header, message }) => {
       onClose();
       // Redirect to home after modal closes
       navigate("/home");
-    }, 3000);
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, [onClose]);
