@@ -53,6 +53,9 @@ const PublicBoardApi = baseApi.injectEndpoints({
         { type: "Board", id: `board-${board}` },
       ],
     }),
+    searchBoards: builder.query({
+      query: (queryParams) => `/boards/search${toQueryString(queryParams)}`,
+    }),
   }),
 });
 
@@ -63,4 +66,4 @@ export const {
   useCheckBoardNameIsAvailableQuery,
 } = PrivateBoardApi;
 
-export const { useGetBoardsQuery, useGetBoardQuery } = PublicBoardApi;
+export const { useGetBoardsQuery, useGetBoardQuery, useSearchBoardsQuery } = PublicBoardApi;
