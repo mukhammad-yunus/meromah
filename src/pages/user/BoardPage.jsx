@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import PostCard from "./components/PostCard";
 import BoardHeader from "../../components/BoardHeader";
@@ -12,13 +12,10 @@ import Loading from "../../components/Loading";
 import NotFound from "../../components/NotFound";
 import ErrorDisplay from "../../components/ErrorDisplay";
 import { useGetBoardQuery } from "../../services/boardsApi";
-import { FaRegFileAlt, FaFileAlt, FaImage } from "react-icons/fa";
-import { FiX } from "react-icons/fi";
+import { FaRegFileAlt } from "react-icons/fa";
 import { IoMdAttach } from "react-icons/io";
-import { getFile, getImage } from "../../utils";
-import { useUploadPostFilesMutation } from "../../services/fileApi";
-import { IoReload } from "react-icons/io5";
 import useSortBy from "../../hooks/useSortBy";
+import CreatePost from "./components/CreatePost";
 
 const BoardPage = () => {
   const { boardId } = useParams();
@@ -42,14 +39,6 @@ const BoardPage = () => {
 
   // Create Post State
   const [showCreatePost, setShowCreatePost] = useState(false);
-  const [postTitle, setPostTitle] = useState("");
-  const [postBody, setPostBody] = useState("");
-  const [uploadedImages, setUploadedImages] = useState([]);
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  const imageInputRef = useRef(null);
-  const fileInputRef = useRef(null);
-  const uploadingIds = useRef(new Set());
-  const fileHashes = useRef(new Array());
 
   // Use custom hook for sorting
   const { sortBy, SortByComponent, emptyStateMessages } = useSortBy(
@@ -68,8 +57,8 @@ const BoardPage = () => {
     isLoading: isPostLoading,
     isError: isPostError,
   } = useGetPostsForBoardQuery({ board: boardId, queryParams: sortBy });
-  const [uploadPostFiles] = useUploadPostFilesMutation();
   const [createPost] = useCreatePostMutation();
+  
   useEffect(() => {
     if (!boardId || !pathname || boardData === undefined) return;
     dispatch(
@@ -80,122 +69,10 @@ const BoardPage = () => {
       })
     );
   }, [boardId, pathname, boardData, dispatch]);
-  useEffect(() => {
-    handleUpload(uploadedFiles, setUploadedFiles);
-  }, [uploadedFiles]);
-  useEffect(() => {
-    handleUpload(uploadedImages, setUploadedImages);
-  }, [uploadedImages]);
-  const handleUpload = (upload, setUpload) => {
-    upload.forEach(async (item) => {
-      if (item.isUploading && !uploadingIds.current.has(item.id)) {
-        uploadingIds.current.add(item.id);
-        try {
-          const res = await uploadPostFiles([
-            { file: item.file, id: item.id },
-          ]).unwrap();
-          if (res.files && Array.isArray(res.files)) {
-            res.files.forEach((fileObj) => {
-              fileHashes.current.push(fileObj);
-            });
-          }
-          setUpload((prev) =>
-            prev.map((i) =>
-              i.id === item.id ? { ...i, isUploading: false } : i
-            )
-          );
-        } catch (err) {
-          setUpload((prev) =>
-            prev.map((i) =>
-              i.id === item.id ? { ...i, isUploading: false, error: true } : i
-            )
-          );
-        } finally {
-          uploadingIds.current.delete(item.id);
-        }
-      }
-    });
-  };
-  const handleReUpload = async (item, index, setUpload) => {
-    try {
-      const res = await uploadPostFiles([
-        { file: item.file, id: item.id },
-      ]).unwrap();
-      if (res.files && Array.isArray(res.files)) {
-        res.files.forEach((fileObj) => {
-          fileHashes.current.push(fileObj);
-        });
-      }
-      setUpload((prev) => {
-        const element = prev[index];
-        prev[index] = { ...element, error: false };
-        return prev;
-      });
-    } catch (err) {
-      setUpload((prev) => {
-        const element = prev[index];
-        prev[index] = { ...element, error: true };
-        return prev;
-      });
-    }
-  };
-  // Handle file uploads
-  const onImageUpload = (e) => {
-    const newImages = getImage(e);
-    setUploadedImages((prev) => [...prev, ...newImages]);
-  };
 
-  const onFileUpload = (e) => {
-    const newFiles = getFile(e);
-    setUploadedFiles((prev) => [...prev, ...newFiles]);
-  };
 
-  const removeImage = (imageId) => {
-    const imageToRemove = uploadedImages.find((img) => img.id === imageId);
-    if (imageToRemove) {
-      URL.revokeObjectURL(imageToRemove.url);
-    }
-    fileHashes.current = fileHashes.current.filter((obj) => {
-      const key = Object.keys(obj)[0];
-      return key !== String(imageId);
-    });
-
-    setUploadedImages((prev) => prev.filter((img) => img.id !== imageId));
-  };
-
-  const removeFile = (fileId) => {
-    fileHashes.current = fileHashes.current.filter(obj => {
-    const key = Object.keys(obj)[0];
-    return key !== String(fileId);
-  });
-    setUploadedFiles((prev) => prev.filter((file) => file.id !== fileId));
-  };
-
-  // Handle post submission
-  const handlePostSubmit = async (e) => {
-    const file_hashes = fileHashes.current.map(
-      (hash) => Object.values(hash)[0]
-    );
-    e.preventDefault();
-    const postData = {
-      title: postTitle,
-      body: postBody,
-      file_hashes,
-    };
-
-    await createPost({ board: boardId, postData });
-    // Reset form
-    onResetPostForm();
-  };
   const onResetPostForm = () => {
-    setPostTitle("");
-    setPostBody("");
-    uploadedImages.forEach((img) => URL.revokeObjectURL(img.url));
-    setUploadedImages([]);
-    setUploadedFiles([]);
     setShowCreatePost(false);
-    uploadingIds.current.clear();
-    fileHashes.current = [];
   };
 
   const onShowCreatePost = () => {
@@ -251,166 +128,10 @@ const BoardPage = () => {
               </button>
             </div>
           ) : isAuthenticated ? (
-            <form onSubmit={handlePostSubmit} className="p-4 space-y-4">
-              <div>
-                <input
-                  type="text"
-                  value={postTitle}
-                  onChange={(e) => setPostTitle(e.target.value)}
-                  placeholder="Post title"
-                  className="w-full px-3 py-2 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue/20 focus:border-primary-blue transition-colors"
-                />
-              </div>
-
-              <div>
-                <textarea
-                  value={postBody}
-                  onChange={(e) => setPostBody(e.target.value)}
-                  placeholder="What's on your mind?"
-                  rows={4}
-                  className="w-full px-3 py-2 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue/20 focus:border-primary-blue transition-colors resize-y"
-                />
-              </div>
-
-              {/* Attachment Buttons */}
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => imageInputRef.current?.click()}
-                  className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors"
-                >
-                  <FaImage className="w-4 h-4" />
-                  <span>Image</span>
-                </button>
-                <input
-                  ref={imageInputRef}
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={onImageUpload}
-                  className="hidden"
-                />
-
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors"
-                >
-                  <IoMdAttach className="w-4 h-4" />
-                  <span>File</span>
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  onChange={onFileUpload}
-                  className="hidden"
-                />
-              </div>
-
-              {/* Image Previews */}
-              {uploadedImages.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {uploadedImages.map((image, i) => (
-                    <div
-                      key={image.id}
-                      className={`relative group rounded-lg overflow-hidden border border-neutral-200 ${
-                        image.error && "ring-2 ring-red-500"
-                      }`}
-                    >
-                      <img
-                        src={image.url}
-                        alt={image.name}
-                        className="w-full h-32 object-cover"
-                      />
-                      {image.error ? (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleReUpload(image, i, setUploadedImages)
-                          }
-                          className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full"
-                        >
-                          <IoReload className="w-7 h-7" />
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => removeImage(image.id)}
-                          className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full md:opacity-0 md:group-hover:opacity-100 transition-opacity"
-                        >
-                          <FiX className="w-4 h-4" />
-                        </button>
-                      )}
-                      <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-2 truncate">
-                        {image.name}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* File Previews */}
-              {uploadedFiles.length > 0 && (
-                <div className="space-y-2">
-                  {uploadedFiles.map((file, i) => (
-                    <div
-                      key={file.id}
-                      className={`flex items-center justify-between p-2 bg-neutral-50 rounded-lg border border-neutral-200 ${
-                        file.isUploading && "animate-pulse"
-                      } ${file.error && "ring-2 ring-red-500"}`}
-                    >
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <FaFileAlt className="w-4 h-4 text-neutral-400 flex-shrink-0" />
-                        <span className="text-sm text-neutral-700 truncate">
-                          {file.name}
-                        </span>
-                        <span className="block text-xs text-neutral-500 whitespace-nowrap">
-                          {(file.size / 1024).toFixed(1)} KB
-                        </span>
-                      </div>
-                      {file.error ? (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleReUpload(file, i, setUploadedFiles)
-                          }
-                          className="p-1 text-red-500 hover:text-red-700 transition-colors cursor-pointer"
-                        >
-                          <IoReload className="w-4 h-4" />
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => removeFile(file.id)}
-                          className="p-1 text-red-500 hover:text-red-700 transition-colors cursor-pointer"
-                        >
-                          <FiX className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-neutral-200">
-                <button
-                  type="button"
-                  onClick={onResetPostForm}
-                  className="px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={!postTitle.trim() || !postBody.trim()}
-                  className="px-4 py-2 text-sm bg-primary-blue text-white rounded-lg hover:bg-primary-blue/90 disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors font-medium"
-                >
-                  Post
-                </button>
-              </div>
-            </form>
+            <CreatePost
+              boardId={boardId}
+              onCancel={onResetPostForm}
+            />
           ) : null}
         </div>
 
