@@ -24,6 +24,9 @@ const PrivatePostApi = baseApi.injectEndpoints({
         method: "PUT",
         body: postData,
       }),
+      invalidatesTags: (result, error, { board }) => [
+        { type: "boardPosts", id: `board-${board}` },
+      ],
     }),
     createPost: builder.mutation({
       query: ({ board, postData }) => ({
