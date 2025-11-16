@@ -12,6 +12,14 @@ const EditPostModal = ({ isOpen, onClose, post, boardName }) => {
       setTitle(post.title || "");
       setBody(post.body || "");
     }
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
   }, [isOpen, post]);
 
   useEffect(() => {
@@ -66,7 +74,7 @@ const EditPostModal = ({ isOpen, onClose, post, boardName }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 backdrop-blur-sm cursor-default"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-sm cursor-default"
       onClick={handleClose}
     >
       <div
@@ -86,7 +94,9 @@ const EditPostModal = ({ isOpen, onClose, post, boardName }) => {
         {/* Modal Header */}
         <div className="px-6 pt-6 pb-4 border-b border-gray-200">
           <h2 className="text-xl font-bold text-gray-900">Edit post</h2>
-          <p className="text-sm text-gray-500 mt-1">Update your post title and content</p>
+          <p className="text-sm text-gray-500 mt-1">
+            Update your post title and content
+          </p>
         </div>
 
         {/* Form */}
@@ -119,7 +129,6 @@ const EditPostModal = ({ isOpen, onClose, post, boardName }) => {
                 required
                 disabled={isLoading}
                 maxLength={1000}
-                
               />
               <div className="flex justify-between items-center">
                 <span className="text-xs text-gray-500">
@@ -154,4 +163,3 @@ const EditPostModal = ({ isOpen, onClose, post, boardName }) => {
 };
 
 export default EditPostModal;
-
