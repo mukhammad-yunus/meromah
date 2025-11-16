@@ -11,11 +11,26 @@ import {
 import Loading from "../../components/Loading";
 import NotFound from "../../components/NotFound";
 import ErrorDisplay from "../../components/ErrorDisplay";
+import Toast from "../../components/Toast";
 import { useGetBoardQuery } from "../../services/boardsApi";
 import { FaRegFileAlt } from "react-icons/fa";
 import { IoMdAttach } from "react-icons/io";
 import useSortBy from "../../hooks/useSortBy";
 import CreatePost from "./components/CreatePost";
+
+// Helper function to extract error message from API error response
+const extractErrorMessage = (error) => {
+  if (!error) return "An unexpected error occurred. Please try again.";
+  if (typeof error === "string") return error;
+  return (
+    error.data?.message ??
+    error.data?.error ??
+    error.message ??
+    error.error ??
+    error.response?.data?.message ??
+    "An unexpected error occurred. Please try again."
+  );
+};
 
 const BoardPage = () => {
   const { boardId } = useParams();
@@ -39,6 +54,7 @@ const BoardPage = () => {
 
   // Create Post State
   const [showCreatePost, setShowCreatePost] = useState(false);
+  const [toast, setToast] = useState(null);
 
   // Use custom hook for sorting
   const { sortBy, SortByComponent, emptyStateMessages } = useSortBy(
@@ -84,7 +100,7 @@ const BoardPage = () => {
     const statusBoard = boardError?.status;
     const statusPost = postError?.status;
     if (statusBoard === 404 || statusPost === 404) return <NotFound />;
-    return <ErrorDisplay />;
+    return <ErrorDisplay error={boardError || postError} />;
   }
 
   if (!boardData || !postData) return null;
@@ -129,6 +145,12 @@ const BoardPage = () => {
             <CreatePost
               boardId={boardId}
               onCancel={()=>setShowCreatePost(false)}
+              onError={(errorMessage) => {
+                setToast({
+                  message: errorMessage,
+                  type: "error",
+                });
+              }}
             />
           ) : null}
         </div>
@@ -172,6 +194,15 @@ const BoardPage = () => {
           )}
         </div>
       </div>
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 };

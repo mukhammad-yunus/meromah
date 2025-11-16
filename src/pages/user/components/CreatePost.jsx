@@ -9,7 +9,21 @@ import { useCreatePostMutation } from "../../../services/postsApi";
 import BoardSelection from "./BoardSelection";
 import { useNavigate } from "react-router-dom";
 
-const CreatePost = ({ boardId, onCancel = undefined }) => {
+// Helper function to extract error message from API error response
+const extractErrorMessage = (error) => {
+  if (!error) return "An unexpected error occurred. Please try again.";
+  if (typeof error === "string") return error;
+  return (
+    error.data?.message ??
+    error.data?.error ??
+    error.message ??
+    error.error ??
+    error.response?.data?.message ??
+    "An unexpected error occurred. Please try again."
+  );
+};
+
+const CreatePost = ({ boardId, onCancel = undefined, onError }) => {
   const navigate = useNavigate();
   const postTitleRef = useRef(null);
   const postBodyRef = useRef(null);
@@ -157,10 +171,16 @@ const CreatePost = ({ boardId, onCancel = undefined }) => {
       file_hashes,
     };
 
-    await createPost({ board: targetBoardId, postData });
-
-    // Reset form
-    onResetPostForm();
+    try {
+      await createPost({ board: targetBoardId, postData }).unwrap();
+      // Reset form
+      onResetPostForm();
+    } catch (error) {
+      const errorMessage = extractErrorMessage(error);
+      if (onError) {
+        onError(errorMessage);
+      }
+    }
   };
 
   const onResetPostForm = () => {

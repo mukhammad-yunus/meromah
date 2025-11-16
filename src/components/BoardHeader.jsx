@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaUsers, FaFileAlt, FaHeart } from "react-icons/fa";
 import { FiChevronDown } from "react-icons/fi";
 import { LiaCrownSolid } from "react-icons/lia";
@@ -9,28 +9,72 @@ import {
   useUnsubscribeFromBoardMutation,
 } from "../services/boardSubscriptionsApi";
 import { useSelector } from "react-redux";
+import Toast from "./Toast";
+
+// Helper function to extract error message from API error response
+const extractErrorMessage = (error) => {
+  if (!error) return "An unexpected error occurred. Please try again.";
+  if (typeof error === "string") return error;
+  return (
+    error.data?.message ??
+    error.data?.error ??
+    error.message ??
+    error.error ??
+    error.response?.data?.message ??
+    "An unexpected error occurred. Please try again."
+  );
+};
 
 const BoardHeader = ({ board }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [toast, setToast] = useState(null);
   const { isAuthenticated } = useSelector((state) => state.auth);
   const navigate = useNavigate();
-  const [subscribeToBoard, { isLoading: isSubscribing }] =
+  const [subscribeToBoard, { isLoading: isSubscribing, error: subscribeError }] =
     useSubscribeToBoardMutation();
-  const [unsubscribeFromBoard, { isLoading: isUnsubscribing }] =
+  const [unsubscribeFromBoard, { isLoading: isUnsubscribing, error: unsubscribeError }] =
     useUnsubscribeFromBoardMutation();
+
+  // Handle subscription errors
+  useEffect(() => {
+    if (subscribeError) {
+      setToast({
+        message: extractErrorMessage(subscribeError),
+        type: "error",
+      });
+    }
+  }, [subscribeError]);
+
+  useEffect(() => {
+    if (unsubscribeError) {
+      setToast({
+        message: extractErrorMessage(unsubscribeError),
+        type: "error",
+      });
+    }
+  }, [unsubscribeError]);
+
   const onSubscribe = async () => {
     if (!isAuthenticated) {
       navigate("/login");
       return;
     }
-    await subscribeToBoard({ board: board.name }).unwrap();
+    try {
+      await subscribeToBoard({ board: board.name }).unwrap();
+    } catch (error) {
+      // Error will be handled by useEffect above
+    }
   };
   const onUnSubscribe = async () => {
     if (!isAuthenticated) {
       navigate("/login");
       return;
     }
-    await unsubscribeFromBoard({ board: board.name }).unwrap();
+    try {
+      await unsubscribeFromBoard({ board: board.name }).unwrap();
+    } catch (error) {
+      // Error will be handled by useEffect above
+    }
   };
   return (
     <div className="bg-white rounded-xl shadow-sm border border-neutral-200 mb-6 overflow-hidden">
@@ -146,6 +190,15 @@ const BoardHeader = ({ board }) => {
           </div>
         </div>
       </div>
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 };
