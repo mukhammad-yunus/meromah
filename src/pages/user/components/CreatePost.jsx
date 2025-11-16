@@ -22,7 +22,6 @@ const CreatePost = ({ boardId, onCancel = undefined }) => {
   const [isFormValid, setIsFormValid] = useState(false);
   const [boardSearchQuery, setBoardSearchQuery] = useState("");
   const [showBoardDropdown, setShowBoardDropdown] = useState(false);
-  const [selectedBoard, setSelectedBoard] = useState(null);
   const uploadingIds = useRef(new Set());
   const fileHashes = useRef(new Array());
 
@@ -165,14 +164,12 @@ const CreatePost = ({ boardId, onCancel = undefined }) => {
 
     // Reset selection if user clears the input
     if (query.trim().length === 0) {
-      setSelectedBoard(null);
       selectedBoardNameRef.current = null;
       checkFormValidity();
     }
   };
 
   const handleSelectBoard = (board) => {
-    setSelectedBoard(board);
     selectedBoardNameRef.current = board.name;
     setBoardSearchQuery(`b/${board.name}`);
     setShowBoardDropdown(false);
@@ -214,7 +211,6 @@ const CreatePost = ({ boardId, onCancel = undefined }) => {
     setUploadedFiles([]);
     setIsFormValid(false);
     setBoardSearchQuery("");
-    setSelectedBoard(null);
     setShowBoardDropdown(false);
     selectedBoardNameRef.current = null;
     uploadingIds.current.clear();
