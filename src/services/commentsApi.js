@@ -50,12 +50,18 @@ const commentsApi = baseApi.injectEndpoints({
         method: "PUT",
         body: bodyData,
       }),
+      invalidatesTags: (result, error, { board, post }) => [
+        { type: "Comments", id: `${board}-${post}` },
+      ],
     }),
     deleteCommentByBoardPost: builder.mutation({
       query: ({ board, post, comment }) => ({
         url: `/boards/${board}/posts/${post}/comments/${comment}`,
         method: "DELETE",
       }),
+      invalidatesTags: (result, error, { board, post }) => [
+        { type: "Comments", id: `${board}-${post}` },
+      ],
     }),
     getCommentLikesByCommentId: builder.query({
       query: ({ comment }) => ({
