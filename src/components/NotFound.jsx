@@ -1,9 +1,7 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FiAlertTriangle, FiHome, FiArrowLeft } from 'react-icons/fi';
+import { FiAlertTriangle } from 'react-icons/fi';
 
 const NotFound = () => {
-  const navigate = useNavigate();
 
   return (
     <div className="relative flex min-h-[60vh] items-center justify-center">
@@ -21,5 +19,6 @@ const NotFound = () => {
 };
 
 export default NotFound;
+
 
 
