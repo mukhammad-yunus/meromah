@@ -70,11 +70,6 @@ const BoardPage = () => {
     );
   }, [boardId, pathname, boardData, dispatch]);
 
-
-  const onResetPostForm = () => {
-    setShowCreatePost(false);
-  };
-
   const onShowCreatePost = () => {
     if (!isAuthenticated) return navigate("/login");
     setShowCreatePost(true);
@@ -130,7 +125,7 @@ const BoardPage = () => {
           ) : isAuthenticated ? (
             <CreatePost
               boardId={boardId}
-              onCancel={onResetPostForm}
+              onCancel={()=>setShowCreatePost(false)}
             />
           ) : null}
         </div>

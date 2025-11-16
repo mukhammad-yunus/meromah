@@ -178,8 +178,9 @@ const CreatePost = ({ boardId, onCancel = undefined }) => {
     }
     if (onCancel) {
       onCancel();
+    } else if (!(boardId && onCancel)) {
+      navigate("/home");
     }
-    if (!boardId) navigate("/home");
   };
 
   return (
