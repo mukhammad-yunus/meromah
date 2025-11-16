@@ -20,6 +20,7 @@ import {
 import Loading from "../../components/Loading";
 import NotFound from "../../components/NotFound";
 import ErrorDisplay from "../../components/ErrorDisplay";
+import Toast from "../../components/Toast";
 import { useSelector } from "react-redux";
 import RelativeTime from "../../components/RelativeTime";
 import { getInitials } from "../../utils";
@@ -42,6 +43,20 @@ const getType = {
   library: ["b", "board"],
 };
 
+// Helper function to extract error message from API error response
+const extractErrorMessage = (error) => {
+  if (!error) return "An unexpected error occurred. Please try again.";
+  if (typeof error === "string") return error;
+  return (
+    error.data?.message ??
+    error.data?.error ??
+    error.message ??
+    error.error ??
+    error.response?.data?.message ??
+    "An unexpected error occurred. Please try again."
+  );
+};
+
 const Comment = ({
   comment,
   getInitials,
@@ -54,6 +69,7 @@ const Comment = ({
   onEditComment,
   onDeleteComment,
   onReportComment,
+  onError,
 }) => {
   const { isAuthenticated } = useSelector((state) => state.auth);
   const navigate = useNavigate();
@@ -69,10 +85,24 @@ const Comment = ({
     setEditText(comment.body);
   }, [comment.id, comment.body]);
   const commentLikeCountRef = useRef(null);
-  const [toggleCommentLike] = useToggleCommentLikeByCommentIdMutation();
-  const [updateComment, { isLoading: isUpdating }] =
+  const [toggleCommentLike, { error: toggleCommentLikeError }] =
+    useToggleCommentLikeByCommentIdMutation();
+  const [updateComment, { isLoading: isUpdating, error: updateCommentError }] =
     useUpdateCommentByBoardPostMutation();
   const isReplying = activeReplyId === comment.id;
+
+  // Handle comment mutation errors
+  useEffect(() => {
+    if (toggleCommentLikeError && onError) {
+      onError(extractErrorMessage(toggleCommentLikeError));
+    }
+  }, [toggleCommentLikeError, onError]);
+
+  useEffect(() => {
+    if (updateCommentError && onError) {
+      onError(extractErrorMessage(updateCommentError));
+    }
+  }, [updateCommentError, onError]);
 
   const handleReplyClick = () => {
     if (isReplying) {
@@ -97,14 +127,18 @@ const Comment = ({
       navigate("/login");
       return;
     }
-    const res = await toggleCommentLike({ comment: comment.id }).unwrap();
-    setIsLiked(res.toggle);
-    if (res.toggle) {
-      commentLikeCountRef.current.textContent =
-        Number(commentLikeCountRef.current.textContent) + 1;
-    } else {
-      commentLikeCountRef.current.textContent =
-        Number(commentLikeCountRef.current.textContent) - 1;
+    try {
+      const res = await toggleCommentLike({ comment: comment.id }).unwrap();
+      setIsLiked(res.toggle);
+      if (res.toggle) {
+        commentLikeCountRef.current.textContent =
+          Number(commentLikeCountRef.current.textContent) + 1;
+      } else {
+        commentLikeCountRef.current.textContent =
+          Number(commentLikeCountRef.current.textContent) - 1;
+      }
+    } catch (error) {
+      // Error will be handled by useEffect below
     }
   };
 
@@ -139,7 +173,7 @@ const Comment = ({
       setIsEditing(false);
       // The API will refresh the comments list via invalidatesTags
     } catch (err) {
-      console.error("Failed to update comment:", err);
+      // Error will be handled by useEffect below
     }
   };
 
@@ -330,6 +364,7 @@ const Comment = ({
                     onEditComment={onEditComment}
                     onDeleteComment={onDeleteComment}
                     onReportComment={onReportComment}
+                    onError={onError}
                   />
                 ))}
               </div>
@@ -380,9 +415,10 @@ const Post = ({ postType }) => {
     useState(false);
   const [selectedComment, setSelectedComment] = useState(null);
   const [selectedCommentId, setSelectedCommentId] = useState(null);
+  const [toast, setToast] = useState(null);
   const commentCountRef = useRef(null);
   const postLikesCountRef = useRef(null);
-  const [postComment, { error, isLoading, isError }] =
+  const [postComment, { error: postCommentError, isLoading, isError }] =
     useCreateCommentByBoardPostMutation();
   const [togglePostLike, { error: togglePostLikeError }] =
     useTogglePostLikeMutation();
@@ -423,25 +459,58 @@ const Post = ({ postType }) => {
     if (isPostError) return;
     setIsPostLiked(postData.data.youLiked);
   }, [postData]);
+
+  // Handle mutation errors with Toast
+  useEffect(() => {
+    if (postCommentError) {
+      setToast({
+        message: extractErrorMessage(postCommentError),
+        type: "error",
+      });
+    }
+  }, [postCommentError]);
+
+  useEffect(() => {
+    if (togglePostLikeError) {
+      setToast({
+        message: extractErrorMessage(togglePostLikeError),
+        type: "error",
+      });
+    }
+  }, [togglePostLikeError]);
+
   if (isPostLoading) return <Loading />;
   if (isPostError) {
     if (postError.status === 404) return <NotFound />;
     return <ErrorDisplay error={postError} />;
   }
+  if (isCommentsLoading) return <Loading />;
+  if (isCommentsError) {
+    if (commentsError.status === 404) return <NotFound />;
+    return <ErrorDisplay error={commentsError} />;
+  }
   if (!postData || !commentsData) return null;
   const handleCommentSubmit = async (e, parent_id, body = "", setEmpty) => {
     e.preventDefault();
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
     if (body.trim()) {
-      await postComment({
-        board,
-        post: postId,
-        bodyData: { parent_id, body },
-      }).unwrap();
-      //It gets the textContent of the comment count and adds 1 when the comment submission is OK
-      commentCountRef.current.textContent =
-        Number(commentCountRef.current.textContent) + 1;
-      setEmpty("");
-      setActiveReplyId(null);
+      try {
+        await postComment({
+          board,
+          post: postId,
+          bodyData: { parent_id, body },
+        }).unwrap();
+        //It gets the textContent of the comment count and adds 1 when the comment submission is OK
+        commentCountRef.current.textContent =
+          Number(commentCountRef.current.textContent) + 1;
+        setEmpty("");
+        setActiveReplyId(null);
+      } catch (error) {
+        // Error will be handled by useEffect above
+      }
     }
   };
 
@@ -459,14 +528,18 @@ const Post = ({ postType }) => {
       navigate("/login");
       return;
     }
-    const res = await togglePostLike({ board, post: postId }).unwrap();
-    setIsPostLiked(res.toggle);
-    if (res.toggle) {
-      postLikesCountRef.current.textContent =
-        Number(postLikesCountRef.current.textContent) + 1;
-    } else {
-      postLikesCountRef.current.textContent =
-        Number(postLikesCountRef.current.textContent) - 1;
+    try {
+      const res = await togglePostLike({ board, post: postId }).unwrap();
+      setIsPostLiked(res.toggle);
+      if (res.toggle) {
+        postLikesCountRef.current.textContent =
+          Number(postLikesCountRef.current.textContent) + 1;
+      } else {
+        postLikesCountRef.current.textContent =
+          Number(postLikesCountRef.current.textContent) - 1;
+      }
+    } catch (error) {
+      // Error will be handled by useEffect above
     }
   };
 
@@ -507,6 +580,13 @@ const Post = ({ postType }) => {
     }
     setIsCommentDeleteModalOpen(false);
     setSelectedCommentId(null);
+  };
+
+  const handleCommentError = (errorMessage) => {
+    setToast({
+      message: errorMessage,
+      type: "error",
+    });
   };
 
   return (
@@ -740,6 +820,7 @@ const Post = ({ postType }) => {
                       onEditComment={handleCommentEdit}
                       onDeleteComment={handleCommentDelete}
                       onReportComment={handleCommentReport}
+                      onError={handleCommentError}
                     />
                   ))
                 ) : (
@@ -819,6 +900,15 @@ const Post = ({ postType }) => {
         board={board}
         postId={postId}
       />
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 };

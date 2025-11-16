@@ -43,7 +43,7 @@ const Toast = ({ message, type = "success", onClose }) => {
           <button
             onClick={(e) => {
               e.preventDefault();
-              onClose;
+              onClose();
             }}
             className={`${style.text} hover:opacity-70 transition-opacity cursor-pointer`}
           >
