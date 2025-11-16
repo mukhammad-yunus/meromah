@@ -11,7 +11,7 @@ import PostFiles from "./PostFiles";
 import ShareModal from "./ShareModal";
 import PostMenu from "./PostMenu";
 import EditPostModal from "./EditPostModal";
-import ReportPostModal from "./ReportPostModal";
+import ReportModal from "./ReportModal";
 import DeletePostModal from "./DeletePostModal";
 const preventNavigation = (e) => {
   e.preventDefault();
@@ -254,10 +254,11 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
     />
 
     {/* Report Post Modal */}
-    <ReportPostModal
+    <ReportModal
       isOpen={isReportModalOpen}
       onClose={() => setIsReportModalOpen(false)}
-      post={post}
+      item={post}
+      itemType="post"
     />
 
     {/* Delete Post Modal */}
