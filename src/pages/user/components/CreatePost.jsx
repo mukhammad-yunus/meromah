@@ -7,8 +7,10 @@ import { getFile, getImage } from "../../../utils";
 import { useUploadPostFilesMutation } from "../../../services/fileApi";
 import { useCreatePostMutation } from "../../../services/postsApi";
 import BoardSelection from "./BoardSelection";
+import { useNavigate } from "react-router-dom";
 
 const CreatePost = ({ boardId, onCancel = undefined }) => {
+  const navigate = useNavigate();
   const postTitleRef = useRef(null);
   const postBodyRef = useRef(null);
   const imageInputRef = useRef(null);
@@ -177,6 +179,7 @@ const CreatePost = ({ boardId, onCancel = undefined }) => {
     if (onCancel) {
       onCancel();
     }
+    if (!boardId) navigate("/home");
   };
 
   return (
