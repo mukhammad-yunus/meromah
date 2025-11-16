@@ -95,9 +95,6 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
     setIsReportModalOpen(true);
   };
 
-  const handleReload = () => {
-    window.location.reload();
-  };
   return (
     <>
     <Link
@@ -250,7 +247,6 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
       onClose={() => setIsEditModalOpen(false)}
       post={post}
       boardName={post.board.name}
-      onSuccess={handleReload}
     />
 
     {/* Report Post Modal */}
