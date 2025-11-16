@@ -71,7 +71,10 @@ const BoardPage = () => {
   }, [boardId, pathname, boardData, dispatch]);
 
   const onShowCreatePost = () => {
-    if (!isAuthenticated) return navigate("/login");
+    if (!isAuthenticated){
+      navigate("/login");
+      return;
+    };
     setShowCreatePost(true);
   };
 
