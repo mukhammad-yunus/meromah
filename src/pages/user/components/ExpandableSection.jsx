@@ -10,7 +10,7 @@ const ExpandableSection = ({
   const Icon = section.icon;
 
   return (
-    <div key={section.id}>
+    <div>
       <button
         onClick={() => toggleSection(section.id)}
         className="w-full flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-100 rounded-lg transition-all cursor-pointer"
@@ -33,7 +33,8 @@ const ExpandableSection = ({
           {section.items?.length > 0 ? (
             section.items?.map((item, i) => (
               <Link
-                key={item.name + i + item.id}
+                //Here, temporary key value inserted, later it will be removed or altered
+                key={`${item.name} + ${i} + ${item.id}`}
                 to={section.path + "/" + item.name || "#"}
                 onClick={() => {
                   closeMobileMenu();

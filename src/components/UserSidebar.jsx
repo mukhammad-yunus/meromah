@@ -265,14 +265,12 @@ const UserSidebar = () => {
 
               {/* Section that displays user-followed boards, descs */}
               <ExpandableSection
-                key={subscribedBoards.id}
                 section={subscribedBoards}
                 isExpanded={expandedSections[subscribedBoards.id]}
                 toggleSection={toggleSection}
                 closeMobileMenu={closeMobileMenu}
               />
               <ExpandableSection
-                key={subscribedDescs.id}
                 section={subscribedDescs}
                 isExpanded={expandedSections[subscribedDescs.id]}
                 toggleSection={toggleSection}
@@ -283,7 +281,6 @@ const UserSidebar = () => {
           )}
           {/* Recent communities */}
           <ExpandableSection
-            key={"recent"}
             section={recentSection}
             isExpanded={expandedSections["recent"]}
             toggleSection={toggleSection}
