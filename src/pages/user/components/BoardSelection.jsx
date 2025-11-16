@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
-import { FiSearch } from "react-icons/fi";
+import React, { useState, useRef, useEffect, useMemo } from 'react'
+import { FiSearch } from 'react-icons/fi'
 import { useSearchBoardsQuery } from "../../../services/boardsApi";
+import { useGetMyBoardSubscriptionsQuery } from "../../../services/boardSubscriptionsApi";
 
 const SearchBarButton = ({ board, onSelectBoard }) => {
   return (
@@ -43,6 +44,13 @@ const BoardSelection = ({ onSelectBoard, onClearSelection, resetRef }) => {
       : undefined,
     { skip: boardSearchQuery.trim().length === 0 }
   );
+
+  // My board subscriptions
+  const {
+    data: myBoardSubscriptions,
+    isSuccess: isMyBoardSubscriptionsSuccess,
+  } = useGetMyBoardSubscriptionsQuery();
+
   // Expose reset function to parent via ref
   useEffect(() => {
     if (resetRef) {
@@ -72,10 +80,37 @@ const BoardSelection = ({ onSelectBoard, onClearSelection, resetRef }) => {
     };
   }, []);
 
+  // Create a Set of board IDs from boardsData for O(1) lookup
+  const boardsDataIdSet = useMemo(() => {
+    if (!boardsData || boardsData.length === 0) return new Set();
+    return new Set(boardsData.map(board => board.id));
+  }, [boardsData]);
+
+  // Filter myBoardSubscriptions based on search query
+  const filteredSubscriptions = useMemo(() => {
+    if (!isMyBoardSubscriptionsSuccess || !myBoardSubscriptions?.data) return [];
+    console.log(myBoardSubscriptions)
+
+    const query = boardSearchQuery.trim();
+    
+    // If search query is empty, show all subscriptions
+    if (query === "") {
+      return myBoardSubscriptions.data;
+    }
+    
+    // If search query exists, only show subscriptions whose id is in boardsData
+    if (boardsDataIdSet.size > 0) {
+      return myBoardSubscriptions.data.filter(sub => boardsDataIdSet.has(sub.id));
+    }
+    
+    // Otherwise, hide subscriptions
+    return [];
+  }, [isMyBoardSubscriptionsSuccess, myBoardSubscriptions, boardSearchQuery, boardsDataIdSet]);
+
   const handleBoardSearch = (e) => {
     const query = e.target.value;
     setBoardSearchQuery(query);
-    setShowBoardDropdown(query.trim().length > 0);
+    setShowBoardDropdown(true);
 
     // Reset selection if user clears the input
     if (query.trim().length === 0) {
@@ -92,7 +127,6 @@ const BoardSelection = ({ onSelectBoard, onClearSelection, resetRef }) => {
     setBoardSearchQuery(`b/${board.name}`);
     setShowBoardDropdown(false);
   };
-
   return (
     <div className="flex flex-col gap-2">
       <label className="text-sm font-medium text-neutral-800">
@@ -106,11 +140,7 @@ const BoardSelection = ({ onSelectBoard, onClearSelection, resetRef }) => {
             type="text"
             value={boardSearchQuery}
             onChange={handleBoardSearch}
-            onFocus={() => {
-              if (boardSearchQuery.trim() !== "") {
-                setShowBoardDropdown(true);
-              }
-            }}
+            onFocus={() => setShowBoardDropdown(true)}
             placeholder="Search for a board..."
             className="w-full pl-10 pr-3 py-2 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue/20 focus:border-primary-blue transition-colors"
           />
@@ -120,34 +150,72 @@ const BoardSelection = ({ onSelectBoard, onClearSelection, resetRef }) => {
             ref={boardDropdownRef}
             className="absolute z-50 w-full mt-1 bg-white border border-neutral-200 rounded-lg shadow-lg max-h-64 overflow-y-auto"
           >
-            {isBoardsLoading && (
-              <div className="p-3 text-sm text-neutral-500 text-center">
-                Searching...
+            {/* Show filtered subscriptions */}
+            {filteredSubscriptions.length > 0 && (
+              <div className="p-2 border-b border-neutral-100">
+                <h2 className="px-2 py-1 text-xs font-semibold text-neutral-500 uppercase tracking-wide">
+                  Subscribed Boards
+                </h2>
+                <div className="mt-1">
+                  {filteredSubscriptions.map((board, i) => (
+                    <SearchBarButton
+                      board={board}
+                      onSelectBoard={handleSelectBoard}
+                      //Here, temporary key value inserted, later it will be removed or altered
+                      key={`${i}-${board.id}`}
+                    />
+                  ))}
+                </div>
               </div>
             )}
 
-            {!isBoardsLoading && (!boardsData || boardsData.length === 0) && (
-              <div className="p-3 text-sm text-neutral-500 text-center">
-                No board found
+            {/* Show search results when query exists */}
+            {boardSearchQuery.trim() !== "" && (
+              <div className={filteredSubscriptions.length > 0 ? "p-2" : ""}>
+                {isBoardsLoading && (
+                  <div className="p-3 text-sm text-neutral-500 text-center">
+                    Searching...
+                  </div>
+                )}
+
+                {!isBoardsLoading && (!boardsData || boardsData.length === 0) && (
+                  <div className="p-3 text-sm text-neutral-500 text-center">
+                    No board found
+                  </div>
+                )}
+
+                {!isBoardsLoading && boardsData && boardsData.length > 0 && (
+                  <>
+                    {filteredSubscriptions.length > 0 && (
+                      <h2 className="px-2 py-1 text-xs font-semibold text-neutral-500 uppercase tracking-wide mt-2">
+                        Search Results
+                      </h2>
+                    )}
+                    <div className="py-1">
+                      {boardsData.map((board) => (
+                        <SearchBarButton 
+                          board={board} 
+                          onSelectBoard={handleSelectBoard}
+                          key={`search-board-id-${board.id}`} 
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             )}
 
-            {!isBoardsLoading && boardsData && boardsData.length > 0 && (
-              <div className="py-1">
-                {boardsData.map((board) => (
-                  <SearchBarButton
-                    board={board}
-                    onSelectBoard={handleSelectBoard}
-                    key={board.id}
-                  />
-                ))}
+            {/* Show message when no subscriptions and no search query */}
+            {boardSearchQuery.trim() === "" && filteredSubscriptions.length === 0 && (
+              <div className="p-3 text-sm text-neutral-500 text-center">
+                No subscribed boards
               </div>
             )}
           </div>
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default BoardSelection;
+export default BoardSelection
