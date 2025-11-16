@@ -81,3 +81,17 @@ export const handleDownload = async (file, e, downloadElement) => {
       console.error("Failed to download file:", error);
     }
   };
+
+// Helper function to extract error message from API error response
+export const extractErrorMessage = (error) => {
+  if (!error) return "An unexpected error occurred. Please try again.";
+  if (typeof error === "string") return error;
+  return (
+    error.data?.message ??
+    error.data?.error ??
+    error.message ??
+    error.error ??
+    error.response?.data?.message ??
+    "An unexpected error occurred. Please try again."
+  );
+};
