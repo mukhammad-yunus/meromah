@@ -28,7 +28,7 @@ import PostFiles from "./components/PostFiles";
 import ShareModal from "./components/ShareModal";
 import PostMenu from "./components/PostMenu";
 import EditPostModal from "./components/EditPostModal";
-import ReportPostModal from "./components/ReportPostModal";
+import ReportModal from "./components/ReportModal";
 import DeletePostModal from "./components/DeletePostModal";
 
 const getType = {
@@ -612,10 +612,11 @@ const Post = ({ postType }) => {
 
       {/* Report Post Modal */}
       {postData?.data && (
-        <ReportPostModal
+        <ReportModal
           isOpen={isReportModalOpen}
           onClose={() => setIsReportModalOpen(false)}
-          post={postData.data}
+          item={postData.data}
+          itemType="post"
         />
       )}
 
