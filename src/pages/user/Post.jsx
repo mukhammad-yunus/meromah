@@ -30,6 +30,11 @@ import PostMenu from "./components/PostMenu";
 import EditPostModal from "./components/EditPostModal";
 import ReportModal from "./components/ReportModal";
 import DeletePostModal from "./components/DeletePostModal";
+import CommentMenu from "./components/CommentMenu";
+import DeleteCommentModal from "./components/DeleteCommentModal";
+import {
+  useUpdateCommentByBoardPostMutation,
+} from "../../services/commentsApi";
 
 const getType = {
   post: ["b", "board"],
@@ -44,14 +49,29 @@ const Comment = ({
   activeReplyId,
   setActiveReplyId,
   handleReplySubmit,
+  board,
+  postId,
+  onEditComment,
+  onDeleteComment,
+  onReportComment,
 }) => {
   const { isAuthenticated } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const [replyText, setReplyText] = useState("");
   const [isRepliesShown, setIsRepliesShown] = useState(false);
   const [isLiked, setIsLiked] = useState(comment.youLiked);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(comment.body);
+
+  // Reset edit state when comment changes
+  useEffect(() => {
+    setIsEditing(false);
+    setEditText(comment.body);
+  }, [comment.id, comment.body]);
   const commentLikeCountRef = useRef(null);
   const [toggleCommentLike] = useToggleCommentLikeByCommentIdMutation();
+  const [updateComment, { isLoading: isUpdating }] =
+    useUpdateCommentByBoardPostMutation();
   const isReplying = activeReplyId === comment.id;
 
   const handleReplyClick = () => {
@@ -87,6 +107,55 @@ const Comment = ({
         Number(commentLikeCountRef.current.textContent) - 1;
     }
   };
+
+  const handleEditClick = (e) => {
+    e.stopPropagation();
+    setIsEditing(true);
+    setEditText(comment.body);
+    if (onEditComment) {
+      onEditComment(comment.id);
+    }
+  };
+
+  const handleEditCancel = () => {
+    setIsEditing(false);
+    setEditText(comment.body);
+  };
+
+  const handleEditSave = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!editText.trim() || editText === comment.body) {
+      setIsEditing(false);
+      return;
+    }
+    try {
+      await updateComment({
+        board,
+        post: postId,
+        comment: comment.id,
+        bodyData: { body: editText.trim() },
+      }).unwrap();
+      setIsEditing(false);
+      // The API will refresh the comments list via invalidatesTags
+    } catch (err) {
+      console.error("Failed to update comment:", err);
+    }
+  };
+
+  const handleDeleteClick = (e) => {
+    e.stopPropagation();
+    if (onDeleteComment) {
+      onDeleteComment(comment.id);
+    }
+  };
+
+  const handleReportClick = (e) => {
+    e.stopPropagation();
+    if (onReportComment) {
+      onReportComment(comment);
+    }
+  };
   return (
     <div>
       <div className="flex gap-3">
@@ -107,44 +176,101 @@ const Comment = ({
         <div className="w-full flex flex-col gap-3">
           <div className="flex flex-col gap-2">
             {/* Username and metadata */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-gray-900 hover:underline cursor-pointer">
-                u/{comment.author.username}
-              </span>
-              <RelativeTime
-                date={comment.created_at}
-                className="flex items-center text-[12px] text-gray-600"
-              />
-            </div>
-            {/* Comment body */}
-            <div className="text-sm text-gray-900 leading-relaxed">
-              {comment.body}
-            </div>
-            {/* Action buttons */}
-            <div className="flex items-center gap-3 text-xs font-bold text-gray-500">
-              <button
-                onClick={onToggleCommentLike}
-                className="flex items-center gap-1 hover:bg-gray-100 px-1 py-0.5 rounded transition-colors"
-              >
-                {isLiked ? (
-                  <FaHeart className="text-red-500" />
-                ) : (
-                  <FaRegHeart />
-                )}
-                <span
-                  ref={commentLikeCountRef}
-                  className={isLiked ? "text-red-500" : ""}
-                >
-                  {comment.likes_count}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-gray-900 hover:underline cursor-pointer">
+                  u/{comment.author.username}
                 </span>
-              </button>
-              <button
-                onClick={handleReplyClick}
-                className="hover:bg-gray-100 px-2 py-0.5 rounded transition-colors"
-              >
-                {isReplying ? "✕ Cancel" : "Reply"}
-              </button>
+                <RelativeTime
+                  date={comment.created_at}
+                  className="flex items-center text-[12px] text-gray-600"
+                />
+              </div>
+              <div onClick={(e) => e.stopPropagation()}>
+                <CommentMenu
+                  comment={comment}
+                  onEdit={handleEditClick}
+                  onDelete={handleDeleteClick}
+                  onReport={handleReportClick}
+                />
+              </div>
             </div>
+            {/* Comment body or Edit form */}
+            {isEditing ? (
+              <div className="flex flex-col gap-2">
+                <textarea
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      handleEditCancel();
+                    }
+                    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                      handleEditSave(e);
+                    }
+                  }}
+                  autoFocus
+                  rows={3}
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 resize-none"
+                  style={{
+                    minHeight: "60px",
+                    maxHeight: "200px",
+                  }}
+                  onInput={(e) => {
+                    e.target.style.height = "auto";
+                    e.target.style.height =
+                      Math.min(e.target.scrollHeight, 200) + "px";
+                  }}
+                />
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleEditSave}
+                    disabled={!editText.trim() || isUpdating}
+                    className="px-4 py-1.5 bg-blue-500 text-white text-sm rounded-lg font-medium hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {isUpdating ? "Saving..." : "Save"}
+                  </button>
+                  <button
+                    onClick={handleEditCancel}
+                    disabled={isUpdating}
+                    className="px-4 py-1.5 text-gray-700 text-sm rounded-lg font-medium hover:bg-gray-100 disabled:opacity-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-sm text-gray-900 leading-relaxed">
+                {comment.body}
+              </div>
+            )}
+            {/* Action buttons */}
+            {!isEditing && (
+              <div className="flex items-center gap-3 text-xs font-bold text-gray-500">
+                <button
+                  onClick={onToggleCommentLike}
+                  className="flex items-center gap-1 hover:bg-gray-100 px-1 py-0.5 rounded transition-colors"
+                >
+                  {isLiked ? (
+                    <FaHeart className="text-red-500" />
+                  ) : (
+                    <FaRegHeart />
+                  )}
+                  <span
+                    ref={commentLikeCountRef}
+                    className={isLiked ? "text-red-500" : ""}
+                  >
+                    {comment.likes_count}
+                  </span>
+                </button>
+                <button
+                  onClick={handleReplyClick}
+                  className="hover:bg-gray-100 px-2 py-0.5 rounded transition-colors"
+                >
+                  {isReplying ? "✕ Cancel" : "Reply"}
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Reply Input */}
@@ -199,6 +325,11 @@ const Comment = ({
                     activeReplyId={activeReplyId}
                     setActiveReplyId={setActiveReplyId}
                     handleReplySubmit={handleReplySubmit}
+                    board={board}
+                    postId={postId}
+                    onEditComment={onEditComment}
+                    onDeleteComment={onDeleteComment}
+                    onReportComment={onReportComment}
                   />
                 ))}
               </div>
@@ -243,6 +374,12 @@ const Post = ({ postType }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isCommentReportModalOpen, setIsCommentReportModalOpen] =
+    useState(false);
+  const [isCommentDeleteModalOpen, setIsCommentDeleteModalOpen] =
+    useState(false);
+  const [selectedComment, setSelectedComment] = useState(null);
+  const [selectedCommentId, setSelectedCommentId] = useState(null);
   const commentCountRef = useRef(null);
   const postLikesCountRef = useRef(null);
   const [postComment, { error, isLoading, isError }] =
@@ -346,6 +483,30 @@ const Post = ({ postType }) => {
   const handleReport = (e) => {
     e.stopPropagation();
     setIsReportModalOpen(true);
+  };
+
+  const handleCommentEdit = (commentId) => {
+    setSelectedCommentId(commentId);
+  };
+
+  const handleCommentDelete = (commentId) => {
+    setSelectedCommentId(commentId);
+    setIsCommentDeleteModalOpen(true);
+  };
+
+  const handleCommentReport = (comment) => {
+    setSelectedComment(comment);
+    setIsCommentReportModalOpen(true);
+  };
+
+  const handleCommentDeleteSuccess = () => {
+    // Update comment count when comment is deleted
+    if (commentCountRef.current) {
+      commentCountRef.current.textContent =
+        Math.max(0, Number(commentCountRef.current.textContent) - 1);
+    }
+    setIsCommentDeleteModalOpen(false);
+    setSelectedCommentId(null);
   };
 
   return (
@@ -574,6 +735,11 @@ const Post = ({ postType }) => {
                       activeReplyId={activeReplyId}
                       setActiveReplyId={setActiveReplyId}
                       handleReplySubmit={handleCommentSubmit}
+                      board={board}
+                      postId={postId}
+                      onEditComment={handleCommentEdit}
+                      onDeleteComment={handleCommentDelete}
+                      onReportComment={handleCommentReport}
                     />
                   ))
                 ) : (
@@ -619,6 +785,32 @@ const Post = ({ postType }) => {
           itemType="post"
         />
       )}
+
+      {/* Report Comment Modal */}
+      {selectedComment && (
+        <ReportModal
+          isOpen={isCommentReportModalOpen}
+          onClose={() => {
+            setIsCommentReportModalOpen(false);
+            setSelectedComment(null);
+          }}
+          item={selectedComment}
+          itemType="comment"
+        />
+      )}
+
+      {/* Delete Comment Modal */}
+      <DeleteCommentModal
+        isOpen={isCommentDeleteModalOpen}
+        onClose={() => {
+          setIsCommentDeleteModalOpen(false);
+          setSelectedCommentId(null);
+        }}
+        board={board}
+        postId={postId}
+        commentId={selectedCommentId}
+        onSuccess={handleCommentDeleteSuccess}
+      />
 
       {/* Delete Post Modal */}
       <DeletePostModal
