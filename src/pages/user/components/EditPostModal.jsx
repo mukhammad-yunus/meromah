@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
 import { useUpdatePostMutation } from "../../../services/postsApi";
 
-const EditPostModal = ({ isOpen, onClose, post, boardName, onSuccess }) => {
+const EditPostModal = ({ isOpen, onClose, post, boardName }) => {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [updatePost, { isLoading }] = useUpdatePostMutation();
@@ -49,10 +49,6 @@ const EditPostModal = ({ isOpen, onClose, post, boardName, onSuccess }) => {
         post: post.id,
         postData: { title: title.trim(), body: body.trim() },
       }).unwrap();
-
-      if (onSuccess) {
-        onSuccess();
-      }
       onClose(e);
     } catch (error) {
       console.error("Failed to update post:", error);

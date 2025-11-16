@@ -348,10 +348,6 @@ const Post = ({ postType }) => {
     setIsReportModalOpen(true);
   };
 
-  const handleReload = () => {
-    window.location.reload();
-  };
-
   return (
     <div className="min-h-screen bg-primary-bg">
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -611,7 +607,6 @@ const Post = ({ postType }) => {
           onClose={() => setIsEditModalOpen(false)}
           post={postData.data}
           boardName={board}
-          onSuccess={handleReload}
         />
       )}
 
