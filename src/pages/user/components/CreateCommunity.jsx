@@ -24,15 +24,26 @@ const CreateCommunity = () => {
   const [createBoard, { isLoading: isBoardLoading }] = useCreateBoardMutation();
   const [createDesc, { isLoading: isDescLoading }] = useCreateDescMutation();
 
+  // Shared skip logic for name availability checks
+  const shouldSkipNameCheck = useMemo(() => {
+    const trimmedName = communityName.trim();
+    return !trimmedName || trimmedName.length < 3 || trimmedName.length > 20;
+  }, [communityName]);
+
   const { data: isBoardNameAvailable, isFetching: isFetchingBoard } =
     useCheckBoardNameIsAvailableQuery(
       { name: communityName },
-      { skip: !communityName.trim() || communityType !== "board" }
+      {
+        skip: shouldSkipNameCheck || communityType !== "board",
+      }
     );
+
   const { data: isDescNameAvailable, isFetching: isFetchingDesc } =
     useCheckDescNameIsAvailableQuery(
       { name: communityName },
-      { skip: !communityName.trim() || communityType !== "desc" }
+      {
+        skip: shouldSkipNameCheck || communityType !== "desc",
+      }
     );
 
   const isNameAvailable = useMemo(() => {
