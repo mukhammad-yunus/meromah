@@ -25,16 +25,22 @@ export const authApi = baseApi.injectEndpoints({
         method: "POST",
         body: userData,
       }),
-      invalidatesTags: [{ type: "isAuthenticated", id: "amILoggedIn" }],
+      invalidatesTags: [
+        { type: "isAuthenticated", id: "amILoggedIn" },
+        { type: "Profile", id: "getMe" },
+      ],
     }),
 
-    login: builder.mutation({
+    logloginin: builder.mutation({
       query: ({ email, password }) => ({
         url: "/auth/login",
         method: "POST",
         body: { email, password },
       }),
-      invalidatesTags: [{ type: "isAuthenticated", id: "amILoggedIn" }],
+      invalidatesTags: [
+        { type: "isAuthenticated", id: "amILoggedIn" },
+        { type: "Profile", id: "getMe" },
+      ],
     }),
 
     logout: builder.mutation({

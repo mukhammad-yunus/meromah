@@ -15,6 +15,7 @@ const PrivateUserSelfApi = baseApi.injectEndpoints({
     // main details related e.g. name, email, username
     getMe: builder.query({
       query: () => "/me",
+      providesTags: [{type:'Profile', id: 'getMe'}]
     }),
     updateMe: builder.mutation({
       query: ({ bodyData }) => ({
