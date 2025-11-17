@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { FiArrowLeft, FiSend } from "react-icons/fi";
 
 import {
@@ -9,6 +9,7 @@ import {
   useCheckBoardNameIsAvailableQuery,
   useCreateBoardMutation,
 } from "../../../services/boardsApi.js";
+import SuccessModal from "../../main/components/SuccessModal.jsx";
 
 const communityTypes = {
   board: { name: "Board", path: "b" },
@@ -20,6 +21,7 @@ const CreateCommunity = () => {
 const [communityDescription, setCommunityDescription] = useState("");
 const [communityType, setCommunityType] = useState("board");
 const [hasSpecialChar, setHasSpecialChar] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 const [createBoard, { isLoading: isBoardLoading }] = useCreateBoardMutation();
 const [createDesc, { isLoading: isDescLoading }] = useCreateDescMutation();
 
@@ -71,8 +73,7 @@ const finalSubmission = async () => {
       description: communityDescription,
     }).unwrap();
     
-    console.log("Success:", result);
-    // TODO: Handle success (e.g., redirect, show success message)
+      setIsSuccessModalOpen(true);
   } catch (err) {
     console.error("Error creating community:", err);
     // TODO: Show error message to user
@@ -227,6 +228,12 @@ const finalSubmission = async () => {
           </button>
         </div>
       </div>
+      {isSuccessModalOpen && <SuccessModal
+        header={`${communityTypes[communityType].name} created successfully.`}
+        message={`Now navigating to ${communityTypes[communityType].path}/${communityName}`}
+        onClose={() => setIsSuccessModalOpen(false)}
+        path={`/${communityTypes[communityType].path}/${communityName}`}
+      />}
     </div>
   );
 };
