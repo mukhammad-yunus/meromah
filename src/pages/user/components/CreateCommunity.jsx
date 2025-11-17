@@ -17,67 +17,75 @@ const communityTypes = {
 };
 const CreateCommunity = () => {
   const [communityName, setCommunityName] = useState("");
-const [communityDescription, setCommunityDescription] = useState("");
-const [communityType, setCommunityType] = useState("board");
-const [hasSpecialChar, setHasSpecialChar] = useState(false);
+  const [communityDescription, setCommunityDescription] = useState("");
+  const [communityType, setCommunityType] = useState("board");
+  const [hasSpecialChar, setHasSpecialChar] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-const [createBoard, { isLoading: isBoardLoading }] = useCreateBoardMutation();
-const [createDesc, { isLoading: isDescLoading }] = useCreateDescMutation();
+  const [createBoard, { isLoading: isBoardLoading }] = useCreateBoardMutation();
+  const [createDesc, { isLoading: isDescLoading }] = useCreateDescMutation();
 
-const { data: isBoardNameAvailable, isFetching: isFetchingBoard } = useCheckBoardNameIsAvailableQuery(
-  { name: communityName },
-  { skip: !communityName.trim() || communityType !== "board" }
-);
-const { data: isDescNameAvailable, isFetching: isFetchingDesc } = useCheckDescNameIsAvailableQuery(
-  { name: communityName },
-  { skip: !communityName.trim() || communityType !== "desc" }
-);
+  const { data: isBoardNameAvailable, isFetching: isFetchingBoard } =
+    useCheckBoardNameIsAvailableQuery(
+      { name: communityName },
+      { skip: !communityName.trim() || communityType !== "board" }
+    );
+  const { data: isDescNameAvailable, isFetching: isFetchingDesc } =
+    useCheckDescNameIsAvailableQuery(
+      { name: communityName },
+      { skip: !communityName.trim() || communityType !== "desc" }
+    );
 
-const isNameAvailable = useMemo(() => {
-  if (!communityName.trim()) return true;
-  
-  if (communityType === "board") {
-    return isBoardNameAvailable?.isAvailable ?? false; // Default to false while loading
-  }
-  return isDescNameAvailable?.isAvailable ?? false;
-}, [communityName, communityType, isBoardNameAvailable, isDescNameAvailable]);
+  const isNameAvailable = useMemo(() => {
+    if (!communityName.trim()) return true;
 
-const isChecking = communityType === "board" ? isFetchingBoard : isFetchingDesc;
-const isCreateDisabled = !communityName.trim() || !isNameAvailable || isChecking || isBoardLoading || isDescLoading;
+    if (communityType === "board") {
+      return isBoardNameAvailable?.isAvailable ?? false; // Default to false while loading
+    }
+    return isDescNameAvailable?.isAvailable ?? false;
+  }, [communityName, communityType, isBoardNameAvailable, isDescNameAvailable]);
 
-const handleCommunityNameChange = (e) => {
-  const value = e.target.value;
-  
-  if (value.length === 0) {
-    setHasSpecialChar(false);
-    setCommunityName("");
-    return;
-  }
-  
-  const isValid = /^[A-Za-z0-9 _-]+$/.test(value);
-  setHasSpecialChar(!isValid);
-  
-  if (isValid) {
-    setCommunityName(value.replace(/\s+/g, "-"));
-  }
-};
+  const isChecking =
+    communityType === "board" ? isFetchingBoard : isFetchingDesc;
+  const isCreateDisabled =
+    !communityName.trim() ||
+    !isNameAvailable ||
+    isChecking ||
+    isBoardLoading ||
+    isDescLoading;
 
-const finalSubmission = async () => {
-  if (isCreateDisabled) return; // Guard clause
-  
-  const createFn = communityType === "board" ? createBoard : createDesc;
-  try {
-    const result = await createFn({
-      name: communityName,
-      description: communityDescription,
-    }).unwrap();
-    
+  const handleCommunityNameChange = (e) => {
+    const value = e.target.value;
+
+    if (value.length === 0) {
+      setHasSpecialChar(false);
+      setCommunityName("");
+      return;
+    }
+
+    const isValid = /^[A-Za-z0-9 _-]+$/.test(value);
+    setHasSpecialChar(!isValid);
+
+    if (isValid) {
+      setCommunityName(value.replace(/\s+/g, "-"));
+    }
+  };
+
+  const finalSubmission = async () => {
+    if (isCreateDisabled) return; // Guard clause
+
+    const createFn = communityType === "board" ? createBoard : createDesc;
+    try {
+      const result = await createFn({
+        name: communityName,
+        description: communityDescription,
+      }).unwrap();
+
       setIsSuccessModalOpen(true);
-  } catch (err) {
-    console.error("Error creating community:", err);
-    // TODO: Show error message to user
-  }
-};
+    } catch (err) {
+      console.error("Error creating community:", err);
+      // TODO: Show error message to user
+    }
+  };
 
   return (
     <div className="relative min-h-screen bg-primary/50">
@@ -210,29 +218,31 @@ const finalSubmission = async () => {
             </div>
           </div>
         </div>
-
-        <div className="px-6 py-5 bg-primary-bg flex items-center justify-between">
-          <button className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-slate-900 font-medium transition-colors">
-            <FiArrowLeft className="text-base" />
+        <div className="flex items-center justify-between gap-2 pt-2 border-t border-neutral-200">
+          <button
+            type="button"
+            // onClick={onResetCommunityForm}
+            className="px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
+          >
             Cancel
           </button>
-
           <button
             disabled={isCreateDisabled}
             onClick={finalSubmission}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-300 disabled:to-slate-300 disabled:cursor-not-allowed transition-all shadow-lg shadow-blue-500/25 disabled:shadow-none font-medium"
+            className="px-4 py-2 text-sm bg-primary-blue text-white rounded-lg hover:bg-primary-blue/90 disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors font-medium"
           >
-            <FiSend className="text-base" />
             Create
           </button>
         </div>
       </div>
-      {isSuccessModalOpen && <SuccessModal
-        header={`${communityTypes[communityType].name} created successfully.`}
-        message={`Now navigating to ${communityTypes[communityType].path}/${communityName}`}
-        onClose={() => setIsSuccessModalOpen(false)}
-        path={`/${communityTypes[communityType].path}/${communityName}`}
-      />}
+      {isSuccessModalOpen && (
+        <SuccessModal
+          header={`${communityTypes[communityType].name} created successfully.`}
+          message={`Now navigating to ${communityTypes[communityType].path}/${communityName}`}
+          onClose={() => setIsSuccessModalOpen(false)}
+          path={`/${communityTypes[communityType].path}/${communityName}`}
+        />
+      )}
     </div>
   );
 };
