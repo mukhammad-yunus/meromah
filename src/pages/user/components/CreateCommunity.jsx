@@ -11,6 +11,7 @@ import {
 } from "../../../services/boardsApi.js";
 import SuccessModal from "../../main/components/SuccessModal.jsx";
 import Toast from "../.../../../../components/Toast.jsx";
+import { useNavigate } from "react-router-dom";
 const communityTypes = {
   board: { name: "Board", path: "b" },
   desc: { name: "Desc", path: "d" },
@@ -25,6 +26,7 @@ const CreateCommunity = () => {
     hasError: false,
     message: null,
   });
+  const navigate = useNavigate();
   const [createBoard, { isLoading: isBoardLoading }] = useCreateBoardMutation();
   const [createDesc, { isLoading: isDescLoading }] = useCreateDescMutation();
 
@@ -104,7 +106,15 @@ const CreateCommunity = () => {
       setCommunityName(value.replace(/\s+/g, "-"));
     }
   };
-
+  const onResetCommunityForm = ()=>{
+    setCommunityName("")
+    setCommunityDescription("")
+    setCreateError({
+    hasError: false,
+    message: null,
+  });
+  navigate(-1)
+  }
   const finalSubmission = async () => {
     if (isCreateDisabled) return; // Guard clause
 
@@ -231,8 +241,8 @@ const CreateCommunity = () => {
         <div className="flex items-center justify-between gap-2 pt-2 border-t border-neutral-200">
           <button
             type="button"
-            // onClick={onResetCommunityForm}
-            className="px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
+            onClick={onResetCommunityForm}
+            className="px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors cursor-pointer"
           >
             Cancel
           </button>
