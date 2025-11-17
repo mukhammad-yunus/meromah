@@ -38,6 +38,7 @@ const Login = () => {
           message={
             "Your logged in to your account successfully. Redirecting you to home..."
           }
+          path={"/home"}
         />
       )}
       <header className="text-center mb-8">

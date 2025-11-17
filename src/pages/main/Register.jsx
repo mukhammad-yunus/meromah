@@ -211,6 +211,7 @@ const Register = () => {
           message={
             "Your account has been created successfully. Redirecting you to home..."
           }
+          path={"/home"}
         />
       )}
 
