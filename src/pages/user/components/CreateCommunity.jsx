@@ -77,6 +77,7 @@ const CreateCommunity = () => {
 
   const isCreateDisabled =
     !communityName.trim() ||
+    !communityDescription.trim() ||
     !isNameAvailable ||
     isChecking ||
     isBoardLoading ||
