@@ -15,7 +15,6 @@ const communityTypes = {
   board: { name: "Board", path: "b" },
   desc: { name: "Desc", path: "d" },
 };
-let n = 0;
 const CreateCommunity = () => {
   const [communityName, setCommunityName] = useState("");
 const [communityDescription, setCommunityDescription] = useState("");
