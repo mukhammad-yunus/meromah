@@ -57,12 +57,31 @@ const CreateCommunity = () => {
 
   const isChecking =
     communityType === "board" ? isFetchingBoard : isFetchingDesc;
+
+  // Validation error messages
+  const nameError = useMemo(() => {
+    const trimmedName = communityName.trim();
+    if (!trimmedName) return null;
+
+    if (trimmedName.length < 3) {
+      return "Name must be at least 3 characters long";
+    }
+    if (trimmedName.length > 20) {
+      return "Name must be 20 characters or less";
+    }
+    if (!isNameAvailable && !isChecking) {
+      return "This name is already taken, please choose another";
+    }
+    return null;
+  }, [communityName, isNameAvailable, isChecking]);
+
   const isCreateDisabled =
     !communityName.trim() ||
     !isNameAvailable ||
     isChecking ||
     isBoardLoading ||
-    isDescLoading;
+    isDescLoading ||
+    !!nameError;
 
   const handleCommunityNameChange = (e) => {
     const value = e.target.value;
@@ -165,30 +184,31 @@ const CreateCommunity = () => {
                     value={communityName}
                     onChange={handleCommunityNameChange}
                     placeholder="e.g., Study-Resources, Design-Inspirations"
-                    className={`input w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
-                      isNameAvailable
-                        ? "border-slate-200 focus:ring-blue-500/30 focus:border-blue-500"
-                        : "border-red-500 focus:ring-red-500/30 focus:border-red-500 text-red-500"
+                    className={`input w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 transition-all duration-200 ${
+                      nameError
+                        ? "border-red-500 focus:ring-red-500/30 focus:border-red-500"
+                        : "border-slate-200 focus:ring-blue-500/30 focus:border-blue-500"
                     } placeholder-slate-400`}
                   />
                 </label>
-                <p
-                  className={`text-xs transition-all duration-300 ease-out
-                 ${
-                   communityName
-                     ? "mt-1 max-h-10 opacity-100"
-                     : "mt-0 max-h-0 opacity-0 overflow-hidden"
-                 }
-                 ${isNameAvailable ? "text-slate-500" : "text-red-500"}
-                 `}
+                <div
+                  className={`text-xs text-slate-500 transition-all duration-300 ease-in-out ${
+                    communityName && !nameError
+                      ? "mt-1.5 max-h-10 opacity-100 translate-y-0"
+                      : "mt-0 max-h-0 opacity-0 -translate-y-1 overflow-hidden"
+                  }`}
                 >
                   {communityTypes[communityType].path}/{communityName}
-                  {!isNameAvailable && (
-                    <span className="pl-0.5">
-                      this username is taken, choose another one
-                    </span>
-                  )}
-                </p>
+                </div>
+                <div
+                  className={`text-xs text-red-500 font-medium transition-all duration-300 ease-in-out ${
+                    nameError
+                      ? "mt-1.5 max-h-10 opacity-100 translate-y-0"
+                      : "mt-0 max-h-0 opacity-0 -translate-y-1 overflow-hidden"
+                  }`}
+                >
+                  {nameError}
+                </div>
               </div>
               <label className="flex flex-col gap-2">
                 <span className="font-medium text-neutral-800">
