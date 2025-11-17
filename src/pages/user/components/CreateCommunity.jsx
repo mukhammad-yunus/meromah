@@ -21,6 +21,10 @@ const CreateCommunity = () => {
   const [communityType, setCommunityType] = useState("board");
   const [hasSpecialChar, setHasSpecialChar] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [createError, setCreateError] = useState({
+    hasError: false,
+    message: null,
+  });
   const [createBoard, { isLoading: isBoardLoading }] = useCreateBoardMutation();
   const [createDesc, { isLoading: isDescLoading }] = useCreateDescMutation();
 
@@ -113,8 +117,7 @@ const CreateCommunity = () => {
 
       setIsSuccessModalOpen(true);
     } catch (err) {
-      console.error("Error creating community:", err);
-      // TODO: Show error message to user
+      setCreateError({hasError: true, message: err?.data?.message || "Something went wrong while creating an error."})
     }
   };
 
@@ -260,7 +263,18 @@ const CreateCommunity = () => {
               <strong>letters, numbers, dashes (-), or underscores (_).</strong>
             </span>
           }
-          onClose={()=> setHasSpecialChar(false)}
+          onClose={() => setHasSpecialChar(false)}
+        />
+      )}
+      {createError.hasError && (
+        <Toast
+          type="error"
+          message={
+            <span>
+              <strong>Oops!</strong> {createError.message}
+            </span>
+          }
+          onClose={() => setCreateError({hasError: false, message: null})}
         />
       )}
     </div>
