@@ -10,7 +10,7 @@ import {
   useCreateBoardMutation,
 } from "../../../services/boardsApi.js";
 import SuccessModal from "../../main/components/SuccessModal.jsx";
-
+import Toast from "../.../../../../components/Toast.jsx";
 const communityTypes = {
   board: { name: "Board", path: "b" },
   desc: { name: "Desc", path: "d" },
@@ -89,31 +89,6 @@ const CreateCommunity = () => {
 
   return (
     <div className="relative min-h-screen bg-primary/50">
-      {hasSpecialChar && (
-        <div
-          role="alert"
-          style={{ animation: "fadeIn 0.5s ease-out" }}
-          className="fixed flex flex-col left-1/3 bottom-6 -translate-x-1/3 
-               p-4 text-sm font-medium text-red-600 rounded-xl
-               bg-red-300/10 backdrop-blur-md shadow-lg
-               border border-red-500/30
-               "
-        >
-          <span>
-            <strong>Oops!</strong> Some special characters aren't allowed.
-            Please use only{" "}
-            <strong>letters, numbers, dashes (-), or underscores (_).</strong>
-          </span>
-          <button
-            onClick={() => setHasSpecialChar(false)}
-            type="button"
-            className="block self-end py-1 px-2 border rounded-lg cursor-pointer hover:bg-red-300/20 "
-          >
-            Ok
-          </button>
-        </div>
-      )}
-
       <div className="max-w-2xl w-full mx-auto px-4 py-8">
         <div className="text-center p-2 md:p-6">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
@@ -241,6 +216,19 @@ const CreateCommunity = () => {
           message={`Now navigating to ${communityTypes[communityType].path}/${communityName}`}
           onClose={() => setIsSuccessModalOpen(false)}
           path={`/${communityTypes[communityType].path}/${communityName}`}
+        />
+      )}
+      {hasSpecialChar && (
+        <Toast
+          type="error"
+          message={
+            <span>
+              <strong>Oops!</strong> Some special characters aren't allowed.
+              Please use only{" "}
+              <strong>letters, numbers, dashes (-), or underscores (_).</strong>
+            </span>
+          }
+          onClose={()=> setHasSpecialChar(false)}
         />
       )}
     </div>
