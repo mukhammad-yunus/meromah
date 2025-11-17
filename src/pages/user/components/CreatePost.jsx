@@ -364,7 +364,7 @@ const CreatePost = ({ boardId, onCancel = undefined, onError }) => {
       )}
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-end gap-2 pt-2 border-t border-neutral-200">
+      <div className="flex items-center justify-between gap-2 pt-2 border-t border-neutral-200">
         <button
           type="button"
           onClick={onResetPostForm}
