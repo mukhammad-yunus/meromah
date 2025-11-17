@@ -80,7 +80,7 @@ const BoardPage = () => {
     dispatch(
       addRecentCommunity({
         id: `b/${boardId}`,
-        title: `b/${boardId}`,
+        name: `b/${boardId}`,
         to: pathname,
       })
     );
