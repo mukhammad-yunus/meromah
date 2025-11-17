@@ -3,13 +3,13 @@ import { FaCheckCircle } from "react-icons/fa";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 
-const SuccessModal = ({ onClose, header, message }) => {
+const SuccessModal = ({ onClose, header, message, path }) => {
   const navigate = useNavigate();
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
-      // Redirect to home after modal closes
-      navigate("/home");
+      // Redirect to PATH after modal closes
+      navigate(path);
     }, 2000);
 
     return () => clearTimeout(timer);
