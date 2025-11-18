@@ -69,6 +69,7 @@ const DeleteModal = ({
       post: "post",
       comment: "comment",
       user: "user",
+      board: "board",
     };
     return labels[itemType] || itemType;
   };

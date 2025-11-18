@@ -45,6 +45,7 @@ const ReportModal = ({ isOpen, onClose, item, itemType = "post" }) => {
       post: "post",
       comment: "comment",
       user: "user",
+      board: "board",
     };
     return labels[itemType] || "item";
   };
