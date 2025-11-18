@@ -76,7 +76,7 @@ const BoardMenu = ({
   };
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`absolute ${className}`}>
       <button
         ref={buttonRef}
         onClick={handleToggle}
