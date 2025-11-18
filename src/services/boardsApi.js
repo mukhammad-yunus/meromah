@@ -38,6 +38,32 @@ const PrivateBoardApi = baseApi.injectEndpoints({
         url: `/boards/isBoardNameAvailable${toQueryString(queryData)}`,
       }),
     }),
+    updateBoardBanner: builder.mutation({
+      query: ({ board, boardData }) => ({
+        url: `/boards/${board}/banner`,
+        body: boardData,
+        method: 'POST',
+      }),
+    }),
+    deleteBoardBanner: builder.mutation({
+      query: ({ board }) => ({
+        url: `/boards/${board}/banner`,
+        method: 'DELETE',
+      }),
+    }),
+    updateBoardAvatar: builder.mutation({
+      query: ({ board, boardData }) => ({
+        url: `/boards/${board}/avatar`,
+        body: boardData,
+        method: 'POST',
+      }),
+    }),
+    deleteBoardAvatar: builder.mutation({
+      query: ({ board }) => ({
+        url: `/boards/${board}/avatar`,
+        method: 'DELETE',
+      }),
+    }),
   }),
 });
 const PublicBoardApi = baseApi.injectEndpoints({
@@ -64,6 +90,10 @@ export const {
   useCreateBoardMutation,
   useDeleteBoardMutation,
   useCheckBoardNameIsAvailableQuery,
+  useUpdateBoardBannerMutation,
+  useUpdateBoardAvatarMutation,
+  useDeleteBoardBannerMutation,
+  useDeleteBoardAvatarMutation
 } = PrivateBoardApi;
 
 export const { useGetBoardsQuery, useGetBoardQuery, useSearchBoardsQuery } = PublicBoardApi;
