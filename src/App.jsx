@@ -42,11 +42,11 @@ const App = () => {
         <Route path="profile/edit" element={<EditProfile />} />
         <Route path="user/:username" element={<UserProfile />} />
         <Route path="home" element={<Feeds />} />
-        <Route path="board/:board/post/:postId" element={<Post postType={"post"}/>} />
+        <Route path="b/:board/post/:postId" element={<Post postType={"post"}/>} />
         <Route path="create/:action" element={<CreateAction />} />
-        <Route path="explore/boards" element={<ExploreBoards />} />
-        <Route path="explore/descs" element={<ExploreDescs />} />
-        <Route path="board/:boardId" element={<BoardPage />} />
+        <Route path="b/all" element={<ExploreBoards />} />
+        <Route path="d/all" element={<ExploreDescs />} />
+        <Route path="b/:boardId" element={<BoardPage />} />
       </Route>
       <Route path="/admin/*" element={<AdminPage />} />
     </Routes>

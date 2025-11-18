@@ -30,7 +30,7 @@ const Explore = () => {
           <div className="h-32 bg-secondary-light rounded-lg mb-4" aria-hidden="true" />
           <h2 className="text-xl font-bold mb-2">Boards & Posts</h2>
           <p className="text-neutral-700 flex-1">Discover discussions, jokes, and debates from fellow UniMe students. Post freely, anonymously, and safely.</p>
-          <Link to="/explore/boards" className="btn-cta inline-block mt-4">Read the boards →</Link>
+          <Link to="/b/all" className="btn-cta inline-block mt-4">Read the boards →</Link>
         </div>
       </section>
     </main>

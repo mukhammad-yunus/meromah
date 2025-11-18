@@ -272,7 +272,7 @@ const Post = ({ postType }) => {
         <ShareModal
           isOpen={isShareModalOpen}
           onClose={() => setIsShareModalOpen(false)}
-          postUrl={`${window.location.origin}/board/${postData.data.board.name}/post/${postData.data.id}`}
+          postUrl={`${window.location.origin}/b/${postData.data.board.name}/post/${postData.data.id}`}
           postTitle={postData.data.title}
         />
       )}

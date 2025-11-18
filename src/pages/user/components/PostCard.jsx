@@ -98,7 +98,7 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
   return (
     <>
     <Link
-      to={`/board/${post.board.name}/post/${post.id}`}
+      to={`/b/${post.board.name}/post/${post.id}`}
       className={`block bg-white border-x border-b border-gray-200 p-4 hover:bg-primary-bg transition-colors duration-200 ${
         isFirst && "rounded-t-lg border-t"
       } ${isLast && "rounded-b-lg"}`}
@@ -138,11 +138,11 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
             <p
               className="w-fit text-primary-blue text-base cursor-pointer hover:underline truncate"
               onClick={(e) =>
-                handleBoardClick(e, `/${getType[postType][1]}/${post.board.name}`)
+                handleBoardClick(e, `/${getType[postType][0]}/${post.board.name}`)
               }
               role="button"
               tabIndex={0}
-              onKeyDown={(e) => e.key === "Enter" && handleBoardClick(e, `/${getType[postType][1]}/${post.board.name}`)}
+              onKeyDown={(e) => e.key === "Enter" && handleBoardClick(e, `/${getType[postType][0]}/${post.board.name}`)}
             >
               {getType[postType][0]}/{post.board.name}
             </p>
@@ -237,7 +237,7 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
     <ShareModal
       isOpen={isShareModalOpen}
       onClose={() => setIsShareModalOpen(false)}
-      postUrl={`${window.location.origin}/board/${post.board.name}/post/${post.id}`}
+      postUrl={`${window.location.origin}/b/${post.board.name}/post/${post.id}`}
       postTitle={post.title}
     />
 

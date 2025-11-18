@@ -104,6 +104,7 @@ const BoardPage = () => {
   }
 
   if (!boardData || !postData) return null;
+  console.log(boardData)
   return (
     <div className="min-h-screen bg-primary-bg">
       <div className="max-w-4xl mx-auto px-4 py-8">

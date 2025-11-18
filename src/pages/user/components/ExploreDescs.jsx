@@ -96,7 +96,7 @@ const ExploreDescs = () => {
           className="flex items-start justify-between gap-3 p-2 hover:bg-neutral-50 rounded-lg transition-colors"
         >
           <Link
-            to={`/desc/${element.name}`}
+            to={`/d/${element.name}`}
             className="flex items-center gap-3 flex-1 min-w-0"
           >
             {/* Icon */}

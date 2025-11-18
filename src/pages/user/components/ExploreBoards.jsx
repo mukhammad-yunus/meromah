@@ -120,7 +120,7 @@ const ExploreBoards = () => {
               className="flex items-start justify-between gap-3 p-2 hover:bg-neutral-50 rounded-lg transition-colors"
             >
               <Link
-                to={`/board/${element.name}`}
+                to={`/b/${element.name}`}
                 className="flex items-center gap-3 flex-1 min-w-0"
               >
                 {/* Icon */}

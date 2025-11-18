@@ -34,13 +34,13 @@ const exploreData = [
   {
     id: "boards",
     title: "Boards",
-    path: "explore/boards",
+    path: "b/all",
     icon: Grid,
   },
   {
     id: "Descs",
     title: "Descs",
-    path: "explore/descs",
+    path: "d/all",
     icon: Book,
   },
 ];
@@ -82,7 +82,7 @@ const UserSidebar = () => {
     () => ({
       id: "boards",
       title: "Boards",
-      path: "/board",
+      path: "/b",
       icon: Grid,
       // NOTE: I might change items based on what myBoardSubscriptions gets from the db
       items: myBoardSubscriptions ? myBoardSubscriptions.data : [],
@@ -93,7 +93,7 @@ const UserSidebar = () => {
     () => ({
       id: "descs",
       title: "Descs",
-      path: "/desc",
+      path: "/d",
       icon: Book,
       // NOTE: I might change items based on what myDescSubscriptions gets from the db
       items: myDescSubscriptions ? myDescSubscriptions.data : [],
