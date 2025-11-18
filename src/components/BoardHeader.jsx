@@ -10,6 +10,9 @@ import {
 } from "../services/boardSubscriptionsApi";
 import { useSelector } from "react-redux";
 import Toast from "./Toast";
+import BoardMenu from "../pages/user/components/BoardMenu";
+import DeleteBoardModal from "../pages/user/components/DeleteBoardModal";
+import ReportModal from "../pages/user/components/ReportModal";
 
 // Helper function to extract error message from API error response
 const extractErrorMessage = (error) => {
@@ -28,12 +31,18 @@ const extractErrorMessage = (error) => {
 const BoardHeader = ({ board }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [toast, setToast] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const { isAuthenticated } = useSelector((state) => state.auth);
   const navigate = useNavigate();
-  const [subscribeToBoard, { isLoading: isSubscribing, error: subscribeError }] =
-    useSubscribeToBoardMutation();
-  const [unsubscribeFromBoard, { isLoading: isUnsubscribing, error: unsubscribeError }] =
-    useUnsubscribeFromBoardMutation();
+  const [
+    subscribeToBoard,
+    { isLoading: isSubscribing, error: subscribeError },
+  ] = useSubscribeToBoardMutation();
+  const [
+    unsubscribeFromBoard,
+    { isLoading: isUnsubscribing, error: unsubscribeError },
+  ] = useUnsubscribeFromBoardMutation();
 
   // Handle subscription errors
   useEffect(() => {
@@ -76,6 +85,19 @@ const BoardHeader = ({ board }) => {
       // Error will be handled by useEffect above
     }
   };
+
+  const handleDelete = () => {
+    setShowDeleteModal(true);
+  };
+
+  const handleReport = () => {
+    setShowReportModal(true);
+  };
+
+  const handleDeleteSuccess = () => {
+    navigate("/b/all");
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-neutral-200 mb-6 overflow-hidden">
       {/* Cover Image */}
@@ -87,6 +109,12 @@ const BoardHeader = ({ board }) => {
       className="w-full h-full object-cover"
     />
     <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20"></div> */}
+        <BoardMenu
+          board={board}
+          onDelete={handleDelete}
+          onReport={handleReport}
+          className="float-right pr-2 pt-2"
+        />
       </div>
 
       {/* Board Info */}
@@ -199,6 +227,22 @@ const BoardHeader = ({ board }) => {
           onClose={() => setToast(null)}
         />
       )}
+
+      {/* Delete Board Modal */}
+      <DeleteBoardModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        board={board}
+        onSuccess={handleDeleteSuccess}
+      />
+
+      {/* Report Board Modal */}
+      <ReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        item={board}
+        itemType="board"
+      />
     </div>
   );
 };
