@@ -102,6 +102,24 @@ const FileApi = baseApi.injectEndpoints({
         };
       },
     }),
+    uploadBoardAvatarFiles: builder.mutation({
+      query: ({ files, board }) => {
+        if (!Array.isArray(files)) {
+          throw new Error("uploadBoardAvatarFiles expects an array of File objects");
+        }
+
+        const formData = new FormData();
+        for (const file of files) {
+          if (file) formData.append("files[]", file);
+        }
+
+        return {
+          url: `/files/boards/${board}/avatar`,
+          method: "POST",
+          body: formData, // fetch will set the correct multipart boundary automatically
+        };
+      },
+    }),
     uploadDescBannerFiles: builder.mutation({
       query: ({ desc, files }) => {
         if (!Array.isArray(files)) {
@@ -166,5 +184,6 @@ export const {
   useUploadQuestionFilesMutation,
   useUploadTestFilesMutation,
   useUploadBoardBannerFilesMutation,
+  useUploadBoardAvatarFilesMutation,
   useUploadDescBannerFilesMutation,
 } = FileApi;
