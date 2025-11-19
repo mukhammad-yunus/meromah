@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { FaImage, FaCamera } from "react-icons/fa";
 import { FiX } from "react-icons/fi";
 import { IoReload } from "react-icons/io5";
-import { getFileUrl, getImage } from "../../utils/helpers";
+import { getFileUrl, extractErrorMessage, getImage } from "../../utils/helpers";
 import {
   useUploadBoardBannerFilesMutation,
   useUploadBoardAvatarFilesMutation,
@@ -14,6 +14,7 @@ import {
   useGetBoardQuery,
   useUpdateBoardAvatarMutation,
   useUpdateBoardBannerMutation,
+  useUpdateBoardMutation,
 } from "../../services/boardsApi";
 import Loading from "../../components/Loading";
 import NotFound from "../../components/NotFound";
@@ -24,13 +25,16 @@ const EditBoard = () => {
   const navigate = useNavigate();
   const { boardId } = useParams();
 
+  const boardNameRef = useRef(null);
+  const boardDescriptionRef = useRef(null);
   const avatarInputRef = useRef(null);
   const bannerInputRef = useRef(null);
 
   const [avatarImage, setAvatarImage] = useState(null);
   const [bannerImage, setBannerImage] = useState(null);
+  const [isFormValid, setIsFormValid] = useState(false);
   const [toast, setToast] = useState(null);
-  const [mobileMenu, setMobileMenu] = useState(null); // 'banner', 'avatar', or null
+  const [mobileMenu, setMobileMenu] = useState(null);
   const uploadingIds = useRef(new Set());
 
   const {
@@ -42,6 +46,7 @@ const EditBoard = () => {
 
   const [uploadBoardBanner] = useUploadBoardBannerFilesMutation();
   const [uploadBoardAvatar] = useUploadBoardAvatarFilesMutation();
+  const [updateBoard, { isLoading: isUpdating }] = useUpdateBoardMutation();
   const [updateBoardBanner] = useUpdateBoardBannerMutation();
   const [updateBoardAvatar] = useUpdateBoardAvatarMutation();
   const [deleteBoardBanner] = useDeleteBoardBannerMutation();
@@ -62,6 +67,11 @@ const EditBoard = () => {
         : null),
     [bannerImage, boardData]
   );
+  useEffect(() => {
+    if (boardData?.data) {
+      checkFormValidity();
+    }
+  }, [boardData]);
 
   // Upload avatar when selected
   useEffect(() => {
@@ -76,6 +86,12 @@ const EditBoard = () => {
       handleImageUpload(bannerImage, "banner", setBannerImage);
     }
   }, [bannerImage]);
+
+  const checkFormValidity = () => {
+    const boardName = boardNameRef.current?.value?.trim() || "";
+    const boardDescription = boardDescriptionRef.current?.value?.trim() || "";
+    setIsFormValid(boardName.length > 0 && boardDescription.length > 0);
+  };
 
   const handleImageUpload = async (item, uploadType = undefined, setImage) => {
     if (item.isUploading && !uploadingIds.current.has(item.id)) {
@@ -190,7 +206,34 @@ const EditBoard = () => {
   };
 
   //TODO: implementing a subs quermit logic
-  const handleSubmit = async (e) => {};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const boardName = boardNameRef.current?.value?.trim();
+    const boardDescription = boardDescriptionRef.current?.value?.trim();
+    if (!boardName || !boardDescription) return;
+    try {
+      // Update board data with hashes
+      const updateData = {
+        name: boardName,
+        description: boardDescription,
+      };
+      await updateBoard({ board: boardId, boardData: updateData }).unwrap();
+      setToast({
+        message: "Board updated successfully!",
+        type: "success",
+      });
+      // Navigate back to board page after a short delay
+      setTimeout(() => {
+        navigate(`/b/${boardId}`);
+      }, 1500);
+    } catch (error) {
+      const errorMessage = extractErrorMessage(error);
+      setToast({
+        message: errorMessage,
+        type: "error",
+      });
+    }
+  };
 
   const handleCancel = () => {
     navigate(`/b/${boardId}`);
@@ -476,6 +519,37 @@ const EditBoard = () => {
                 className="hidden"
               />
             </div>
+
+            {/* Board Name Field */}
+            <div className="flex flex-col gap-2">
+              <label className="font-medium text-neutral-800">
+                Board Name *
+              </label>
+              <input
+                ref={boardNameRef}
+                type="text"
+                defaultValue={boardData.data.name}
+                onChange={checkFormValidity}
+                className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all duration-200"
+                required
+              />
+            </div>
+
+            {/* Board Description Field */}
+            <div className="flex flex-col gap-2">
+              <label className="font-medium text-neutral-800">
+                Description *
+              </label>
+              <textarea
+                ref={boardDescriptionRef}
+                defaultValue={boardData.data.description}
+                onChange={checkFormValidity}
+                placeholder="What is this board about?"
+                className="w-full min-h-[120px] px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 placeholder-slate-400 resize-y"
+                rows={4}
+                required
+              />
+            </div>
           </div>
 
           {/* Action Buttons */}
@@ -495,6 +569,7 @@ const EditBoard = () => {
             <button
               type="submit"
               disabled={
+                !isFormValid ||
                 isUpdating ||
                 avatarImage?.isUploading ||
                 bannerImage?.isUploading
