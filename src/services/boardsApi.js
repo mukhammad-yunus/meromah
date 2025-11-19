@@ -53,6 +53,9 @@ const PrivateBoardApi = baseApi.injectEndpoints({
         url: `/boards/${board}/banner`,
         method: 'DELETE',
       }),
+      invalidatesTags: (result, error, board) => [
+        { type: "Board", id: `board-${board}` },
+      ],
     }),
     updateBoardAvatar: builder.mutation({
       query: ({ board, boardData }) => ({
@@ -69,6 +72,9 @@ const PrivateBoardApi = baseApi.injectEndpoints({
         url: `/boards/${board}/avatar`,
         method: 'DELETE',
       }),
+      invalidatesTags: (result, error, board) => [
+        { type: "Board", id: `board-${board}` },
+      ],
     }),
   }),
 });
