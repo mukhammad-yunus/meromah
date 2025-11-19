@@ -21,10 +21,13 @@ import Loading from "../../components/Loading";
 import NotFound from "../../components/NotFound";
 import ErrorDisplay from "../../components/ErrorDisplay";
 import Toast from "../../components/Toast";
+import { useSelector } from "react-redux";
 
 const EditBoard = () => {
   const navigate = useNavigate();
   const { boardId } = useParams();
+  const { profileData } = useSelector((state) => state.myProfile);
+  const { isAuthenticated } = useSelector((state) => state.auth);
 
   const boardNameRef = useRef(null);
   const boardDescriptionRef = useRef(null);
@@ -79,11 +82,11 @@ const EditBoard = () => {
   const isNameAvailable = useMemo(() => {
     const trimmedName = boardName.trim();
     const originalName = boardData?.data?.name || "";
-    
+
     // If name hasn't changed, it's valid
     if (trimmedName === originalName) return true;
     if (!trimmedName) return true;
-    
+
     return isBoardNameAvailable?.isAvailable ?? false;
   }, [boardName, boardData, isBoardNameAvailable]);
 
@@ -91,7 +94,7 @@ const EditBoard = () => {
   const nameError = useMemo(() => {
     const trimmedName = boardName.trim();
     const originalName = boardData?.data?.name || "";
-    
+
     // If name hasn't changed, no error
     if (trimmedName === originalName) return null;
     if (!trimmedName) return null;
@@ -246,7 +249,7 @@ const EditBoard = () => {
       }).unwrap();
       if (updateType === "avatar") {
         URL.revokeObjectURL(avatarImage.url);
-      } else{
+      } else {
         URL.revokeObjectURL(bannerImage.url);
       }
       setImage(null);
@@ -271,30 +274,29 @@ const EditBoard = () => {
     }
   };
 
-  const removeAvatar = async() => {
+  const removeAvatar = async () => {
     try {
       await deleteBoardAvatar(boardId).unwrap();
     } catch (err) {
-      console.error(err)
-       setToast({
+      console.error(err);
+      setToast({
         message: err.data.message,
         type: "error",
-      })
+      });
     }
   };
-  const removeBanner = async() => {
+  const removeBanner = async () => {
     try {
       await deleteBoardBanner(boardId).unwrap();
     } catch (err) {
-      console.error(err)
-       setToast({
+      console.error(err);
+      setToast({
         message: err.data.message,
         type: "error",
-      })
+      });
     }
   };
 
-  //TODO: implementing a subs quermit logic
   const handleSubmit = async (e) => {
     e.preventDefault();
     const boardName = boardNameRef.current?.value?.trim();
@@ -327,16 +329,34 @@ const EditBoard = () => {
   const handleCancel = () => {
     navigate(`/b/${boardId}`);
   };
-
+  // Early authentication check - most critical
+  if (isAuthenticated === false) {
+    navigate("/login");
+    return;
+  }
+  // Loading state
   if (isBoardLoading) return <Loading />;
 
+  // Error handling
   if (isBoardError) {
     const status = boardError?.status;
-    if (status === 404) return <NotFound />;
+    // Handle specific error cases
+    if (status === 404 || status === 403) {
+      return <NotFound />;
+    }
     return <ErrorDisplay error={boardError} />;
   }
 
-  if (!boardData?.data) return null;
+  // Data validation
+  if (!boardData?.data) {
+    return <ErrorDisplay error={{ message: "Board data not available" }} />;
+  }
+
+  // Authorization check - verify ownership
+  if (profileData?.username !== boardData.data.author?.username) {
+    return <NotFound />; // Later I can create <Unauthorized /> component and return it, but for now this is enough
+  }
+
   return (
     <div className="relative min-h-screen bg-primary-bg">
       <div className="max-w-2xl w-full mx-auto px-4 py-8">
