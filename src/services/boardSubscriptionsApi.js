@@ -55,10 +55,10 @@ const PrivateBoardSubscriptionsApi = baseApi.injectEndpoints({
       }),
     }),
 
-    // GET /board-subscriptions/{boardSubscription} - Admin detail
+    // GET /board-subscriptions/{board} - Admin detail
     getBoardSubscriptionPrivileged: builder.query({
-      query: ({ boardSubscription }) => ({
-        url: `/board-subscriptions/${boardSubscription}`,
+      query: ( board ) => ({
+        url: `/board-subscriptions/${board}`,
       }),
     }),
 
