@@ -44,6 +44,9 @@ const PrivateBoardApi = baseApi.injectEndpoints({
         body: boardData,
         method: 'POST',
       }),
+      invalidatesTags: (result, error, {board}) => [
+        { type: "Board", id: `board-${board}` },
+      ],
     }),
     deleteBoardBanner: builder.mutation({
       query: ({ board }) => ({
@@ -57,6 +60,9 @@ const PrivateBoardApi = baseApi.injectEndpoints({
         body: boardData,
         method: 'POST',
       }),
+      invalidatesTags: (result, error, {board}) => [
+        { type: "Board", id: `board-${board}` },
+      ],
     }),
     deleteBoardAvatar: builder.mutation({
       query: ({ board }) => ({
