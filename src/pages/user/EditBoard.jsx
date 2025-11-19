@@ -136,9 +136,12 @@ const EditBoard = () => {
         board: boardId,
         boardData: { file_hashes: [hash] },
       }).unwrap();
-      setImage((prev) =>
-        prev ? { ...prev, isUploading: false, error: false } : null
-      );
+      if (updateType === "avatar") {
+        URL.revokeObjectURL(avatarImage.url);
+      } else{
+        URL.revokeObjectURL(bannerImage.url);
+      }
+      setImage(null);
     } catch (err) {
       console.error(err);
       setImage((prev) =>
