@@ -9,6 +9,8 @@ import {
   useUploadBoardAvatarFilesMutation,
 } from "../../services/fileApi";
 import {
+  useDeleteBoardAvatarMutation,
+  useDeleteBoardBannerMutation,
   useGetBoardQuery,
   useUpdateBoardAvatarMutation,
   useUpdateBoardBannerMutation,
@@ -42,7 +44,8 @@ const EditBoard = () => {
   const [uploadBoardAvatar] = useUploadBoardAvatarFilesMutation();
   const [updateBoardBanner] = useUpdateBoardBannerMutation();
   const [updateBoardAvatar] = useUpdateBoardAvatarMutation();
-
+  const [deleteBoardBanner] = useDeleteBoardBannerMutation();
+  const [deleteBoardAvatar] = useDeleteBoardAvatarMutation();
   const currentAvatarUrl = useMemo(
     () =>
       avatarImage?.url ||
@@ -163,11 +166,28 @@ const EditBoard = () => {
     }
   };
 
-  //TODO: implementing a delete query
-  const removeAvatar = () => {};
-
-  //TODO: implementing a delete query
-  const removeBanner = () => {};
+  const removeAvatar = async() => {
+    try {
+      await deleteBoardAvatar(boardId).unwrap();
+    } catch (err) {
+      console.error(err)
+       setToast({
+        message: err.data.message,
+        type: "error",
+      })
+    }
+  };
+  const removeBanner = async() => {
+    try {
+      await deleteBoardBanner(boardId).unwrap();
+    } catch (err) {
+      console.error(err)
+       setToast({
+        message: err.data.message,
+        type: "error",
+      })
+    }
+  };
 
   //TODO: implementing a subs quermit logic
   const handleSubmit = async (e) => {};
