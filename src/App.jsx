@@ -22,6 +22,7 @@ import MyProfile from "./pages/user/MyProfile";
 import ExploreBoards from "./pages/user/components/ExploreBoards";
 import ExploreDescs from "./pages/user/components/ExploreDescs";
 import EditBoard from "./pages/user/EditBoard";
+import BoardMemebers from "./pages/user/BoardMemebers";
 
 const App = () => {
   return (
@@ -48,6 +49,7 @@ const App = () => {
         <Route path="b/all" element={<ExploreBoards />} />
         <Route path="d/all" element={<ExploreDescs />} />
         <Route path="b/:boardId" element={<BoardPage />} />
+        <Route path="b/:boardId/members" element={<BoardMemebers />} />
         <Route path="b/:boardId/edit" element={<EditBoard />} />
       </Route>
       <Route path="/admin/*" element={<AdminPage />} />

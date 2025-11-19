@@ -102,6 +102,12 @@ const BoardMenu = ({
                 Edit board
               </button>
               <button
+                onClick={() => navigate(`/b/${board.name}/members`)}
+                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 transition-colors duration-150 cursor-pointer"
+              >
+                Board members
+              </button>
+              <button
                 onClick={(e) => handleMenuAction(e, onDelete)}
                 className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150 cursor-pointer"
               >
