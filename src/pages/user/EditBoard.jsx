@@ -15,6 +15,7 @@ import {
   useUpdateBoardAvatarMutation,
   useUpdateBoardBannerMutation,
   useUpdateBoardMutation,
+  useCheckBoardNameIsAvailableQuery,
 } from "../../services/boardsApi";
 import Loading from "../../components/Loading";
 import NotFound from "../../components/NotFound";
@@ -32,6 +33,8 @@ const EditBoard = () => {
 
   const [avatarImage, setAvatarImage] = useState(null);
   const [bannerImage, setBannerImage] = useState(null);
+  const [boardName, setBoardName] = useState("");
+  const [hasSpecialChar, setHasSpecialChar] = useState(false);
   const [isFormValid, setIsFormValid] = useState(false);
   const [toast, setToast] = useState(null);
   const [mobileMenu, setMobileMenu] = useState(null);
@@ -51,6 +54,60 @@ const EditBoard = () => {
   const [updateBoardAvatar] = useUpdateBoardAvatarMutation();
   const [deleteBoardBanner] = useDeleteBoardBannerMutation();
   const [deleteBoardAvatar] = useDeleteBoardAvatarMutation();
+
+  // Name availability check - skip if name hasn't changed or is invalid
+  const shouldSkipNameCheck = useMemo(() => {
+    const trimmedName = boardName.trim();
+    const originalName = boardData?.data?.name || "";
+    return (
+      !trimmedName ||
+      trimmedName === originalName ||
+      trimmedName.length < 3 ||
+      trimmedName.length > 20
+    );
+  }, [boardName, boardData]);
+
+  const { data: isBoardNameAvailable, isFetching: isCheckingName } =
+    useCheckBoardNameIsAvailableQuery(
+      { name: boardName },
+      {
+        skip: shouldSkipNameCheck,
+      }
+    );
+
+  // Check if name is available
+  const isNameAvailable = useMemo(() => {
+    const trimmedName = boardName.trim();
+    const originalName = boardData?.data?.name || "";
+    
+    // If name hasn't changed, it's valid
+    if (trimmedName === originalName) return true;
+    if (!trimmedName) return true;
+    
+    return isBoardNameAvailable?.isAvailable ?? false;
+  }, [boardName, boardData, isBoardNameAvailable]);
+
+  // Validation error messages
+  const nameError = useMemo(() => {
+    const trimmedName = boardName.trim();
+    const originalName = boardData?.data?.name || "";
+    
+    // If name hasn't changed, no error
+    if (trimmedName === originalName) return null;
+    if (!trimmedName) return null;
+
+    if (trimmedName.length < 3) {
+      return "Name must be at least 3 characters long";
+    }
+    if (trimmedName.length > 20) {
+      return "Name must be 20 characters or less";
+    }
+    if (!isNameAvailable && !isCheckingName) {
+      return "This name is already taken, please choose another";
+    }
+    return null;
+  }, [boardName, boardData, isNameAvailable, isCheckingName]);
+
   const currentAvatarUrl = useMemo(
     () =>
       avatarImage?.url ||
@@ -67,8 +124,10 @@ const EditBoard = () => {
         : null),
     [bannerImage, boardData]
   );
+  // Initialize board name when data loads
   useEffect(() => {
     if (boardData?.data) {
+      setBoardName(boardData.data.name);
       checkFormValidity();
     }
   }, [boardData]);
@@ -88,9 +147,39 @@ const EditBoard = () => {
   }, [bannerImage]);
 
   const checkFormValidity = () => {
-    const boardName = boardNameRef.current?.value?.trim() || "";
+    const name = boardNameRef.current?.value?.trim() || "";
     const boardDescription = boardDescriptionRef.current?.value?.trim() || "";
-    setIsFormValid(boardName.length > 0 && boardDescription.length > 0);
+    const isValid =
+      name.length > 0 &&
+      boardDescription.length > 0 &&
+      !nameError &&
+      isNameAvailable &&
+      !isCheckingName;
+    setIsFormValid(isValid);
+  };
+
+  // Revalidate form when name validation changes
+  useEffect(() => {
+    checkFormValidity();
+  }, [nameError, isNameAvailable, isCheckingName]);
+
+  const handleBoardNameChange = (e) => {
+    const value = e.target.value;
+
+    if (value.length === 0) {
+      setHasSpecialChar(false);
+      setBoardName("");
+      checkFormValidity();
+      return;
+    }
+
+    const isValid = /^[A-Za-z0-9 _-]+$/.test(value);
+    setHasSpecialChar(!isValid);
+
+    if (isValid) {
+      setBoardName(value.replace(/\s+/g, "-"));
+      checkFormValidity();
+    }
   };
 
   const handleImageUpload = async (item, uploadType = undefined, setImage) => {
@@ -521,18 +610,43 @@ const EditBoard = () => {
             </div>
 
             {/* Board Name Field */}
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col">
               <label className="font-medium text-neutral-800">
                 Board Name *
               </label>
               <input
                 ref={boardNameRef}
                 type="text"
-                defaultValue={boardData.data.name}
-                onChange={checkFormValidity}
-                className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all duration-200"
+                value={boardName}
+                onChange={handleBoardNameChange}
+                placeholder="e.g., Study-Resources, Design-Inspirations"
+                className={`w-full px-3 py-2 mt-2 rounded-lg border focus:outline-none focus:ring-2 transition-all duration-200 ${
+                  nameError
+                    ? "border-red-500 focus:ring-red-500/30 focus:border-red-500"
+                    : "border-slate-200 focus:ring-blue-500/30 focus:border-blue-500"
+                } placeholder-slate-400`}
                 required
               />
+              {/* Show preview URL when valid */}
+              <div
+                className={`text-xs text-slate-500 transition-all duration-300 ease-in-out ${
+                  boardName && !nameError && boardName !== boardData.data.name
+                    ? "mt-1.5 max-h-10 opacity-100 translate-y-0"
+                    : "mt-0 max-h-0 opacity-0 -translate-y-1 overflow-hidden"
+                }`}
+              >
+                b/{boardName}
+              </div>
+              {/* Show error message when invalid */}
+              <div
+                className={`text-xs text-red-500 font-medium transition-all duration-300 ease-in-out ${
+                  nameError
+                    ? "mt-1.5 max-h-10 opacity-100 translate-y-0"
+                    : "mt-0 max-h-0 opacity-0 -translate-y-1 overflow-hidden"
+                }`}
+              >
+                {nameError}
+              </div>
             </div>
 
             {/* Board Description Field */}
@@ -588,6 +702,21 @@ const EditBoard = () => {
           message={toast.message}
           type={toast.type}
           onClose={() => setToast(null)}
+        />
+      )}
+
+      {/* Special Character Warning Toast */}
+      {hasSpecialChar && (
+        <Toast
+          type="error"
+          message={
+            <span>
+              <strong>Oops!</strong> Some special characters aren't allowed.
+              Please use only{" "}
+              <strong>letters, numbers, dashes (-), or underscores (_).</strong>
+            </span>
+          }
+          onClose={() => setHasSpecialChar(false)}
         />
       )}
 
