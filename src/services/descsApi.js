@@ -63,7 +63,33 @@ const DescsApi = baseApi.injectEndpoints({
         url: `/descs/isNameAvailable${toQueryString(queryParams)}`,
       })
     }),
-
+    // banner
+    updateDescBanner: builder.query({
+      query: ({ desc, descData }) => ({
+        url: `/descs/${desc}/banner`,
+        body: descData,
+        method: "POST",
+      })
+    }),
+    deleteDescBanner: builder.query({
+      query: (desc) => ({
+        url: `/descs/${desc}/banner`,
+        method: "DELETE",
+      })
+    }),
+    updateDescAvatar: builder.query({
+      query: ({ desc, descData }) => ({
+        url: `/descs/${desc}/avatar`,
+        body: descData,
+        method: "POST",
+      })
+    }),
+    deleteDescAvatar: builder.query({
+      query: (desc) => ({
+        url: `/descs/${desc}/avatar`,
+        method: "DELETE",
+      })
+    }),
   }),
   overrideExisting: true,
 });
@@ -76,5 +102,9 @@ export const {
   useGetDescsQuery,
   useGetDescQuery,
   useGetDescLikesQuery,
-  useCheckDescNameIsAvailableQuery
+  useCheckDescNameIsAvailableQuery,
+  useUpdateDescBannerMutation,
+  useUpdateDescAvatarMutation,
+  useDeleteDescBannerMutation,
+  useDeleteDescAvatarMutation,
 } = DescsApi;
