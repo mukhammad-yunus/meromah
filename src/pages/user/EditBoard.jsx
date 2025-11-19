@@ -193,9 +193,6 @@ const EditBoard = () => {
   const handleSubmit = async (e) => {};
 
   const handleCancel = () => {
-    // Clean up object URLs
-    if (avatarImage?.url) URL.revokeObjectURL(avatarImage.url);
-    if (bannerImage?.url) URL.revokeObjectURL(bannerImage.url);
     navigate(`/b/${boardId}`);
   };
 
