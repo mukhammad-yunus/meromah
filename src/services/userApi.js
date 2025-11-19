@@ -37,6 +37,32 @@ const PrivateUserSelfApi = baseApi.injectEndpoints({
         body: bodyData,
       }),
     }),
+    updateMyBanner: builder.mutation({
+      query: ({ bodyData }) => ({
+        url: "/me/profile/banner",
+        method: "POST",
+        body: bodyData,
+      }),
+    }),
+    deleteMyBanner: builder.mutation({
+      query: () => ({
+        url: "/me/profile/banner",
+        method: "DELETE",
+      }),
+    }),
+    updateMyAvatar: builder.mutation({
+      query: ({ bodyData }) => ({
+        url: "/me/profile/avatar",
+        method: "POST",
+        body: bodyData,
+      }),
+    }),
+    deleteMyAvatar: builder.mutation({
+      query: () => ({
+        url: "/me/profile/avatar",
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
@@ -46,6 +72,11 @@ export const {
 
   useGetMyProfileQuery,
   useUpdateMyProfileMutation,
+
+  useUpdateMyBannerMutation,
+  useDeleteMyBannerMutation,
+  useUpdateMyAvatarMutation,
+  useDeleteMyAvatarMutation,
 } = PrivateUserSelfApi;
 
 export const { 
