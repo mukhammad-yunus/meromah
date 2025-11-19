@@ -25,6 +25,9 @@ const PrivateBoardApi = baseApi.injectEndpoints({
         method: "PUT",
         body: boardData,
       }),
+       invalidatesTags: (result, error, {board}) => [
+        { type: "Board", id: `board-${board}` },
+      ],
     }),
     deleteBoard: builder.mutation({
       query: ({ board }) => ({
