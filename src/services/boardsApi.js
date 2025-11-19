@@ -49,7 +49,7 @@ const PrivateBoardApi = baseApi.injectEndpoints({
       ],
     }),
     deleteBoardBanner: builder.mutation({
-      query: ({ board }) => ({
+      query: (board ) => ({
         url: `/boards/${board}/banner`,
         method: 'DELETE',
       }),
@@ -65,7 +65,7 @@ const PrivateBoardApi = baseApi.injectEndpoints({
       ],
     }),
     deleteBoardAvatar: builder.mutation({
-      query: ({ board }) => ({
+      query: (board) => ({
         url: `/boards/${board}/avatar`,
         method: 'DELETE',
       }),
