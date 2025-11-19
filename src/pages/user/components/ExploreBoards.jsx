@@ -6,9 +6,11 @@ import {
   useUnsubscribeFromBoardMutation,
 } from "../../../services/boardSubscriptionsApi";
 import { useSelector } from "react-redux";
+import { getFileUrl, getInitials } from "../../../utils";
 
 const ExploreBoards = () => {
   const { data: result, isLoading, error } = useGetBoardsQuery();
+  console.log(result);
   const { isAuthenticated } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const [subscribeToBoard, { isLoading: isSubscribing }] =
@@ -123,9 +125,18 @@ const ExploreBoards = () => {
                 to={`/b/${element.name}`}
                 className="flex items-center gap-3 flex-1 min-w-0"
               >
-                {/* Icon */}
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-                  {element.name.charAt(0).toUpperCase()}
+                <div className="w-12 h-12  rounded-full overflow-hidden border-4 border-white bg-white">
+                  {element.avatar === null ? (
+                    <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                      {getInitials(element.name)}
+                    </div>
+                  ) : (
+                    <img
+                      src={getFileUrl(element.avatar.file_hash)}
+                      alt="Board avatar"
+                      className="w-full h-full object-cover"
+                    />
+                  )}
                 </div>
 
                 {/* Info */}
