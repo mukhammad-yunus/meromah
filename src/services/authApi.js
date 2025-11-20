@@ -1,5 +1,6 @@
 import { setIsAuthenticated } from "../app/authSlice";
 import { baseApi } from "./baseApi";
+import { toQueryString } from "../utils/helpers";
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -18,7 +19,11 @@ export const authApi = baseApi.injectEndpoints({
         body: { otp, email },
       }),
     }),
-
+    checkIsUsernameAvailable: builder.query({
+      query: (queryParams) => ({
+        url: `/users/isUsernameAvailable${toQueryString(queryParams)}`,
+      })
+    }),
     registerUser: builder.mutation({
       query: (userData) => ({
         url: "/auth/register",
@@ -76,4 +81,5 @@ export const {
   useLoginMutation,
   useLogoutMutation,
   useAmILoggedInQuery,
+  useCheckIsUsernameAvailableQuery,
 } = authApi;
