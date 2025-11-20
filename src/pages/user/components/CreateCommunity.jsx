@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { FiArrowLeft, FiSend } from "react-icons/fi";
 
 import {
@@ -12,6 +12,7 @@ import {
 import SuccessModal from "../../main/components/SuccessModal.jsx";
 import Toast from "../.../../../../components/Toast.jsx";
 import { useNavigate } from "react-router-dom";
+import NameAvailabilityInput from "../../../components/NameAvailabilityInput.jsx";
 const communityTypes = {
   board: { name: "Board", path: "b" },
   desc: { name: "Desc", path: "d" },
@@ -21,6 +22,7 @@ const CreateCommunity = () => {
   const [communityDescription, setCommunityDescription] = useState("");
   const [communityType, setCommunityType] = useState("board");
   const [hasSpecialChar, setHasSpecialChar] = useState(false);
+  const [isNameValid, setIsNameValid] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [createError, setCreateError] = useState({
     hasError: false,
@@ -30,82 +32,11 @@ const CreateCommunity = () => {
   const [createBoard, { isLoading: isBoardLoading }] = useCreateBoardMutation();
   const [createDesc, { isLoading: isDescLoading }] = useCreateDescMutation();
 
-  // Shared skip logic for name availability checks
-  const shouldSkipNameCheck = useMemo(() => {
-    const trimmedName = communityName.trim();
-    return !trimmedName || trimmedName.length < 3 || trimmedName.length > 20;
-  }, [communityName]);
-
-  const { data: isBoardNameAvailable, isFetching: isFetchingBoard } =
-    useCheckBoardNameIsAvailableQuery(
-      { name: communityName },
-      {
-        skip: shouldSkipNameCheck || communityType !== "board",
-      }
-    );
-
-  const { data: isDescNameAvailable, isFetching: isFetchingDesc } =
-    useCheckDescNameIsAvailableQuery(
-      { name: communityName },
-      {
-        skip: shouldSkipNameCheck || communityType !== "desc",
-      }
-    );
-
-  const isNameAvailable = useMemo(() => {
-    if (!communityName.trim()) return true;
-
-    if (communityType === "board") {
-      return isBoardNameAvailable?.isAvailable ?? false; // Default to false while loading
-    }
-    return isDescNameAvailable?.isAvailable ?? false;
-  }, [communityName, communityType, isBoardNameAvailable, isDescNameAvailable]);
-
-  const isChecking =
-    communityType === "board" ? isFetchingBoard : isFetchingDesc;
-
-  // Validation error messages
-  const nameError = useMemo(() => {
-    const trimmedName = communityName.trim();
-    if (!trimmedName) return null;
-
-    if (trimmedName.length < 3) {
-      return "Name must be at least 3 characters long";
-    }
-    if (trimmedName.length > 20) {
-      return "Name must be 20 characters or less";
-    }
-    if (!isNameAvailable && !isChecking) {
-      return "This name is already taken, please choose another";
-    }
-    return null;
-  }, [communityName, isNameAvailable, isChecking]);
-
   const isCreateDisabled =
-    !communityName.trim() ||
+    !isNameValid ||
     !communityDescription.trim() ||
-    !isNameAvailable ||
-    isChecking ||
     isBoardLoading ||
-    isDescLoading ||
-    !!nameError;
-
-  const handleCommunityNameChange = (e) => {
-    const value = e.target.value;
-
-    if (value.length === 0) {
-      setHasSpecialChar(false);
-      setCommunityName("");
-      return;
-    }
-
-    const isValid = /^[A-Za-z0-9 _-]+$/.test(value);
-    setHasSpecialChar(!isValid);
-
-    if (isValid) {
-      setCommunityName(value.replace(/\s+/g, "-"));
-    }
-  };
+    isDescLoading;
   const onResetCommunityForm = ()=>{
     setCommunityName("")
     setCommunityDescription("")
@@ -188,42 +119,20 @@ const CreateCommunity = () => {
           </div>
           <div className="p-6 border-b border-slate-100">
             <div className="grid gap-5">
-              <div className="">
-                <label className="flex flex-col gap-2">
-                  <span className="font-medium text-neutral-800">
-                    {communityTypes[communityType].name} name
-                  </span>
-                  <input
-                    type="text"
-                    value={communityName}
-                    onChange={handleCommunityNameChange}
-                    placeholder="e.g., Study-Resources, Design-Inspirations"
-                    className={`input w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 transition-all duration-200 ${
-                      nameError
-                        ? "border-red-500 focus:ring-red-500/30 focus:border-red-500"
-                        : "border-slate-200 focus:ring-blue-500/30 focus:border-blue-500"
-                    } placeholder-slate-400`}
-                  />
-                </label>
-                <div
-                  className={`text-xs text-slate-500 transition-all duration-300 ease-in-out ${
-                    communityName && !nameError
-                      ? "mt-1.5 max-h-10 opacity-100 translate-y-0"
-                      : "mt-0 max-h-0 opacity-0 -translate-y-1 overflow-hidden"
-                  }`}
-                >
-                  {communityTypes[communityType].path}/{communityName}
-                </div>
-                <div
-                  className={`text-xs text-red-500 font-medium transition-all duration-300 ease-in-out ${
-                    nameError
-                      ? "mt-1.5 max-h-10 opacity-100 translate-y-0"
-                      : "mt-0 max-h-0 opacity-0 -translate-y-1 overflow-hidden"
-                  }`}
-                >
-                  {nameError}
-                </div>
-              </div>
+              <NameAvailabilityInput
+                value={communityName}
+                onChange={setCommunityName}
+                useCheckAvailabilityQuery={
+                  communityType === "board"
+                    ? useCheckBoardNameIsAvailableQuery
+                    : useCheckDescNameIsAvailableQuery
+                }
+                label={`${communityTypes[communityType].name} name`}
+                placeholder="e.g., Study-Resources, Design-Inspirations"
+                urlPrefix={`${communityTypes[communityType].path}/`}
+                onValidationChange={(isValid) => setIsNameValid(isValid)}
+                onSpecialCharDetected={setHasSpecialChar}
+              />
               <label className="flex flex-col gap-2">
                 <span className="font-medium text-neutral-800">
                   Description
