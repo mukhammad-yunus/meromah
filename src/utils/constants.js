@@ -407,3 +407,12 @@ export const DEFAULT_PLACEHOLDERS = {
   noQuizzes: "No quizzes created yet",
   noLibrary: "No library items yet"
 };
+
+export const SUCCESS_MESSAGES_FOR_UPDATES = {
+  name: "Full Name updated successfully!",
+  username: "Username updated successfully!",
+  biography: "Biography updated successfully!",
+  birth_date: "Birth date updated successfully!",
+  sex: "Sex updated successfully!",
+  enrollment_year_id: "Enrollment year updated successfully!",
+};
