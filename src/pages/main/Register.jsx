@@ -5,10 +5,12 @@ import {
   useEmailVerificationMutation,
   useOtpVerificationMutation,
   useRegisterUserMutation,
+useCheckIsUsernameAvailableQuery,
 } from "../../services/authApi";
 import Toast from "../../components/Toast";
 import SuccessModal from "./components/SuccessModal";
 import { useDispatch } from "react-redux";
+import NameAvailabilityInput from "../../components/NameAvailabilityInput";
 
 // Default form values
 const DEFAULT_FORM_VAL = {
@@ -26,6 +28,8 @@ const Register = () => {
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState("");
   const [isPasswordMatch, setIsPasswordMatch] = useState(true);
+  const [isUsernameValid, setIsUsernameValid] = useState(false);
+  const [hasSpecialChar, setHasSpecialChar] = useState(false);
   const [toast, setToast] = useState(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   // Redux dispatch
@@ -68,11 +72,6 @@ const Register = () => {
   const validatePassword = (password) => {
     return password.length >= 8;
   };
-
-  const validateUsername = (username) => {
-    return username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
-  };
-
   // Handlers for each step
   const handleEmailVerification = async () => {
     setApiError("");
@@ -127,9 +126,8 @@ const Register = () => {
     if (form.name.length < 2) {
       newErrors.name = "Name must be at least 2 characters";
     }
-    if (!validateUsername(form.username)) {
-      newErrors.username =
-        "Username must be at least 3 characters and contain only letters, numbers, and underscores";
+    if (!isUsernameValid) {
+      newErrors.username = "Please enter a valid and available username";
     }
     if (!validatePassword(form.password)) {
       newErrors.password = "Password must be at least 8 characters";
@@ -200,6 +198,20 @@ const Register = () => {
           message={toast.message}
           type={toast.type}
           onClose={() => setToast(null)}
+        />
+      )}
+
+      {/* Special Character Warning Toast */}
+      {hasSpecialChar && (
+        <Toast
+          type="error"
+          message={
+            <span>
+              <strong>Oops!</strong> Username can only contain{" "}
+              <strong>letters, numbers, and underscores (_).</strong>
+            </span>
+          }
+          onClose={() => setHasSpecialChar(false)}
         />
       )}
 
@@ -444,29 +456,27 @@ const Register = () => {
                 )}
               </label>
 
-              <label className="flex flex-col gap-2">
-                <span className="font-medium text-neutral-800">Username</span>
-                <input
-                  type="text"
-                  placeholder="john_doe"
+              <div>
+                <NameAvailabilityInput
                   value={form.username}
-                  onChange={(e) => {
-                    setForm({ ...form, username: e.target.value });
+                  onChange={(value) => {
+                    setForm({ ...form, username: value });
                     if (errors.username) setErrors({ ...errors, username: "" });
                   }}
-                  className={`px-2 pt-1 pb-1.5 focus:outline-1 text-primary-blue rounded-md border ${
-                    errors.username
-                      ? "border-red-300 focus:outline-red-500"
-                      : "border-gray-200 focus:outline-primary-yellow"
-                  }`}
+                  useCheckAvailabilityQuery={useCheckIsUsernameAvailableQuery}
+                  label="Username"
+                  placeholder="johndoe"
+                  inputType="username"
+                  onValidationChange={(isValid) => setIsUsernameValid(isValid)}
+                  onSpecialCharDetected={setHasSpecialChar}
                   required
                 />
                 {errors.username && (
-                  <span className="text-red-500 text-sm">
+                  <span className="text-red-500 text-sm mt-1 block">
                     {errors.username}
                   </span>
                 )}
-              </label>
+              </div>
 
               <label className="flex flex-col gap-2">
                 <span className="font-medium text-neutral-800">Password</span>
