@@ -5,7 +5,7 @@ import {
   useEmailVerificationMutation,
   useOtpVerificationMutation,
   useRegisterUserMutation,
-useCheckIsUsernameAvailableQuery,
+  useCheckIsUsernameAvailableQuery,
 } from "../../services/authApi";
 import Toast from "../../components/Toast";
 import SuccessModal from "./components/SuccessModal";
@@ -477,7 +477,13 @@ const Register = () => {
                   </span>
                 )}
               </div>
-
+              {/* Prevents auto complete */}
+              <input
+                type="text"
+                name="fake-user"
+                autoComplete="username"
+                style={{ display: "none" }}
+              />
               <label className="flex flex-col gap-2">
                 <span className="font-medium text-neutral-800">Password</span>
                 <input
