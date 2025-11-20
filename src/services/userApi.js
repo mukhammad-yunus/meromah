@@ -32,8 +32,8 @@ const PrivateUserSelfApi = baseApi.injectEndpoints({
     }),
     updateMyProfile: builder.mutation({
       query: ({ bodyData }) => ({
-        url: "/me/profile/updateSelf",
-        method: "POST",
+        url: "/me/profile",
+        method: "PUT",
         body: bodyData,
       }),
       invalidatesTags: [{type:'Profile', id: 'getMyProfile'}, {type:'Profile', id: 'getMe'}]
