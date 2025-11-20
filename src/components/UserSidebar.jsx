@@ -363,7 +363,7 @@ const UserSidebar = () => {
             {userMenuOpen && (
               <div className="absolute bottom-full left-2 right-2 mb-2 bg-white border border-neutral-200 rounded-xl shadow-lg overflow-hidden z-50">
                 <div className="px-4 pt-3 pb-2 text-xs text-neutral-500 truncate border-b border-neutral-200">
-                  {profileData?.data?.email || "no email"}
+                  {profileData?.email || "no email"}
                 </div>
                 <div className="p-1.5">
                   <button className="w-full flex items-center justify-between px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-100 rounded-lg transition-all">
