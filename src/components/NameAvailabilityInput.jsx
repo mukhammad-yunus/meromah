@@ -19,6 +19,7 @@ const NameAvailabilityInput = ({
   onValidationChange, // (isValid, errorMessage) => void
   onSpecialCharDetected, // (hasSpecialChar) => void - for parent to show toast
   inputRef, // Ref for parent form access
+  onAvailabilityChange, // (isAvailable) => void
 }) => {
   const [hasSpecialChar, setHasSpecialChar] = useState(false);
 
@@ -90,12 +91,18 @@ const NameAvailabilityInput = ({
       onChange(inputValue.replace(/\s+/g, "_"));
     }
   };
+  // Notify parent of availability changes
+  useEffect(() => {
+  if (onAvailabilityChange) {
+    onAvailabilityChange(isAvailable);
+  }
+}, [isAvailable, onAvailabilityChange]);
 
   // Notify parent of validation changes
   useEffect(() => {
     const isValid = !errorMessage && !isChecking && value.trim().length > 0;
     if (onValidationChange) {
-      onValidationChange(isValid, errorMessage);
+      onValidationChange(isValid);
     }
   }, [errorMessage, isChecking, value, onValidationChange]);
 
