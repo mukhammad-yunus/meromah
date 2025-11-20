@@ -366,12 +366,12 @@ const UserSidebar = () => {
                   {profileData?.email || "no email"}
                 </div>
                 <div className="p-1.5">
-                  <button className="w-full flex items-center justify-between px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-100 rounded-lg transition-all">
-                    <Link to="profile/edit" className="flex items-center gap-2">
+                  <Link to="profile/edit" className="w-full flex items-center justify-between px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-100 rounded-lg transition-all">
+                    <button className="flex items-center gap-2">
                       <Settings className="w-4 h-4" />
-                      Edit profile
-                    </Link>
-                  </button>
+                      <span>Edit profile</span>
+                    </button>
+                  </Link>
                   <button className="w-full flex items-center justify-between px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-100 rounded-lg transition-all">
                     <span>Language</span>
                     <ChevronRight className="w-4 h-4 text-neutral-400" />
