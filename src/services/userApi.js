@@ -28,14 +28,49 @@ const PrivateUserSelfApi = baseApi.injectEndpoints({
     //profile related e.g. bio, birthday, socials
     getMyProfile: builder.query({
       query: () => "/me/profile",
+      providesTags: [{type:'Profile', id: 'getMyProfile'}]
     }),
-    // updateMyProfile will create a new profile if it doesn't exist yet
     updateMyProfile: builder.mutation({
       query: ({ bodyData }) => ({
         url: "/me/profile/updateSelf",
         method: "POST",
         body: bodyData,
       }),
+      invalidatesTags: [{type:'Profile', id: 'getMyProfile'}, {type:'Profile', id: 'getMe'}]
+    }),
+
+    // Avatar management
+    updateMyAvatar: builder.mutation({
+      query: ({ bodyData }) => ({
+        url: "/me/profile/avatar",
+        method: "POST",
+        body: bodyData,
+      }),
+      invalidatesTags: [{type:'Profile', id: 'getMe'}]
+    }),
+    deleteMyAvatar: builder.mutation({
+      query: () => ({
+        url: "/me/profile/avatar",
+        method: "DELETE",
+      }),
+      invalidatesTags: [{type:'Profile', id: 'getMe'}]
+    }),
+
+    // Banner management
+    updateMyBanner: builder.mutation({
+      query: ({ bodyData }) => ({
+        url: "/me/profile/banner",
+        method: "POST",
+        body: bodyData,
+      }),
+      invalidatesTags: [{type:'Profile', id: 'getMyProfile'}]
+    }),
+    deleteMyBanner: builder.mutation({
+      query: () => ({
+        url: "/me/profile/banner",
+        method: "DELETE",
+      }),
+      invalidatesTags: [{type:'Profile', id: 'getMyProfile'}]
     }),
   }),
 });
@@ -46,6 +81,10 @@ export const {
 
   useGetMyProfileQuery,
   useUpdateMyProfileMutation,
+  useUpdateMyAvatarMutation,
+  useDeleteMyAvatarMutation,
+  useUpdateMyBannerMutation,
+  useDeleteMyBannerMutation,
 } = PrivateUserSelfApi;
 
 export const { 
