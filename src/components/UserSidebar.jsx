@@ -16,6 +16,7 @@ import ExpandableSection from "../pages/user/components/ExpandableSection";
 import { useLogoutMutation } from "../services/authApi.js";
 import { useGetMyDescSubscriptionsQuery } from "../services/descSubscriptionsApi.js";
 import { useGetMyBoardSubscriptionsQuery } from "../services/boardSubscriptionsApi.js";
+import { getFileUrl } from "../utils/helpers";
 const MenuLink = ({ to, label, icon: Icon, onClick }) => {
   return (
     <Link
@@ -333,12 +334,20 @@ const UserSidebar = () => {
               className="w-full flex items-center gap-3 px-2 py-3 hover:bg-neutral-100 rounded-lg transition-all group disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-transparent"
               disabled={isProfileDataLoading}
             >
-              {/* I am going to change this place holder into profile image later. */}
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-xs font-bold">
-                  {getInitials(profileData?.name || "User")}
-                </span>
-              </div>
+              {/* User Avatar */}
+              {profileData?.avatar?.file_hash ? (
+                <img
+                  src={getFileUrl(profileData.avatar.file_hash)}
+                  alt={profileData?.name || "User"}
+                  className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                  <span className="text-white text-xs font-bold">
+                    {getInitials(profileData?.name || "User")}
+                  </span>
+                </div>
+              )}
 
               <div className="flex-1 min-w-0 text-left">
                 <p className="text-sm font-medium text-neutral-900 truncate">
