@@ -23,6 +23,7 @@ const PrivateUserSelfApi = baseApi.injectEndpoints({
         method: "PUT",
         body: bodyData,
       }),
+      invalidatesTags: [{type:'Profile', id: 'getMe'}]
     }),
 
     //profile related e.g. bio, birthday, socials
