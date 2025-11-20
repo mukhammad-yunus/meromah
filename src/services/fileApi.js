@@ -186,4 +186,6 @@ export const {
   useUploadBoardBannerFilesMutation,
   useUploadBoardAvatarFilesMutation,
   useUploadDescBannerFilesMutation,
+  useUploadUserAvatarFilesMutation,
+  useUploadUserBannerFilesMutation,
 } = FileApi;
