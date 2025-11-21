@@ -20,6 +20,7 @@ const preventNavigation = (e) => {
 const getType = {
   post: ["b", "board"],
   quiz: ["d", "desc"],
+  test: ["d", "desc"],
   library: ["b", "board"],
 };
 const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
@@ -97,15 +98,15 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
 
   return (
     <>
-    <Link
-      to={`/b/${post.board.name}/post/${post.id}`}
-      className={`block bg-white border-x border-b border-gray-200 p-4 hover:bg-primary-bg transition-colors duration-200 ${
-        isFirst && "rounded-t-lg border-t"
-      } ${isLast && "rounded-b-lg"}`}
-    >
-      {/* Author */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-3">
+      <Link
+        to={`/b/${post.board.name}/post/${post.id}`}
+        className={`block bg-white border-x border-b border-gray-200 p-4 hover:bg-primary-bg transition-colors duration-200 ${
+          isFirst && "rounded-t-lg border-t"
+        } ${isLast && "rounded-b-lg"}`}
+      >
+        {/* Author */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
             <div
               className="w-10 h-10 rounded-full overflow-hidden"
               onClick={(e) =>
@@ -123,140 +124,140 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
                 />
               ) : (
                 <p className="flex items-center justify-center bg-blue-500 text-white text-xs font-semibold w-full h-full">
-              {getInitials(post.author.username)}
-            </p>
+                  {getInitials(post.author.username)}
+                </p>
               )}
-          </div>
-          <div>
-            <p
-              className="w-fit text-primary-blue text-base cursor-pointer hover:underline truncate"
-              onClick={(e) =>
-                handleBoardClick(e, `/${getType[postType][0]}/${post.board.name}`)
-              }
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => e.key === "Enter" && handleBoardClick(e, `/${getType[postType][0]}/${post.board.name}`)}
-            >
-              {getType[postType][0]}/{post.board.name}
-            </p>
-            <p className="text-[12px] flex items-center gap-1">
-              <span
+            </div>
+            <div>
+              <p
+                className="w-fit text-primary-blue text-base cursor-pointer hover:underline truncate"
                 onClick={(e) =>
-                  handleAuthorClick(e, `/user/${post.author.username}`)
+                handleBoardClick(e, `/${getType[postType][0]}/${post.board.name}`)
                 }
-                className="cursor-pointer hover:underline"
-                role="link"
+                role="button"
                 tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && handleBoardClick(e, `/${getType[postType][0]}/${post.board.name}`)}
               >
-                u/{post.author.username}
-              </span>
+                {getType[postType][0]}/{post.board.name}
+              </p>
+              <p className="text-[12px] flex items-center gap-1">
+                <span
+                  onClick={(e) =>
+                    handleAuthorClick(e, `/user/${post.author.username}`)
+                  }
+                  className="cursor-pointer hover:underline"
+                  role="link"
+                  tabIndex={0}
+                >
+                  u/{post.author.username}
+                </span>
               <RelativeTime date={post.created_at} className="text-neutral-500"/>
-            </p>
+              </p>
+            </div>
+          </div>
+          <div onClick={preventNavigation}>
+            <PostMenu
+              post={post}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onReport={handleReport}
+            />
           </div>
         </div>
-        <div onClick={preventNavigation}>
-          <PostMenu
-            post={post}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onReport={handleReport}
-          />
-        </div>
-      </div>
 
-      {/* Content */}
-      {postType === "quiz" ? (
-        <div className="group mb-3 flex justify-between items-center border-l-4 border-blue-500 bg-blue-50 p-3 px-4 rounded hover:bg-blue-100 transition-colors duration-200">
-          <div>
-            <p className="mb-1 font-medium">{post.title}</p>
-            <p className="text-sm text-neutral-600">{post.body}</p>
+        {/* Content */}
+        {postType === "test" ? (
+          <div className="group mb-3 flex justify-between items-center gap-4 border-l-4 border-blue-500 bg-blue-50 p-3 px-4 rounded hover:bg-blue-100 transition-colors duration-200">
+            <div className="flex-1 overflow-hidden flex flex-col gap-0.5">
+              <p className="font-medium">{post.title}</p>
+              <p className="text-sm text-neutral-600 truncate">{post.body}</p>
+            </div>
+            <button
+              className="block ml-auto px-4 py-2 rounded bg-primary-blue text-white text-sm hover:bg-primary-blue/90 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Start
+            </button>
           </div>
+        ) : (
+          <div className="mb-3">
+            <div>
+              <p className="mb-1 font-medium">{post.title}</p>
+              <p className="text-sm text-neutral-600">{post.body}</p>
+            </div>
+            {/* Display images if available */}
+            {images.length > 0 && <PostImages images={images} />}
+            {/* Display files if available */}
+            {files.length > 0 && <PostFiles files={files} />}
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex items-center gap-4 text-neutral-600 text-sm">
           <button
-            className="ml-auto px-4 py-2 rounded bg-primary-blue text-white text-sm hover:bg-primary-blue/90 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer"
-            onClick={(e) => e.stopPropagation()}
+            className="flex items-center gap-2 hover:text-neutral-900 p-2 -m-2 rounded transition-colors duration-200 focus:outline-none"
+            title="Comments"
+            aria-label={`${post.comments_count} comments`}
           >
-            Start
+            <FaRegComment /> {post.comments_count}
+          </button>
+          <button
+            className="flex items-center gap-2 hover:text-neutral-900 p-2 -m-2 rounded transition-colors duration-200 focus:outline-none cursor-pointer"
+            title={liked ? "Unlike" : "Like"}
+            aria-label={`${post.likes_count} likes. ${
+              liked ? "Unlike" : "Like"
+            } this post`}
+            onClick={onTogglePostLike}
+          >
+            {liked ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
+          <span ref={postLikesCountRef} className={liked ? "text-red-500" : ""}>
+              {post.likes_count}
+            </span>
+          </button>
+          <button
+            className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 p-2 -m-2 rounded transition-colors duration-200 focus:outline-none cursor-pointer"
+            title="Share"
+            onClick={(e) => {
+              preventNavigation(e);
+              setIsShareModalOpen(true);
+            }}
+          >
+            <FiShare2 />
           </button>
         </div>
-      ) : (
-        <div className="mb-3">
-          <div>
-            <p className="mb-1 font-medium">{post.title}</p>
-            <p className="text-sm text-neutral-600">{post.body}</p>
-          </div>
-          {/* Display images if available */}
-          {images.length > 0 && <PostImages images={images} />}
-          {/* Display files if available */}
-          {files.length > 0 && <PostFiles files={files} />}
-        </div>
-      )}
+      </Link>
 
-      {/* Actions */}
-      <div className="flex items-center gap-4 text-neutral-600 text-sm">
-        <button
-          className="flex items-center gap-2 hover:text-neutral-900 p-2 -m-2 rounded transition-colors duration-200 focus:outline-none"
-          title="Comments"
-          aria-label={`${post.comments_count} comments`}
-        >
-          <FaRegComment /> {post.comments_count}
-        </button>
-        <button
-          className="flex items-center gap-2 hover:text-neutral-900 p-2 -m-2 rounded transition-colors duration-200 focus:outline-none cursor-pointer"
-          title={liked ? "Unlike" : "Like"}
-          aria-label={`${post.likes_count} likes. ${
-            liked ? "Unlike" : "Like"
-          } this post`}
-          onClick={onTogglePostLike}
-        >
-          {liked ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
-          <span ref={postLikesCountRef} className={liked ? "text-red-500" : ""}>
-            {post.likes_count}
-          </span>
-        </button>
-        <button
-          className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 p-2 -m-2 rounded transition-colors duration-200 focus:outline-none cursor-pointer"
-          title="Share"
-          onClick={(e) => {
-            preventNavigation(e);
-            setIsShareModalOpen(true);
-          }}
-        >
-          <FiShare2 />
-        </button>
-      </div>
-    </Link>
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        postUrl={`${window.location.origin}/b/${post.board.name}/post/${post.id}`}
+        postTitle={post.title}
+      />
 
-    {/* Share Modal */}
-    <ShareModal
-      isOpen={isShareModalOpen}
-      onClose={() => setIsShareModalOpen(false)}
-      postUrl={`${window.location.origin}/b/${post.board.name}/post/${post.id}`}
-      postTitle={post.title}
-    />
+      {/* Edit Post Modal */}
+      <EditPostModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        post={post}
+        boardName={post.board.name}
+      />
 
-    {/* Edit Post Modal */}
-    <EditPostModal
-      isOpen={isEditModalOpen}
-      onClose={() => setIsEditModalOpen(false)}
-      post={post}
-      boardName={post.board.name}
-    />
+      {/* Report Post Modal */}
+      <ReportModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        item={post}
+        itemType="post"
+      />
 
-    {/* Report Post Modal */}
-    <ReportModal
-      isOpen={isReportModalOpen}
-      onClose={() => setIsReportModalOpen(false)}
-      item={post}
-      itemType="post"
-    />
-
-    {/* Delete Post Modal */}
-    <DeletePostModal
-      isOpen={isDeleteModalOpen}
-      onClose={() => setIsDeleteModalOpen(false)}
-      board={post.board.name}
-      postId={post.id}
-    />
+      {/* Delete Post Modal */}
+      <DeletePostModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        board={post.board.name}
+        postId={post.id}
+      />
     </>
   );
 };
