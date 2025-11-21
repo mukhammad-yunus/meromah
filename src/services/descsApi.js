@@ -45,6 +45,7 @@ const DescsApi = baseApi.injectEndpoints({
     // GET /descs (paginated)
     getDescs: builder.query({
       query: (queryParams) => `/descs${toQueryString(queryParams)}`,
+      providesTags: [{ type: "Desc", id: "all-descs" }],
     }),
 
     // GET /descs/{desc}
@@ -61,7 +62,7 @@ const DescsApi = baseApi.injectEndpoints({
     checkDescNameIsAvailable: builder.query({
       query: (queryParams) => ({
         url: `/descs/isNameAvailable${toQueryString(queryParams)}`,
-      })
+      }),
     }),
     // banner
     updateDescBanner: builder.query({
@@ -69,26 +70,26 @@ const DescsApi = baseApi.injectEndpoints({
         url: `/descs/${desc}/banner`,
         body: descData,
         method: "POST",
-      })
+      }),
     }),
     deleteDescBanner: builder.query({
       query: (desc) => ({
         url: `/descs/${desc}/banner`,
         method: "DELETE",
-      })
+      }),
     }),
     updateDescAvatar: builder.query({
       query: ({ desc, descData }) => ({
         url: `/descs/${desc}/avatar`,
         body: descData,
         method: "POST",
-      })
+      }),
     }),
     deleteDescAvatar: builder.query({
       query: (desc) => ({
         url: `/descs/${desc}/avatar`,
         method: "DELETE",
-      })
+      }),
     }),
   }),
   overrideExisting: true,

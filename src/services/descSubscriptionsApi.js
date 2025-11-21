@@ -13,6 +13,9 @@ const PrivateDescSubscriptionsApi = baseApi.injectEndpoints({
         url: `/desc/${desc}/subscribe`,
         method: "POST",
       }),
+      invalidatesTags: (result, error, { desc }) => [
+        { type: "Desc", id: "all-descs" },
+      ],
     }),
 
     // DELETE /desc/{desc}/subscribe - Unsubscribe from a desc
@@ -21,6 +24,9 @@ const PrivateDescSubscriptionsApi = baseApi.injectEndpoints({
         url: `/desc/${desc}/subscribe`,
         method: "DELETE",
       }),
+      invalidatesTags: (result, error, { desc }) => [
+        { type: "Desc", id: "all-descs" },
+      ],
     }),
 
     // GET /desc/{desc}/subscribers - Author-only list
@@ -72,5 +78,3 @@ export const {
   useCreateDescSubscriptionPrivilegedMutation,
   useGetMyDescSubscriptionsQuery,
 } = PrivateDescSubscriptionsApi;
-
-
