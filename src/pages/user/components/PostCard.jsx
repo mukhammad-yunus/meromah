@@ -4,8 +4,8 @@ import { FiShare2 } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 import { useTogglePostLikeMutation } from "../../../services/postsApi";
 import { useSelector } from "react-redux";
-import RelativeTime from '../../../components/RelativeTime'
-import { getInitials } from "../../../utils";
+import RelativeTime from "../../../components/RelativeTime";
+import { getFileUrl, getInitials } from "../../../utils";
 import PostImages from "./PostImages";
 import PostFiles from "./PostFiles";
 import ShareModal from "./ShareModal";
@@ -106,33 +106,26 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
       {/* Author */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">
-          {/* For now I am not going to display avatar
-          {author.avatar ? (
-            <img
-              src={post.author.avatar}
-              alt={`${post.author.username}'s profile picture`}
-              className="w-8 h-8 rounded-full shadow shadow-neutral-200"
-              onClick={(e) =>
-                handleAuthorClick(e, `/user/${post.author.username}`)
-              }
-            />
-          ) : (
             <div
-              className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-semibold shadow shadow-neutral-200"
+              className="w-10 h-10 rounded-full overflow-hidden"
               onClick={(e) =>
                 handleAuthorClick(e, `/user/${post.author.username}`)
               }
             >
-              {getInitials(post.author.username)}
-            </div>
-          )} */}
-          <div
-            className="rounded-full bg-blue-500 text-white text-xs font-semibold shadow shadow-neutral-200"
-            onClick={(e) => handleAuthorClick(e, `/user/${post.author.username}`)}
-          >
-            <p className="w-10 h-10 flex items-center justify-center">
+              {post.author.avatar ? (
+                <img
+                  src={getFileUrl(post.author.avatar.file_hash)}
+                  alt={`${post.author.username}'s profile picture`}
+                  className="w-full h-full object-cover cursor-pointer"
+                  onClick={(e) =>
+                    handleAuthorClick(e, `/user/${post.author.username}`)
+                  }
+                />
+              ) : (
+                <p className="flex items-center justify-center bg-blue-500 text-white text-xs font-semibold w-full h-full">
               {getInitials(post.author.username)}
             </p>
+              )}
           </div>
           <div>
             <p
