@@ -12,13 +12,12 @@ import Boards from "./pages/main/Boards";
 import Contact from "./pages/main/Contact";
 import Login from "./pages/main/Login";
 import Register from "./pages/main/Register";
-import UserProfile from "./pages/user/UserProfile";
+import Profile from "./pages/user/components/Profile";
 import EditProfile from "./pages/user/EditProfile";
 import Feeds from "./pages/user/Feeds";
 import Post from "./pages/user/Post";
 import CreateAction from "./pages/user/CreateAction";
 import BoardPage from "./pages/user/BoardPage";
-import MyProfile from "./pages/user/MyProfile";
 import ExploreBoards from "./pages/user/components/ExploreBoards";
 import ExploreDescs from "./pages/user/components/ExploreDescs";
 import EditBoard from "./pages/user/EditBoard";
@@ -40,9 +39,9 @@ const App = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route element={<UserPage />}>
-        <Route path="profile" element={<MyProfile />} />
+        <Route path="profile" element={<Profile isMyProfile={true} />} />
         <Route path="profile/edit" element={<EditProfile />} />
-        <Route path="user/:username" element={<UserProfile />} />
+        <Route path="user/:username" element={<Profile isMyProfile={false} />} />
         <Route path="home" element={<Feeds />} />
         <Route path="b/:board/post/:postId" element={<Post postType={"post"}/>} />
         <Route path="create/:action" element={<CreateAction />} />
