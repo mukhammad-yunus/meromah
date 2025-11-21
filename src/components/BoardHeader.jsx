@@ -44,7 +44,6 @@ const BoardHeader = ({ board }) => {
     () => (board?.banner ? getFileUrl(board?.banner?.file_hash) : null),
     [board]
   );
-  console.log(board);
   const [
     subscribeToBoard,
     { isLoading: isSubscribing, error: subscribeError },
