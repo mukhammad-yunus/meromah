@@ -22,6 +22,7 @@ import ExploreBoards from "./pages/user/components/ExploreBoards";
 import ExploreDescs from "./pages/user/components/ExploreDescs";
 import EditBoard from "./pages/user/EditBoard";
 import BoardMembers from "./pages/user/BoardMembers";
+import DescPage from "./pages/user/DescPage";
 
 const App = () => {
   return (
@@ -50,6 +51,7 @@ const App = () => {
         <Route path="b/:boardId" element={<BoardPage />} />
         <Route path="b/:boardId/members" element={<BoardMembers />} />
         <Route path="b/:boardId/edit" element={<EditBoard />} />
+        <Route path="d/:descId" element={<DescPage />} />
       </Route>
       <Route path="/admin/*" element={<AdminPage />} />
     </Routes>
