@@ -14,6 +14,7 @@ const PrivateDescSubscriptionsApi = baseApi.injectEndpoints({
         method: "POST",
       }),
       invalidatesTags: (result, error, { desc }) => [
+        { type: "Desc", id: "desc-subscriptions" },
         { type: "Desc", id: "all-descs" },
       ],
     }),
@@ -25,6 +26,7 @@ const PrivateDescSubscriptionsApi = baseApi.injectEndpoints({
         method: "DELETE",
       }),
       invalidatesTags: (result, error, { desc }) => [
+        { type: "Desc", id: "desc-subscriptions" },
         { type: "Desc", id: "all-descs" },
       ],
     }),
@@ -64,6 +66,7 @@ const PrivateDescSubscriptionsApi = baseApi.injectEndpoints({
       query: () => ({
         url: `/me/desc-subscriptions`,
       }),
+      providesTags: [{ type: "Desc", id: "desc-subscriptions" }],
     }),
   }),
   overrideExisting: true,
