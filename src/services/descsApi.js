@@ -52,7 +52,9 @@ const DescsApi = baseApi.injectEndpoints({
     getDesc: builder.query({
       query: (desc) => `/descs/${desc}`,
     }),
-
+    searchDescs: builder.query({
+      query: (queryParams) => `/descs/search${toQueryString(queryParams)}`,
+    }),
     // GET /descs/{desc}/likes (like count)
     getDescLikes: builder.query({
       query: (desc) => `/descs/${desc}/likes`,
@@ -102,6 +104,7 @@ export const {
   useToggleDescLikeMutation,
   useGetDescsQuery,
   useGetDescQuery,
+  useSearchDescsQuery,
   useGetDescLikesQuery,
   useCheckDescNameIsAvailableQuery,
   useUpdateDescBannerMutation,
