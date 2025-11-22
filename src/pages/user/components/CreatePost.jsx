@@ -6,7 +6,7 @@ import { IoReload } from "react-icons/io5";
 import { getFile, getImage } from "../../../utils";
 import { useUploadPostFilesMutation } from "../../../services/fileApi";
 import { useCreatePostMutation } from "../../../services/postsApi";
-import BoardSelection from "./BoardSelection";
+import CommunitySelection from "./CommunitySelection";
 import { useNavigate } from "react-router-dom";
 
 // Helper function to extract error message from API error response
@@ -213,7 +213,8 @@ const CreatePost = ({ boardId, onCancel = undefined, onError }) => {
     >
       {/* Board Selection - only show when boardId is not provided */}
       {!boardId && (
-        <BoardSelection
+        <CommunitySelection
+          communityType={"board"}
           onSelectBoard={handleSelectBoard}
           onClearSelection={handleClearBoardSelection}
           resetRef={boardSelectionResetRef}
