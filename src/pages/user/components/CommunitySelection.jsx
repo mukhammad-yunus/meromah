@@ -52,6 +52,7 @@ const SearchBarButton = ({ community, onSelectCommunity, communityType }) => {
 };
 
 const CommunitySelection = ({
+  communityName = null,
   communityType,
   onSelectCommunity,
   onClearSelection,
@@ -127,7 +128,19 @@ const CommunitySelection = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
+  useEffect(() => {
+    if (communityName) {
+      setCommunitySearchQuery(
+        `${communityType === "board" ? "b" : "d"}/${communityName}`
+      );
+      setShowCommunityDropdown(false);
+    }
+  
+    return () => {
+      
+    }
+  }, [communityName, communityType])
+  
   // Create a Set of board IDs from boardsData for O(1) lookup
   const communityDataIdSet = useMemo(() => {
     if (!communityData || communityData.length === 0) return new Set();
@@ -208,11 +221,12 @@ const CommunitySelection = ({
             ref={communitySearchRef}
             type="text"
             maxLength={20}
+            disabled={!!communityName}
             value={communitySearchQuery}
             onChange={handleCommunitySearch}
             onFocus={() => setShowCommunityDropdown(true)}
             placeholder={`Search for a ${communityType}...`}
-            className="w-full pl-10 pr-3 py-2 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue/20 focus:border-primary-blue transition-colors"
+            className="w-full pl-10 pr-3 py-2 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue/20 focus:border-primary-blue transition-colors disabled:text-neutral-500"
           />
         </div>
         {showCommunityDropdown && (
