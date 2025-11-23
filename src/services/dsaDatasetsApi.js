@@ -2,38 +2,38 @@ import { baseApi } from "./baseApi";
 
 const PrivateDsaDatasetsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // GET /tests/{test}/questions/{question}/datasets
+    // GET /tests/{test}/questions/{question}/testcases
     getDatasetsForQuestion: builder.query({
-      query: ({ test, question }) => `/tests/${test}/questions/${question}/datasets`,
+      query: ({ test, question }) => `/tests/${test}/questions/${question}/testcases`,
     }),
 
-    // GET /tests/{test}/questions/{question}/datasets/{dataset}
+    // GET /tests/{test}/questions/{question}/testcases/{testcase}
     getDatasetFromQuestionById: builder.query({
-      query: ({ test, question, dataset }) => `/tests/${test}/questions/${question}/datasets/${dataset}`,
+      query: ({ test, question, testcase }) => `/tests/${test}/questions/${question}/testcases/${testcase}`,
     }),
 
-    // POST /tests/{test}/questions/{question}/datasets
+    // POST /tests/{test}/questions/{question}/testcases
     createDataset: builder.mutation({
       query: ({ test, question, bodyData }) => ({
-        url: `/tests/${test}/questions/${question}/datasets`,
+        url: `/tests/${test}/questions/${question}/testcases`,
         method: "POST",
         body: bodyData,
       }),
     }),
 
-    // PUT /tests/{test}/questions/{question}/datasets/{dataset}
+    // PUT /tests/{test}/questions/{question}/testcases/{testcase}
     updateDataset: builder.mutation({
-      query: ({ test, question, dataset, bodyData }) => ({
-        url: `/tests/${test}/questions/${question}/datasets/${dataset}`,
+      query: ({ test, question, testcase, bodyData }) => ({
+        url: `/tests/${test}/questions/${question}/testcases/${testcase}`,
         method: "PUT",
         body: bodyData,
       }),
     }),
 
-    // DELETE /tests/{test}/questions/{question}/datasets/{dataset}
+    // DELETE /tests/{test}/questions/{question}/testcases/{testcase}
     deleteDataset: builder.mutation({
-      query: ({ test, question, dataset }) => ({
-        url: `/tests/${test}/questions/${question}/datasets/${dataset}`,
+      query: ({ test, question, testcase }) => ({
+        url: `/tests/${test}/questions/${question}/testcases/${testcase}`,
         method: "DELETE",
       }),
     }),
