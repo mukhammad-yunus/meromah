@@ -1,6 +1,7 @@
 import React, { useState, useRef, useMemo, useEffect } from "react";
 import CommunitySelection from "./CommunitySelection";
 import { useCreateTestMutation } from "../../../services/testsApi";
+import CreateTestCodeType from "./CreateTestCodeType";
 const QUESTION_TYPES = [
   { type: "code", label: "Code Question" },
   { type: "multiple_choice", label: "Multiple Choice" },
@@ -29,26 +30,26 @@ const initialQuestionData = {
 };
 const CreateTest = ({ descId, onCancel = undefined, onError }) => {
   const [draftTest, setDraftTest] = useState(() => {
-  const raw = localStorage.getItem("unfinished-test");
-  let draftFromLocalStorage = null;
+    const raw = localStorage.getItem("unfinished-test");
+    let draftFromLocalStorage = null;
 
-  try {
-    draftFromLocalStorage = raw ? JSON.parse(raw) : null;
-  } catch {
-    draftFromLocalStorage = null;
-  }
+    try {
+      draftFromLocalStorage = raw ? JSON.parse(raw) : null;
+    } catch {
+      draftFromLocalStorage = null;
+    }
 
-  if (!draftFromLocalStorage) return null;
-  if (descId && draftFromLocalStorage.desc !== descId) return null;
-  const target = new Date(draftFromLocalStorage.date).getTime();
-  const now = Date.now();
-  const diffMs = now - target;
-  if (diffMs > 0 && diffMs <= 3600000){
-    return draftFromLocalStorage;
-  }
-  localStorage.removeItem("unfinished-test");
-  return null;
-});
+    if (!draftFromLocalStorage) return null;
+    if (descId && draftFromLocalStorage.desc !== descId) return null;
+    const target = new Date(draftFromLocalStorage.date).getTime();
+    const now = Date.now();
+    const diffMs = now - target;
+    if (diffMs > 0 && diffMs <= 3600000) {
+      return draftFromLocalStorage;
+    }
+    localStorage.removeItem("unfinished-test");
+    return null;
+  });
 
   const testTitleRef = useRef(null);
   const testDescriptionRef = useRef(null);
@@ -61,18 +62,19 @@ const CreateTest = ({ descId, onCancel = undefined, onError }) => {
   const [showQuestionTypeSelector, setShowQuestionTypeSelector] =
     useState(false);
   const [createTest] = useCreateTestMutation();
-  const testId = useMemo(() => draftTest === null? null: draftTest.id, [draftTest])
+  const testId = useMemo(
+    () => (draftTest === null ? null : draftTest.id),
+    [draftTest]
+  );
 
   useEffect(() => {
-    if(draftTest === null) return;
-    console.log(draftTest);
+    if (draftTest === null) return;
     testTitleRef.current.value = draftTest.title;
     testDescriptionRef.current.value = draftTest.description;
     selectedDescNameRef.current = draftTest.desc;
+    setQuestions(draftTest?.questions || []);
     checkFormValidity();
-
-  }, [draftTest])
-  
+  }, [draftTest]);
 
   const checkFormValidity = () => {
     const testTitle = testTitleRef.current?.value?.trim() || "";
@@ -125,10 +127,16 @@ const CreateTest = ({ descId, onCancel = undefined, onError }) => {
       onCancel();
     }
   };
-  const handleInitializeTest = async() => {
+  const handleInitializeTest = async () => {
     try {
-      const bodyData = {title: testTitleRef.current.value.trim(), description: testDescriptionRef.current.value.trim()};
-      const res = await createTest({desc: selectedDescNameRef.current, bodyData}).unwrap();
+      const bodyData = {
+        title: testTitleRef.current.value.trim(),
+        description: testDescriptionRef.current.value.trim(),
+      };
+      const res = await createTest({
+        desc: selectedDescNameRef.current,
+        bodyData,
+      }).unwrap();
       const testDetails = {
         ...bodyData,
         desc: selectedDescNameRef.current,
@@ -136,11 +144,28 @@ const CreateTest = ({ descId, onCancel = undefined, onError }) => {
         date: new Date().toISOString(),
       };
       setDraftTest(testDetails);
-      localStorage.setItem("unfinished-test", JSON.stringify(testDetails));
+      localStorage.setItem(
+        "unfinished-test",
+        JSON.stringify({ ...testDetails, questions: [] })
+      );
     } catch (err) {
       //TODO: Handle error
     }
-  }
+  };
+  const onCreateSuccess = (finalQuestion) => {
+    setQuestions((prev) => [...prev, finalQuestion]);
+    let draftFromLocalStorage = JSON.parse(
+      localStorage.getItem("unfinished-test")
+    );
+    draftFromLocalStorage.questions.push(finalQuestion);
+    draftFromLocalStorage.date = new Date().toISOString();
+    localStorage.setItem(
+      "unfinished-test",
+      JSON.stringify(draftFromLocalStorage)
+    );
+    setDraftTest(draftFromLocalStorage);
+    setCurrentQuestion(null);
+  };
   return (
     <form
       onSubmit={handleTestSubmit}
@@ -153,7 +178,7 @@ const CreateTest = ({ descId, onCancel = undefined, onError }) => {
         {/* Desc Selection - only show when descId is not provided */}
         {!descId && (
           <CommunitySelection
-            communityName={draftTest? draftTest.desc: undefined}
+            communityName={draftTest ? draftTest.desc : undefined}
             communityType={"desc"}
             onSelectCommunity={handleSelectDesc}
             onClearSelection={handleClearDescSelection}
@@ -187,155 +212,172 @@ const CreateTest = ({ descId, onCancel = undefined, onError }) => {
           />
         </div>
         {/* Questions Collector */}
-        {testId !== null && (<div className="flex flex-col gap-3">
-          <label className="text-sm font-medium text-neutral-800">
-            Questions
-          </label>
-          {/* Display Existing Questions */}
-          {questions.length > 0 && (
-            <div className="flex flex-col gap-2">
-              {questions.map((question, index) => (
-                <div
-                  key={question.id}
-                  className="flex items-center justify-between p-3 bg-white border border-neutral-200 rounded-lg"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-neutral-700">
-                      Question {index + 1}
-                    </span>
-                    <span className="text-sm text-neutral-500">
-                      {question.type === "code"
-                        ? "Code Question"
-                        : "Multiple Choice"}
-                    </span>
+        {testId !== null && (
+          <div className="flex flex-col gap-3">
+            <label className="text-sm font-medium text-neutral-800">
+              Questions
+            </label>
+            {/* Display Existing Questions */}
+            {questions.length > 0 && (
+              <div className="flex flex-col gap-2">
+                {questions.map((question, index) => (
+                  <div
+                    key={question.id}
+                    className="flex items-center justify-between p-3 bg-white border border-neutral-200 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-medium text-neutral-700">
+                        Question {index + 1}
+                      </span>
+                      <span className="text-sm text-neutral-500">
+                        {question.type === "code"
+                          ? "Code Question"
+                          : "Multiple Choice"}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveQuestion(question.id)}
+                      className="p-1 text-neutral-400 hover:text-red-500 transition-colors"
+                    >
+                      <span className="text-sm">Remove</span>
+                    </button>
                   </div>
+                ))}
+              </div>
+            )}
+            {currentQuestion !== null && testId !== null && (
+              <>
+                {currentQuestion.type === "code" ? (
+                  <CreateTestCodeType
+                    currentQuestion={currentQuestion}
+                    setCurrentQuestion={setCurrentQuestion}
+                    onCreateSuccess={onCreateSuccess}
+                    onCancel={() => setCurrentQuestion(null)}
+                    testId={testId} // TODO: Pass actual testId once test is created
+                    questionTypeId={1} // TODO: Get actual question type ID for code type
+                  />
+                ) : (
+                  <div className="p-4 border border-neutral-200 rounded-lg bg-neutral-50">
+                    <div className="flex flex-col gap-3">
+                      <span className="text-sm font-medium text-neutral-700">
+                        New Question - Multiple Choice
+                      </span>
+                      {/* Question Body Input */}
+                      <p className="flex flex-col gap-2">Question Body</p>
+                      <div className="flex justify-between gap-2">
+                        <button
+                          className="block px-4 py-2 rounded text-neutral-400 border cursor-pointer "
+                          onClick={() => setCurrentQuestion(null)}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          className="block px-4 py-2 rounded text-white bg-primary-blue border-primary-blue border cursor-pointer "
+                          onClick={() => {
+                            setQuestions((prev) => [...prev, currentQuestion]);
+                            setCurrentQuestion(null);
+                          }}
+                        >
+                          Add
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+            {/* Question Type Selector - shown when empty or when adding new */}
+            {showQuestionTypeSelector && (
+              <div className="border border-neutral-200 rounded-lg p-4 bg-neutral-50">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm text-neutral-600">
+                    {questions.length === 0
+                      ? "Question 1 - Select question type"
+                      : `Question ${
+                          questions.length + 1
+                        } - Select question type`}
+                  </label>
+                  <select
+                    defaultValue=""
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        handleSelectQuestionType(e.target.value);
+                        e.target.value = ""; // Reset dropdown
+                      }
+                    }}
+                    className="w-full px-3 py-2 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue/20 focus:border-primary-blue transition-colors"
+                  >
+                    <option value="">Select question type...</option>
+                    {QUESTION_TYPES.map((item) => (
+                      <option key={item.type} value={item.type}>
+                        {item.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {showQuestionTypeSelector && (
                   <button
                     type="button"
-                    onClick={() => handleRemoveQuestion(question.id)}
-                    className="p-1 text-neutral-400 hover:text-red-500 transition-colors"
-                  >
-                    <span className="text-sm">Remove</span>
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-          {currentQuestion !== null && (
-            <div className="p-4 border border-neutral-200 rounded-lg bg-neutral-50">
-              <div className="flex flex-col gap-3">
-                <span className="text-sm font-medium text-neutral-700">
-                  {currentQuestion.type === "code"
-                    ? "New Question - Code Question"
-                    : "New Question - Multiple Choice"}
-                </span>
-                {/* Question Body Input */}
-                <p className="flex flex-col gap-2">Question Body</p>
-                <div className="flex justify-between gap-2">
-                  <button
-                    className="block px-4 py-2 rounded text-neutral-400 border cursor-pointer "
-                    onClick={() => setCurrentQuestion(null)}
+                    onClick={() => setShowQuestionTypeSelector(false)}
+                    className="mt-3 text-sm text-neutral-500 hover:text-neutral-700"
                   >
                     Cancel
                   </button>
-                  <button
-                    className="block px-4 py-2 rounded text-white bg-primary-blue border-primary-blue border cursor-pointer "
-                    onClick={() => {
-                      setQuestions((prev) => [...prev, [currentQuestion]]);
-                      setCurrentQuestion(null);
-                    }}
-                  >
-                    Add
-                  </button>
-                </div>
+                )}
               </div>
-            </div>
-              )}
-            </>
-          )}
-          {/* Question Type Selector - shown when empty or when adding new */}
-          {showQuestionTypeSelector && (
-            <div className="border border-neutral-200 rounded-lg p-4 bg-neutral-50">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm text-neutral-600">
-                  {questions.length === 0
-                    ? "Question 1 - Select question type"
-                    : `Question ${questions.length + 1} - Select question type`}
-                </label>
-                <select
-                  defaultValue=""
-                  onChange={(e) => {
-                    if (e.target.value) {
-                      handleSelectQuestionType(e.target.value);
-                      e.target.value = ""; // Reset dropdown
-                    }
-                  }}
-                  className="w-full px-3 py-2 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue/20 focus:border-primary-blue transition-colors"
-                >
-                  <option value="">Select question type...</option>
-                  {QUESTION_TYPES.map((item) => (
-                    <option key={item.type} value={item.type}>
-                      {item.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {showQuestionTypeSelector && (
-                <button
-                  type="button"
-                  onClick={() => setShowQuestionTypeSelector(false)}
-                  className="mt-3 text-sm text-neutral-500 hover:text-neutral-700"
-                >
-                  Cancel
-                </button>
-              )}
-            </div>
-          )}
+            )}
 
-          {/* Add Question Button - shown when questions exist */}
-          {currentQuestion === null && !showQuestionTypeSelector && (
-            <button
-              type="button"
-              onClick={() => setShowQuestionTypeSelector(true)}
-              className="flex items-center justify-center gap-2 px-4 py-2 text-sm text-primary-blue border border-primary-blue rounded-lg hover:bg-primary-blue/5 transition-colors"
-            >
-              <span>Add Question</span>
-            </button>
-          )}
-        </div>
+            {/* Add Question Button - shown when questions exist */}
+            {currentQuestion === null && !showQuestionTypeSelector && (
+              <button
+                type="button"
+                onClick={() => setShowQuestionTypeSelector(true)}
+                className="flex items-center justify-center gap-2 px-4 py-2 text-sm text-primary-blue border border-primary-blue rounded-lg hover:bg-primary-blue/5 transition-colors"
+              >
+                <span>Add Question</span>
+              </button>
+            )}
+          </div>
+        )}
       </div>
       {/* Action Buttons */}
-      {testId === null ? <div className="flex items-center justify-between gap-2 pt-2 border-t border-neutral-200">
-        <button
-          type="button"
-          onClick={onResetTestForm}
-          className="px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          disabled={!isFormValid}
-          onClick={handleInitializeTest}
-          className="px-4 py-2 text-sm bg-primary-blue text-white rounded-lg hover:bg-primary-blue/90 disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors font-medium cursor-pointer"
-        >
-          Initialize Test
-        </button>
-      </div>:(<div className="flex items-center justify-between gap-2 pt-2 border-t border-neutral-200">
-        <button
-          type="button"
-          onClick={onResetTestForm}
-          className="px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={!isFormValid}
-          className="px-4 py-2 text-sm bg-primary-blue text-white rounded-lg hover:bg-primary-blue/90 disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors font-medium"
-        >
-          Create Test
-        </button>
-      </div>)}
+      {testId === null ? (
+        <div className="flex items-center justify-between gap-2 pt-2 border-t border-neutral-200">
+          <button
+            type="button"
+            onClick={onResetTestForm}
+            className="px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            disabled={!isFormValid}
+            onClick={handleInitializeTest}
+            className="px-4 py-2 text-sm bg-primary-blue text-white rounded-lg hover:bg-primary-blue/90 disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors font-medium cursor-pointer"
+          >
+            Initialize Test
+          </button>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between gap-2 pt-2 border-t border-neutral-200">
+          <button
+            type="button"
+            onClick={onResetTestForm}
+            className="px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={!isFormValid}
+            className="px-4 py-2 text-sm bg-primary-blue text-white rounded-lg hover:bg-primary-blue/90 disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors font-medium"
+          >
+            Create Test
+          </button>
+        </div>
+      )}
     </form>
   );
 };
