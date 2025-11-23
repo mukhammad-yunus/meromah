@@ -7,10 +7,14 @@ import {
 } from "../../../services/boardSubscriptionsApi";
 import { useSelector } from "react-redux";
 import { getFileUrl, getInitials } from "../../../utils";
+import { useMemo } from "react";
 
 const ExploreBoards = () => {
   const { data: result, isLoading, error } = useGetBoardsQuery();
-  console.log(result);
+  const subscribedIds = useMemo(() => {
+      if (!result?.subscribedBoardIds) return new Set();
+      return new Set(result.subscribedBoardIds);
+    }, [result]);
   const { isAuthenticated } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const [subscribeToBoard, { isLoading: isSubscribing }] =
@@ -116,7 +120,7 @@ const ExploreBoards = () => {
       {/* List */}
       <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-4">
         <div className="space-y-3">
-          {result?.data?.data?.map((element) => (
+          {result?.data?.map((element) => (
             <div
               key={element.id}
               className="flex items-start justify-between gap-3 p-2 hover:bg-neutral-50 rounded-lg transition-colors"
@@ -156,13 +160,13 @@ const ExploreBoards = () => {
 
               <div
                 className={`flex items-center gap-2  rounded-full border ${
-                  element.youSubscribed
+                  subscribedIds.has(element.id)
                     ? "border-red-500"
                     : "border-primary-blue hover:border-blue-700"
                 }
                 ${(isSubscribing || isUnsubscribing) && "animate-pulse"} `}
               >
-                {element.youSubscribed ? (
+                {subscribedIds.has(element.id)? (
                   <button
                     className="px-3 py-2 text-red-500 active:scale-95 transition-all duration-200 font-medium text-sm whitespace-nowrap cursor-pointer"
                     onClick={(e) => onUnSubscribe(e, element)}
