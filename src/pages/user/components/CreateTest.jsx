@@ -1,5 +1,6 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo, useEffect } from "react";
 import CommunitySelection from "./CommunitySelection";
+import { useCreateTestMutation } from "../../../services/testsApi";
 const QUESTION_TYPES = [
   { type: "code", label: "Code Question" },
   { type: "multiple_choice", label: "Multiple Choice" },
@@ -27,6 +28,28 @@ const initialQuestionData = {
   },
 };
 const CreateTest = ({ descId, onCancel = undefined, onError }) => {
+  const [draftTest, setDraftTest] = useState(() => {
+  const raw = localStorage.getItem("unfinished-test");
+  let draftFromLocalStorage = null;
+
+  try {
+    draftFromLocalStorage = raw ? JSON.parse(raw) : null;
+  } catch {
+    draftFromLocalStorage = null;
+  }
+
+  if (!draftFromLocalStorage) return null;
+  if (descId && draftFromLocalStorage.desc !== descId) return null;
+  const target = new Date(draftFromLocalStorage.date).getTime();
+  const now = Date.now();
+  const diffMs = now - target;
+  if (diffMs > 0 && diffMs <= 3600000){
+    return draftFromLocalStorage;
+  }
+  localStorage.removeItem("unfinished-test");
+  return null;
+});
+
   const testTitleRef = useRef(null);
   const testDescriptionRef = useRef(null);
   const selectedDescNameRef = useRef(null);
@@ -37,6 +60,19 @@ const CreateTest = ({ descId, onCancel = undefined, onError }) => {
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [showQuestionTypeSelector, setShowQuestionTypeSelector] =
     useState(false);
+  const [createTest] = useCreateTestMutation();
+  const testId = useMemo(() => draftTest === null? null: draftTest.id, [draftTest])
+
+  useEffect(() => {
+    if(draftTest === null) return;
+    console.log(draftTest);
+    testTitleRef.current.value = draftTest.title;
+    testDescriptionRef.current.value = draftTest.description;
+    selectedDescNameRef.current = draftTest.desc;
+    checkFormValidity();
+
+  }, [draftTest])
+  
 
   const checkFormValidity = () => {
     const testTitle = testTitleRef.current?.value?.trim() || "";
@@ -89,11 +125,26 @@ const CreateTest = ({ descId, onCancel = undefined, onError }) => {
       onCancel();
     }
   };
-
+  const handleInitializeTest = async() => {
+    try {
+      const bodyData = {title: testTitleRef.current.value.trim(), description: testDescriptionRef.current.value.trim()};
+      const res = await createTest({desc: selectedDescNameRef.current, bodyData}).unwrap();
+      const testDetails = {
+        ...bodyData,
+        desc: selectedDescNameRef.current,
+        id: res.data.id,
+        date: new Date().toISOString(),
+      };
+      setDraftTest(testDetails);
+      localStorage.setItem("unfinished-test", JSON.stringify(testDetails));
+    } catch (err) {
+      //TODO: Handle error
+    }
+  }
   return (
     <form
       onSubmit={handleTestSubmit}
-      className={`p-4 flex flex-col justify-between min-h-screen ${
+      className={`p-4 flex flex-col justify-between ${
         !descId &&
         "max-h-5/6 bg-white rounded-lg shadow-sm border border-neutral-200 m-6"
       }`}
@@ -102,8 +153,9 @@ const CreateTest = ({ descId, onCancel = undefined, onError }) => {
         {/* Desc Selection - only show when descId is not provided */}
         {!descId && (
           <CommunitySelection
+            communityName={draftTest? draftTest.desc: undefined}
             communityType={"desc"}
-            onSelectBoard={handleSelectDesc}
+            onSelectCommunity={handleSelectDesc}
             onClearSelection={handleClearDescSelection}
             resetRef={descSelectionResetRef}
           />
@@ -114,10 +166,11 @@ const CreateTest = ({ descId, onCancel = undefined, onError }) => {
           </label>
           <input
             ref={testTitleRef}
+            disabled={testId !== null}
             type="text"
             placeholder="Test title"
             onChange={checkFormValidity}
-            className="w-full px-3 py-2 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue/20 focus:border-primary-blue transition-colors"
+            className="w-full px-3 py-2 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue/20 focus:border-primary-blue transition-colors disabled:text-neutral-500"
           />
         </div>
         <div className="flex flex-col gap-2">
@@ -126,14 +179,15 @@ const CreateTest = ({ descId, onCancel = undefined, onError }) => {
           </label>
           <textarea
             ref={testDescriptionRef}
+            disabled={testId !== null}
             placeholder="Describe your test..."
             rows={4}
             onChange={checkFormValidity}
-            className="w-full px-3 py-2 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue/20 focus:border-primary-blue transition-colors resize-y"
+            className="w-full px-3 py-2 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue/20 focus:border-primary-blue transition-colors resize-y disabled:text-neutral-500"
           />
         </div>
         {/* Questions Collector */}
-        <div className="flex flex-col gap-3">
+        {testId !== null && (<div className="flex flex-col gap-3">
           <label className="text-sm font-medium text-neutral-800">
             Questions
           </label>
@@ -195,6 +249,8 @@ const CreateTest = ({ descId, onCancel = undefined, onError }) => {
                 </div>
               </div>
             </div>
+              )}
+            </>
           )}
           {/* Question Type Selector - shown when empty or when adding new */}
           {showQuestionTypeSelector && (
@@ -248,7 +304,23 @@ const CreateTest = ({ descId, onCancel = undefined, onError }) => {
         </div>
       </div>
       {/* Action Buttons */}
-      <div className="flex items-center justify-between gap-2 pt-2 border-t border-neutral-200">
+      {testId === null ? <div className="flex items-center justify-between gap-2 pt-2 border-t border-neutral-200">
+        <button
+          type="button"
+          onClick={onResetTestForm}
+          className="px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          disabled={!isFormValid}
+          onClick={handleInitializeTest}
+          className="px-4 py-2 text-sm bg-primary-blue text-white rounded-lg hover:bg-primary-blue/90 disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors font-medium cursor-pointer"
+        >
+          Initialize Test
+        </button>
+      </div>:(<div className="flex items-center justify-between gap-2 pt-2 border-t border-neutral-200">
         <button
           type="button"
           onClick={onResetTestForm}
@@ -263,7 +335,7 @@ const CreateTest = ({ descId, onCancel = undefined, onError }) => {
         >
           Create Test
         </button>
-      </div>
+      </div>)}
     </form>
   );
 };
