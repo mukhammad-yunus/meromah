@@ -1,11 +1,9 @@
 import React, { useState, useRef, useMemo, useEffect } from "react";
 import CommunitySelection from "./CommunitySelection";
 import { useCreateTestMutation } from "../../../services/testsApi";
+import { useGetQuestionTypesQuery } from "../../../services/questionTypesApi";
 import CreateTestCodeType from "./CreateTestCodeType";
-const QUESTION_TYPES = [
-  { type: "code", label: "Code Question" },
-  { type: "multiple_choice", label: "Multiple Choice" },
-];
+import CreateTestMcqType from "./CreateTestMcqType";
 
 const initialQuestionData = {
   code: {
@@ -19,8 +17,8 @@ const initialQuestionData = {
       [], // arguments for case 0
     ],
   },
-  multiple_choice: {
-    type: "multiple_choice",
+  mcq: {
+    type: "mcq",
     body: "",
     options: [
       { body: "", is_correct: false },
@@ -61,6 +59,7 @@ const CreateTest = ({ descId, onCancel = undefined, onError }) => {
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [showQuestionTypeSelector, setShowQuestionTypeSelector] =
     useState(false);
+  const { data: questionTypes } = useGetQuestionTypesQuery();
   const [createTest] = useCreateTestMutation();
   const testId = useMemo(
     () => (draftTest === null ? null : draftTest.id),
@@ -254,8 +253,17 @@ const CreateTest = ({ descId, onCancel = undefined, onError }) => {
                     setCurrentQuestion={setCurrentQuestion}
                     onCreateSuccess={onCreateSuccess}
                     onCancel={() => setCurrentQuestion(null)}
-                    testId={testId} // TODO: Pass actual testId once test is created
-                    questionTypeId={1} // TODO: Get actual question type ID for code type
+                    testId={testId}
+                    questionTypeId={questionTypes["code"].id}
+                  />
+                ) : currentQuestion.type === "mcq" ? (
+                  <CreateTestMcqType
+                    currentQuestion={currentQuestion}
+                    setCurrentQuestion={setCurrentQuestion}
+                    onCreateSuccess={onCreateSuccess}
+                    onCancel={() => setCurrentQuestion(null)}
+                    testId={testId}
+                    questionTypeId={questionTypes["mcq"].id}
                   />
                 ) : (
                   <div className="p-4 border border-neutral-200 rounded-lg bg-neutral-50">
@@ -309,7 +317,7 @@ const CreateTest = ({ descId, onCancel = undefined, onError }) => {
                     className="w-full px-3 py-2 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue/20 focus:border-primary-blue transition-colors"
                   >
                     <option value="">Select question type...</option>
-                    {QUESTION_TYPES.map((item) => (
+                    {questionTypes.data.map((item) => (
                       <option key={item.type} value={item.type}>
                         {item.label}
                       </option>
