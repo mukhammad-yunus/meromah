@@ -4,6 +4,7 @@ import { useCreateTestMutation } from "../../../services/testsApi";
 import { useGetQuestionTypesQuery } from "../../../services/questionTypesApi";
 import CreateTestCodeType from "./CreateTestCodeType";
 import CreateTestMcqType from "./CreateTestMcqType";
+import QuestionPreviewItem from "./QuestionPreviewItem";
 
 const initialQuestionData = {
   code: {
@@ -218,30 +219,15 @@ const CreateTest = ({ descId, onCancel = undefined, onError }) => {
             </label>
             {/* Display Existing Questions */}
             {questions.length > 0 && (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-3">
                 {questions.map((question, index) => (
-                  <div
+                  <QuestionPreviewItem
+                    questionTypes={questionTypes}
                     key={question.id}
-                    className="flex items-center justify-between p-3 bg-white border border-neutral-200 rounded-lg"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium text-neutral-700">
-                        Question {index + 1}
-                      </span>
-                      <span className="text-sm text-neutral-500">
-                        {question.type === "code"
-                          ? "Code Question"
-                          : "Multiple Choice"}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveQuestion(question.id)}
-                      className="p-1 text-neutral-400 hover:text-red-500 transition-colors"
-                    >
-                      <span className="text-sm">Remove</span>
-                    </button>
-                  </div>
+                    question={question}
+                    index={index}
+                    onRemove={() => handleRemoveQuestion(question.id)}
+                  />
                 ))}
               </div>
             )}
