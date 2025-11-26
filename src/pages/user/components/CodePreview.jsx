@@ -21,12 +21,14 @@ const CodePreview = ({
     }
   }, [showCodePreview]);
   useEffect(() => {
-    document.body.style.overflow = "hidden";
-
+    if (showCodePreview) {
+      document.body.style.overflow = "hidden";
+  
+    }
     return () => {
       document.body.style.overflow = "unset";
     };
-  }, []);
+  }, [showCodePreview]);
   const handleRunCode = async () => {
     if (!pythonCode.trim()) return;
     setIsRunningCode(true);
