@@ -171,7 +171,7 @@ const CreateTest = ({ descId, onCancel = undefined, onError }) => {
       onSubmit={handleTestSubmit}
       className={`p-4 flex flex-col justify-between ${
         !descId &&
-        "max-h-5/6 bg-white rounded-lg shadow-sm border border-neutral-200 m-6"
+        "bg-white rounded-lg shadow-sm border border-neutral-200 m-6"
       }`}
     >
       <div className="flex flex-col gap-4">
