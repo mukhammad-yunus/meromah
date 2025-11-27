@@ -74,26 +74,32 @@ const PreviewActionsMenu = ({
           className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 min-w-[160px]"
           onClick={(e) => e.stopPropagation()}
         >
-          <button
-            type="button"
-            onClick={(e) => handleMenuAction(e, onEdit)}
-            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
-          >
-            Edit
-          </button>
-          <button
-            type="button"
-            onClick={(e) => handleMenuAction(e, onPreview)}
-            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
-          >
-            Preview
-          </button>
-          <button
-            onClick={(e) => handleMenuAction(e, onRemove)}
-            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150 cursor-pointer"
-          >
-            Remove
-          </button>
+          {onEdit && (
+            <button
+              type="button"
+              onClick={(e) => handleMenuAction(e, onEdit)}
+              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
+            >
+              Edit
+            </button>
+          )}
+          {onPreview && (
+            <button
+              type="button"
+              onClick={(e) => handleMenuAction(e, onPreview)}
+              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
+            >
+              Preview
+            </button>
+          )}
+          {onRemove && (
+            <button
+              onClick={(e) => handleMenuAction(e, onRemove)}
+              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150 cursor-pointer"
+            >
+              Remove
+            </button>
+          )}
         </div>
       )}
     </div>
