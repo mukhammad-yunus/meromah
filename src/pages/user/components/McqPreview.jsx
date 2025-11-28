@@ -1,22 +1,24 @@
-import React from 'react'
+import React from "react";
+import PreviewActionsMenu from "./PreviewActionsMenu";
 
-const McqPreview = ({ question, index, questionTypeLabel, onRemove }) => {
+const McqPreview = ({
+  question,
+  questionNum,
+  questionTypeLabel,
+  onRemove,
+  onEdit,
+}) => {
   return (
     <div className="p-4 bg-white border border-neutral-200 rounded-lg">
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-neutral-700">
-            Question {index + 1}
-          </span>
+          <span>Question {questionNum}</span>
           <span className="text-sm text-neutral-500">{questionTypeLabel}</span>
         </div>
-        <button
-          type="button"
-          onClick={onRemove}
-          className="p-1 text-sm text-neutral-400 hover:text-red-500 transition-colors"
-        >
-          Remove
-        </button>
+        <PreviewActionsMenu
+          onEdit={() => onEdit && onEdit(question)}
+          onRemove={() => onRemove && onRemove(question)}
+        />
       </div>
 
       {/* Question Body */}
@@ -58,4 +60,4 @@ const McqPreview = ({ question, index, questionTypeLabel, onRemove }) => {
   );
 };
 
-export default McqPreview
+export default McqPreview;
