@@ -1,29 +1,40 @@
 import React, { useEffect, useState } from "react";
-import { usePlayPythonApiMutation } from "../../../services/solutionsApi";
+import { useCheckOldDsaQuestionApiMutation } from "../../../services/solutionsApi";
 import { FiX } from "react-icons/fi";
+import PreviewActionsMenu from "./PreviewActionsMenu";
+import Toast from "../../../components/Toast";
 
 const CodePreview = ({
   question,
   onRemove,
   questionNum,
   questionTypeLabel,
+  onEdit,
 }) => {
   const [showCodePreview, setShowCodePreview] = useState(false);
   const [pythonCode, setPythonCode] = useState("");
-  const [pythonOutput, setPythonOutput] = useState("");
+  const [pythonOutput, setPythonOutput] = useState([]);
+  const [error, setError] = useState({ hasError: false, message: null });
   const [isRunningCode, setIsRunningCode] = useState(false);
-  const [playPython] = usePlayPythonApiMutation();
+  const [playPython] = useCheckOldDsaQuestionApiMutation();
 
   useEffect(() => {
     if (!showCodePreview) {
       setPythonCode("");
       setPythonOutput("");
+    } else {
+      setPythonCode(
+        `def ${question.signature.value}(${Array.from({
+          length: question.signature.numberOfArguments,
+        })
+          .map((_, i) => `arg${i + 1}`)
+          .join(", ")}):\n\t# Write your solution here`
+      );
     }
   }, [showCodePreview]);
   useEffect(() => {
     if (showCodePreview) {
       document.body.style.overflow = "hidden";
-  
     }
     return () => {
       document.body.style.overflow = "unset";
@@ -34,14 +45,20 @@ const CodePreview = ({
     setIsRunningCode(true);
     setPythonOutput("");
     try {
-      const result = await playPython({
-        bodyData: { code: pythonCode },
+      const { result } = await playPython({
+        bodyData: { user_solution: pythonCode, question_id: question.id },
       }).unwrap();
-      setPythonOutput(result?.output || result?.data?.output || "No output");
+      for (const element of result) {
+        if (element.stderr.length > 0) {
+          throw new Error(element.stderr);
+        }
+      }
+      setPythonOutput(result || "No output");
     } catch (err) {
-      setPythonOutput(
-        err?.data?.message || err?.message || "Error executing code"
-      );
+      setError({
+        hasError: true,
+        message: err.message || "Error running code",
+      });
     } finally {
       setIsRunningCode(false);
     }
@@ -62,32 +79,39 @@ const CodePreview = ({
       groupedArguments[key].sort((a, b) => a.order - b.order);
     });
   }
+  const handleKeyDown = (e) => {
+    if (e.key === "Tab") {
+      e.preventDefault();
 
+      const el = e.target;
+      const start = el.selectionStart;
+      const end = el.selectionEnd;
+
+      const TAB = "\t";
+
+      const newValue =
+        pythonCode.substring(0, start) + TAB + pythonCode.substring(end);
+
+      setPythonCode(newValue);
+
+      // Move cursor after inserted tab
+      setTimeout(() => {
+        el.selectionStart = el.selectionEnd = start + TAB.length;
+      }, 0);
+    }
+  };
   return (
     <>
       <div className="flex items-center justify-between p-3 bg-white border border-neutral-200 rounded-lg">
         <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-neutral-700">
-            Question {questionNum}
-          </span>
+          <span>Question {questionNum}</span>
           <span className="text-sm text-neutral-500">{questionTypeLabel}</span>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setShowCodePreview(true)}
-            className="px-3 py-1.5 text-sm text-primary-blue border border-primary-blue rounded-lg hover:bg-primary-blue/5 transition-colors"
-          >
-            Preview
-          </button>
-          <button
-            type="button"
-            onClick={onRemove}
-            className="p-1 text-sm text-neutral-400 hover:text-red-500 transition-colors"
-          >
-            Remove
-          </button>
-        </div>
+        <PreviewActionsMenu
+          onEdit={() => onEdit && onEdit(question)}
+          onPreview={() => setShowCodePreview(true)}
+          onRemove={() => onRemove && onRemove(question)}
+        />
       </div>
       {showCodePreview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
@@ -191,6 +215,7 @@ const CodePreview = ({
                     placeholder="# Write your Python code here"
                     className="flex-1 w-full p-4 rounded-lg font-mono text-sm bg-white border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-blue/20 focus:border-primary-blue resize-none"
                     style={{ minHeight: "200px" }}
+                    onKeyDown={handleKeyDown}
                   />
                   <button
                     type="button"
@@ -200,14 +225,16 @@ const CodePreview = ({
                   >
                     {isRunningCode ? "Running..." : "Run Code"}
                   </button>
-                  {pythonOutput && (
+                  {pythonOutput.length > 0 && (
                     <div className="p-3 bg-white border border-neutral-200 rounded-lg">
                       <div className="text-xs font-medium text-neutral-600 mb-1">
                         Output:
                       </div>
-                      <pre className="text-xs text-neutral-900 font-mono whitespace-pre-wrap">
-                        {pythonOutput}
-                      </pre>
+                      {pythonOutput.map((test_case, i) => (
+                        <pre className="text-xs text-neutral-900 font-mono whitespace-pre-wrap">
+                          {test_case.stdout}
+                        </pre>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -215,6 +242,13 @@ const CodePreview = ({
             </div>
           </div>
         </div>
+      )}
+      {error.hasError && (
+        <Toast
+          type="error"
+          message={error.message}
+          onClose={() => setError({ hasError: false, message: null })}
+        />
       )}
     </>
   );
