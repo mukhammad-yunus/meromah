@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useCheckOldDsaQuestionApiMutation } from "../../../services/solutionsApi";
+import { useCheckOldDsaQuestionApiMutation } from "../../../../services/solutionsApi";
 import { FiX } from "react-icons/fi";
-import PreviewActionsMenu from "./PreviewActionsMenu";
-import Toast from "../../../components/Toast";
+import Toast from "../../../../components/Toast";
+import PreviewActionsMenu from "../PreviewActionsMenu";
 
 const CodePreview = ({
   question,
@@ -53,12 +53,14 @@ const CodePreview = ({
           throw new Error(element.stderr);
         }
       }
+      console.log(result);
       setPythonOutput(result || "No output");
     } catch (err) {
       setError({
         hasError: true,
         message: err.message || "Error running code",
       });
+      console.error(err);
     } finally {
       setIsRunningCode(false);
     }
