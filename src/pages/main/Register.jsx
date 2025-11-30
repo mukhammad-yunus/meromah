@@ -32,8 +32,6 @@ const Register = () => {
   const [hasSpecialChar, setHasSpecialChar] = useState(false);
   const [toast, setToast] = useState(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  // Redux dispatch
-  const dispatch = useDispatch();
   const [emailVerification, { isLoading: isVerifyingEmail }] =
     useEmailVerificationMutation();
   const [otpVerification, { isLoading: isVerifyingOtp }] =
@@ -143,10 +141,11 @@ const Register = () => {
 
     try {
       const userData = { ...form, email };
-      const { refresh_token, access_token } = await registerUser(
+      await registerUser(
         userData
       ).unwrap();
       setShowSuccessModal(true);
+      localStorage.removeItem("unfinished-test");
     } catch (err) {
       const errorMessage =
         err?.data?.message ||

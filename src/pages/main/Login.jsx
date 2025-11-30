@@ -18,13 +18,14 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res= await login({
+      await login({
         email,
         password,
       }).unwrap();
       setShowSuccessModal(true);
       setEmail("");
       setPassword("");
+      localStorage.removeItem("unfinished-test");
     } catch (err) {
       console.error("Login failed:", err);
     }
