@@ -14,6 +14,7 @@ import { IoMdAttach } from "react-icons/io";
 import useSortBy from "../../hooks/useSortBy";
 import CreateTest from "./components/CreateTest";
 import DescHeader from "./components/DescHeader";
+import { IoAdd } from "react-icons/io5";
 
 // Helper function to extract error message from API error response
 const extractErrorMessage = (error) => {
@@ -34,47 +35,45 @@ const DescPage = () => {
   const { pathname } = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
+
   // Get current user from Redux
   const { profileData } = useSelector((state) => state.myProfile);
   const username = useMemo(() => profileData?.username || null, [profileData]);
   const { isAuthenticated } = useSelector((state) => state.auth);
-  
-  // Helper function to get initials
-  const getInitials = (name) => {
-    if (!name) return "U";
-    return name
-      .split(" ")
-      .map((word) => word[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
 
   // Create Test State
   const [showCreateTest, setShowCreateTest] = useState(false);
   const [toast, setToast] = useState(null);
+  useEffect(() => {
+    if (!showCreateTest) return;
 
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [showCreateTest]);
   // Use custom hook for sorting
   const { sortBy, SortByComponent, emptyStateMessages } = useSortBy(
     isAuthenticated,
     username
   );
-  
+
   const {
     data: descData,
     error: descError,
     isLoading: isDescLoading,
     isError: isDescError,
   } = useGetDescQuery(descId);
-  
+
   const {
     data: testData,
     error: testError,
     isLoading: isTestLoading,
     isError: isTestError,
   } = useGetTestsForDescQuery({ desc: descId, queryParams: sortBy });
-  
+
   useEffect(() => {
     if (!descId || !pathname || descData === undefined) return;
     dispatch(
@@ -109,7 +108,7 @@ const DescPage = () => {
   const transformedTests = testData?.data?.data?.map((test) => ({
     ...test,
     body: test.description,
-    board: {
+    desc: {
       name: descData.data.name,
       id: descData.data.id,
     },
@@ -123,56 +122,36 @@ const DescPage = () => {
         {/* Desc Header */}
         <DescHeader desc={descData.data} />
 
-        {/* Create Test Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-neutral-200 mb-6">
-          {!showCreateTest ? (
-            <div className="flex items-center gap-3 p-4">
-              {/* Avatar */}
-              <div
-                onClick={onShowCreateTest}
-                className="rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white text-xs font-semibold shadow-md hover:shadow-lg transition-shadow cursor-pointer ring-2 ring-white flex-shrink-0"
-              >
-                <p className="w-11 h-11 flex items-center justify-center rounded-full">
-                  {getInitials(isAuthenticated ? profileData?.name : "User")}
-                </p>
-              </div>
-
-              {/* Placeholder Text */}
-              <div
-                onClick={onShowCreateTest}
-                className="flex-1 px-4 py-2 text-sm text-neutral-500 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors cursor-pointer border border-transparent hover:border-neutral-200"
-              >
-                Create a new test for d/{descData.data.name}
-              </div>
-
-              {/* Attachment Icon */}
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-semibold text-neutral-900">Tests</h2>
+          <div className="flex items-center gap-3">
+            <SortByComponent />
+            {!showCreateTest && (
               <button
-                onClick={onShowCreateTest}
-                className="p-2 text-neutral-500 hover:text-primary-blue hover:bg-primary-blue/10 rounded-lg transition-colors cursor-pointer"
+                onClick={() => setShowCreateTest(true)}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-blue hover:bg-primary-blue/10 hover:text-primary-blue rounded-lg transition-colors shadow-sm"
                 aria-label="Create test"
               >
-                <IoMdAttach className="w-5 h-5" />
+                <IoAdd className="w-5 h-5" />
+                Create Test
               </button>
-            </div>
-          ) : isAuthenticated ? (
-            <CreateTest
-              descId={descId}
-              onCancel={() => setShowCreateTest(false)}
-              onError={(errorMessage) => {
-                setToast({
-                  message: errorMessage,
-                  type: "error",
-                });
-              }}
-            />
-          ) : null}
+            )}
+          </div>
         </div>
 
-        {/* Sorting/Filtering Controls */}
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-neutral-900">Tests</h2>
-          <SortByComponent />
-        </div>
+        {/* Create Test Form */}
+        {isAuthenticated && showCreateTest && (
+          <CreateTest
+            descId={descId}
+            onCancel={() => setShowCreateTest(false)}
+            onError={(errorMessage) => {
+              setToast({
+                message: errorMessage,
+                type: "error",
+              });
+            }}
+          />
+        )}
 
         {/* Tests Feed */}
         <div className="bg-white rounded-lg shadow-sm border border-neutral-200">
@@ -200,6 +179,8 @@ const DescPage = () => {
                     isFirst={isFirst}
                     isLast={isLast}
                     postType="test"
+                    communityType="desc"
+                    communityUrl="d/"
                   />
                 );
               })}
