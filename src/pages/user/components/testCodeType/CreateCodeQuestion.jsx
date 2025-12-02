@@ -124,7 +124,7 @@ const CreateCodeQuestion = ({
   const isFormValid = () => {
     if (!body?.trim()) return false;
     if (!signature?.value?.trim()) return false;
-    if (!signature?.numberOfArguments || signature.numberOfArguments < 1)
+    if (signature.numberOfArguments < 0)
       return false;
 
     // Check all test cases have expected output

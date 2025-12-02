@@ -57,6 +57,7 @@ const CommunitySelection = ({
   onSelectCommunity,
   onClearSelection,
   resetRef,
+  disabled
 }) => {
   const communityTypes = new Set(["desc", "board"]);
   if (!communityTypes.has(communityType)) return null;
@@ -221,7 +222,7 @@ const CommunitySelection = ({
             ref={communitySearchRef}
             type="text"
             maxLength={20}
-            disabled={!!communityName}
+            disabled={disabled}
             value={communitySearchQuery}
             onChange={handleCommunitySearch}
             onFocus={() => setShowCommunityDropdown(true)}

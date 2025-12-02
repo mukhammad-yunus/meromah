@@ -1,12 +1,13 @@
-import React from 'react'
-import McqPreview from './McqPreview';
-import CodePreview from './CodePreview';
+import React from "react";
+import McqPreview from "./McqPreview";
+import CodePreview from "./testCodeType/CodePreview";
 
 const QuestionPreviewItem = ({
   question,
   questionTypes,
   index,
   onRemove,
+  onEdit,
 }) => {
   const getQuestionTypeKey = () => {
     if (question.type === "code") return "code";
@@ -23,19 +24,22 @@ const QuestionPreviewItem = ({
         index={index}
         questionTypeLabel={questionTypeLabel}
         onRemove={onRemove}
+        questionNum={index + 2}
+        onEdit={() => onEdit && onEdit(question)}
       />
     );
   }
 
   // Code question
   return (
-      <CodePreview
-        onRemove={onRemove}
-        questionTypeLabel={questionTypeLabel}
-        question={question}
-        questionNum={index+1}
-      />
+    <CodePreview
+      onRemove={onRemove}
+      questionTypeLabel={questionTypeLabel}
+      question={question}
+      questionNum={index + 1}
+      onEdit={() => onEdit && onEdit(question)}
+    />
   );
-}
+};
 
-export default QuestionPreviewItem
+export default QuestionPreviewItem;
