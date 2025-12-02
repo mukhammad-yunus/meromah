@@ -1,33 +1,15 @@
-import React, { useState, useRef, useMemo, useEffect } from "react";
-import CommunitySelection from "./CommunitySelection";
-import { useCreateTestMutation } from "../../../services/testsApi";
+import React, { useState, useMemo, useEffect } from "react";
 import { useGetQuestionTypesQuery } from "../../../services/questionTypesApi";
-import CreateTestCodeType from "./CreateTestCodeType";
 import CreateTestMcqType from "./CreateTestMcqType";
 import QuestionPreviewItem from "./QuestionPreviewItem";
+import CreateCodeQuestion from "./testCodeType/CreateCodeQuestion";
+import EditCodeQuestion from "./testCodeType/EditCodeQuestion";
+import CreateTestHeader from "./CreateTestHeader";
+import { useSelector } from "react-redux";
+import NotFound from "../../../components/NotFound";
 
-const initialQuestionData = {
-  code: {
-    type: "code",
-    body: "",
-    signature: { value: "", numberOfArguments: 1 },
-    test_cases: [
-      { expected_output: "" }, // at least one case
-    ],
-    arguments: [
-      [], // arguments for case 0
-    ],
-  },
-  mcq: {
-    type: "mcq",
-    body: "",
-    options: [
-      { body: "", is_correct: false },
-      { body: "", is_correct: false }, // minimum 2 options
-    ],
-  },
-};
-const CreateTest = ({ descId, onCancel = undefined, onError }) => {
+const CreateTest = ({ descId, onCancel = undefined }) => {
+  const { isAuthenticated } = useSelector((state) => state.auth);
   const [draftTest, setDraftTest] = useState(() => {
     const raw = localStorage.getItem("unfinished-test");
     let draftFromLocalStorage = null;
@@ -50,55 +32,57 @@ const CreateTest = ({ descId, onCancel = undefined, onError }) => {
     return null;
   });
 
-  const testTitleRef = useRef(null);
-  const testDescriptionRef = useRef(null);
-  const selectedDescNameRef = useRef(null);
-  const descSelectionResetRef = useRef(null);
-
-  const [isFormValid, setIsFormValid] = useState(false);
   const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [showQuestionTypeSelector, setShowQuestionTypeSelector] =
     useState(false);
   const { data: questionTypes } = useGetQuestionTypesQuery();
-  const [createTest] = useCreateTestMutation();
+  const initialQuestionData = useMemo(
+    () => ({
+      code: {
+        type: "code",
+        type_id: questionTypes ? questionTypes["code"]?.id : null,
+        body: "",
+        signature: { value: "", numberOfArguments: 1 },
+        test_cases: [
+          { expected_output: "" }, // at least one case
+        ],
+        arguments: [
+          [], // arguments for case 0
+        ],
+      },
+      mcq: {
+        type: "mcq",
+        type_id: questionTypes ? questionTypes["mcq"]?.id : null,
+        body: "",
+        options: [
+          { body: "", is_correct: false },
+          { body: "", is_correct: false }, // minimum 2 options
+        ],
+      },
+    }),
+    [questionTypes]
+  );
   const testId = useMemo(
     () => (draftTest === null ? null : draftTest.id),
     [draftTest]
   );
-
-  useEffect(() => {
-    if (draftTest === null) return;
-    testTitleRef.current.value = draftTest.title;
-    testDescriptionRef.current.value = draftTest.description;
-    selectedDescNameRef.current = draftTest.desc;
-    setQuestions(draftTest?.questions || []);
-    checkFormValidity();
-  }, [draftTest]);
-
-  const checkFormValidity = () => {
-    const testTitle = testTitleRef.current?.value?.trim() || "";
-    const testDescription = testDescriptionRef.current?.value?.trim() || "";
-    const hasDesc = descId || selectedDescNameRef.current;
-    setIsFormValid(
-      testTitle.length > 0 && testDescription.length > 0 && hasDesc
-    );
-  };
-
-  const handleSelectDesc = (desc) => {
-    selectedDescNameRef.current = desc.name;
-    checkFormValidity();
-  };
-
-  const handleClearDescSelection = () => {
-    selectedDescNameRef.current = null;
-    checkFormValidity();
-  };
-
+ useEffect(() => {
+  if (!descId) return;
+  if(draftTest === null) return;
+  if(draftTest.desc !== descId){
+  localStorage.removeItem("unfinished-test")
+  setDraftTest(null)
+  }
+  
+}, [draftTest]);
   const handleSelectQuestionType = (type) => {
-    const newQuestion = initialQuestionData[type];
-    if (newQuestion) {
-      setCurrentQuestion(newQuestion);
+    const template = initialQuestionData[type];
+    if (template) {
+      const clonedQuestion = JSON.parse(JSON.stringify(template));
+      setCurrentQuestion(clonedQuestion);
+      setIsEditMode(false);
     }
     setShowQuestionTypeSelector(false);
   };
@@ -107,271 +91,370 @@ const CreateTest = ({ descId, onCancel = undefined, onError }) => {
     setQuestions((prev) => prev.filter((q) => q.id !== questionId));
   };
 
+  const handleEditQuestion = (question) => {
+    if (!question) return;
+    setShowQuestionTypeSelector(false);
+    setIsEditMode(true);
+
+    if (question.type === "code") {
+      const normalizedTestCases =
+        question.test_cases?.map((testCase) => ({
+          id: testCase.id,
+          expected_output: testCase.expected_output || "",
+        })) || [];
+
+      const signatureData = question.signature || {};
+      const inferredArgLength = Math.max(
+        signatureData.numberOfArguments || 0,
+        ...normalizedTestCases.map((testCase) => {
+          const argsForCase = (question.arguments || []).filter(
+            (arg) => arg.test_case_id === testCase.id
+          );
+          return argsForCase.length;
+        })
+      );
+      const resolvedArgLength = inferredArgLength || 1;
+
+      const groupedArgs =
+        normalizedTestCases.length > 0
+          ? normalizedTestCases.map((testCase) => {
+              const argsForCase = (question.arguments || [])
+                .filter((arg) => arg.test_case_id === testCase.id)
+                .sort(
+                  (a, b) =>
+                    (a.order ?? a.arg_order ?? 0) -
+                    (b.order ?? b.arg_order ?? 0)
+                )
+                .map((arg) => arg.value || "");
+              if (argsForCase.length === resolvedArgLength) {
+                return argsForCase;
+              }
+              if (argsForCase.length === 0) {
+                return Array.from({ length: resolvedArgLength }, () => "");
+              }
+              if (argsForCase.length > resolvedArgLength) {
+                return argsForCase.slice(0, resolvedArgLength);
+              }
+              return [
+                ...argsForCase,
+                ...Array.from(
+                  { length: resolvedArgLength - argsForCase.length },
+                  () => ""
+                ),
+              ];
+            })
+          : [Array.from({ length: resolvedArgLength }, () => "")];
+
+      setCurrentQuestion({
+        id: question.id,
+        type: "code",
+        type_id: question.type_id,
+        body: question.body || "",
+        signature: {
+          id: signatureData.id,
+          value: signatureData.value || "",
+          numberOfArguments: groupedArgs[0]?.length || resolvedArgLength,
+        },
+        test_cases:
+          normalizedTestCases.length > 0
+            ? normalizedTestCases
+            : [{ expected_output: "" }],
+        arguments: groupedArgs,
+        originalTestCaseIds: normalizedTestCases
+          .map((testCase) => testCase.id)
+          .filter(Boolean),
+      });
+      return;
+    }
+
+    const normalizedOptions =
+      question.options?.map((option) => ({
+        id: option.id,
+        body: option.body || "",
+        is_correct: Boolean(option.is_correct),
+      })) || [];
+
+    setCurrentQuestion({
+      id: question.id,
+      type: "mcq",
+      body: question.body || "",
+      options:
+        normalizedOptions.length > 0
+          ? normalizedOptions
+          : [
+              { body: "", is_correct: false },
+              { body: "", is_correct: false },
+            ],
+      originalOptionIds: normalizedOptions
+        .map((option) => option.id)
+        .filter(Boolean),
+    });
+  };
+
+  const handleQuestionModalCancel = () => {
+    setCurrentQuestion(null);
+    setIsEditMode(false);
+  };
+
   const handleTestSubmit = async (e) => {
     e.preventDefault();
     // TODO: Gather test data, questions, files, and submit
   };
 
   const onResetTestForm = () => {
-    if (testTitleRef.current) testTitleRef.current.value = "";
-    if (testDescriptionRef.current) testDescriptionRef.current.value = "";
+    setDraftTest(null);
     setQuestions([]);
     setCurrentQuestion(null);
     setShowQuestionTypeSelector(false);
-    setIsFormValid(false);
-    selectedDescNameRef.current = null;
-    if (descSelectionResetRef.current) {
-      descSelectionResetRef.current();
-    }
     if (onCancel) {
       onCancel();
     }
   };
-  const handleInitializeTest = async () => {
-    try {
-      const bodyData = {
-        title: testTitleRef.current.value.trim(),
-        description: testDescriptionRef.current.value.trim(),
-      };
-      const res = await createTest({
-        desc: selectedDescNameRef.current,
-        bodyData,
-      }).unwrap();
-      const testDetails = {
-        ...bodyData,
-        desc: selectedDescNameRef.current,
-        id: res.data.id,
-        date: new Date().toISOString(),
-      };
-      setDraftTest(testDetails);
-      localStorage.setItem(
-        "unfinished-test",
-        JSON.stringify({ ...testDetails, questions: [] })
-      );
-    } catch (err) {
-      //TODO: Handle error
-    }
-  };
   const onCreateSuccess = (finalQuestion) => {
     setQuestions((prev) => [...prev, finalQuestion]);
-    let draftFromLocalStorage = JSON.parse(
-      localStorage.getItem("unfinished-test")
-    );
-    draftFromLocalStorage.questions.push(finalQuestion);
-    draftFromLocalStorage.date = new Date().toISOString();
-    localStorage.setItem(
-      "unfinished-test",
-      JSON.stringify(draftFromLocalStorage)
-    );
-    setDraftTest(draftFromLocalStorage);
+
+    let draftFromLocalStorage = null;
+    try {
+      const rawDraft = localStorage.getItem("unfinished-test");
+      draftFromLocalStorage = rawDraft ? JSON.parse(rawDraft) : null;
+    } catch {
+      draftFromLocalStorage = null;
+    }
+
+    if (draftFromLocalStorage) {
+      draftFromLocalStorage.questions = draftFromLocalStorage.questions || [];
+      draftFromLocalStorage.questions.push(finalQuestion);
+      draftFromLocalStorage.date = new Date().toISOString();
+      localStorage.setItem(
+        "unfinished-test",
+        JSON.stringify(draftFromLocalStorage)
+      );
+      setDraftTest(draftFromLocalStorage);
+    }
+
     setCurrentQuestion(null);
+    setIsEditMode(false);
   };
+
+  const handleUpdateSuccess = (updatedQuestion) => {
+    setQuestions((prev) =>
+      prev.map((question) =>
+        question.id === updatedQuestion.id ? updatedQuestion : question
+      )
+    );
+
+    let draftFromLocalStorage = null;
+    try {
+      draftFromLocalStorage = JSON.parse(
+        localStorage.getItem("unfinished-test")
+      );
+    } catch {
+      draftFromLocalStorage = null;
+    }
+
+    if (draftFromLocalStorage?.questions) {
+      draftFromLocalStorage.questions = draftFromLocalStorage.questions.map(
+        (question) =>
+          question.id === updatedQuestion.id ? updatedQuestion : question
+      );
+      draftFromLocalStorage.date = new Date().toISOString();
+      localStorage.setItem(
+        "unfinished-test",
+        JSON.stringify(draftFromLocalStorage)
+      );
+      setDraftTest(draftFromLocalStorage);
+    }
+
+    setCurrentQuestion(null);
+    setIsEditMode(false);
+  };
+  if (!isAuthenticated) return <NotFound />;
   return (
     <form
       onSubmit={handleTestSubmit}
-      className={`p-4 flex flex-col justify-between ${
-        !descId &&
-        "bg-white rounded-lg shadow-sm border border-neutral-200 m-6"
-      }`}
+      className={
+        !!descId &&
+        "flex flex-col items-center gap-4 fixed inset-0 z-50 p-4 bg-white/50 md:bg-black/30 backdrop-blur-lg"
+      }
     >
-      <div className="flex flex-col gap-4">
-        {/* Desc Selection - only show when descId is not provided */}
-        {!descId && (
-          <CommunitySelection
-            communityName={draftTest ? draftTest.desc : undefined}
-            communityType={"desc"}
-            onSelectCommunity={handleSelectDesc}
-            onClearSelection={handleClearDescSelection}
-            resetRef={descSelectionResetRef}
-          />
-        )}
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-neutral-800">
-            Test Title *
-          </label>
-          <input
-            ref={testTitleRef}
-            disabled={testId !== null}
-            type="text"
-            placeholder="Test title"
-            onChange={checkFormValidity}
-            className="w-full px-3 py-2 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue/20 focus:border-primary-blue transition-colors disabled:text-neutral-500"
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-neutral-800">
-            Test Description *
-          </label>
-          <textarea
-            ref={testDescriptionRef}
-            disabled={testId !== null}
-            placeholder="Describe your test..."
-            rows={4}
-            onChange={checkFormValidity}
-            className="w-full px-3 py-2 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue/20 focus:border-primary-blue transition-colors resize-y disabled:text-neutral-500"
-          />
-        </div>
-        {/* Questions Collector */}
+      <div
+        className={`flex flex-col justify-start bg-white h-full rounded-lg md:m-6 border border-neutral-200 gap-4 p-6 ${
+          !!descId && " w-full md:max-w-3/4 p-6 overflow-y-scroll"
+        }`}
+      >
+        <CreateTestHeader
+          descId={descId}
+          draftTest={draftTest}
+          setDraftTest={setDraftTest}
+          setQuestions={setQuestions}
+          onCancel={onResetTestForm}
+        />
         {testId !== null && (
-          <div className="flex flex-col gap-3">
-            <label className="text-sm font-medium text-neutral-800">
-              Questions
-            </label>
-            {/* Display Existing Questions */}
-            {questions.length > 0 && (
-              <div className="flex flex-col gap-3">
-                {questions.map((question, index) => (
-                  <QuestionPreviewItem
-                    questionTypes={questionTypes}
-                    key={question.id}
-                    question={question}
-                    index={index}
-                    onRemove={() => handleRemoveQuestion(question.id)}
-                  />
-                ))}
-              </div>
-            )}
-            {currentQuestion !== null && testId !== null && (
-              <>
-                {currentQuestion.type === "code" ? (
-                  <CreateTestCodeType
-                    currentQuestion={currentQuestion}
-                    setCurrentQuestion={setCurrentQuestion}
-                    onCreateSuccess={onCreateSuccess}
-                    onCancel={() => setCurrentQuestion(null)}
-                    testId={testId}
-                    questionTypeId={questionTypes["code"].id}
-                  />
-                ) : currentQuestion.type === "mcq" ? (
-                  <CreateTestMcqType
-                    currentQuestion={currentQuestion}
-                    setCurrentQuestion={setCurrentQuestion}
-                    onCreateSuccess={onCreateSuccess}
-                    onCancel={() => setCurrentQuestion(null)}
-                    testId={testId}
-                    questionTypeId={questionTypes["mcq"].id}
-                  />
-                ) : (
-                  <div className="p-4 border border-neutral-200 rounded-lg bg-neutral-50">
-                    <div className="flex flex-col gap-3">
-                      <span className="text-sm font-medium text-neutral-700">
-                        New Question - Multiple Choice
-                      </span>
-                      {/* Question Body Input */}
-                      <p className="flex flex-col gap-2">Question Body</p>
-                      <div className="flex justify-between gap-2">
-                        <button
-                          className="block px-4 py-2 rounded text-neutral-400 border cursor-pointer "
-                          onClick={() => setCurrentQuestion(null)}
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          className="block px-4 py-2 rounded text-white bg-primary-blue border-primary-blue border cursor-pointer "
-                          onClick={() => {
-                            setQuestions((prev) => [...prev, currentQuestion]);
-                            setCurrentQuestion(null);
-                          }}
-                        >
-                          Add
-                        </button>
+          <>
+            {/* Questions Collector */}
+            <div className="flex flex-col gap-4">
+              <label className="text-sm font-medium text-neutral-800">
+                Questions
+              </label>
+              {/* Display Existing Questions */}
+              {questions.length > 0 && (
+                <div className="flex flex-col gap-3">
+                  {questions.map((question, index) => (
+                    <QuestionPreviewItem
+                      questionTypes={questionTypes}
+                      key={question.id}
+                      question={question}
+                      index={index}
+                      onRemove={() => handleRemoveQuestion(question.id)}
+                      onEdit={handleEditQuestion}
+                    />
+                  ))}
+                </div>
+              )}
+              {currentQuestion !== null && testId !== null && isEditMode && (
+                <>
+                  {currentQuestion.type === "code" ? (
+                    <EditCodeQuestion
+                      currentQuestion={currentQuestion}
+                      setCurrentQuestion={setCurrentQuestion}
+                      onUpdateSuccess={handleUpdateSuccess}
+                      onCancel={handleQuestionModalCancel}
+                      testId={testId}
+                      questionTypeId={questionTypes["code"].id}
+                      setIsEditMode={setIsEditMode}
+                    />
+                  ) : currentQuestion.type === "mcq" ? null : null}
+                </>
+              )}
+              {currentQuestion !== null && testId !== null && !isEditMode && (
+                <>
+                  {currentQuestion.type === "code" ? (
+                    <CreateCodeQuestion
+                      currentQuestion={currentQuestion}
+                      setCurrentQuestion={setCurrentQuestion}
+                      onCreateSuccess={onCreateSuccess}
+                      onUpdateSuccess={handleUpdateSuccess}
+                      onCancel={handleQuestionModalCancel}
+                      testId={testId}
+                      questionTypeId={questionTypes["code"].id}
+                      setIsEditMode={setIsEditMode}
+                    />
+                  ) : currentQuestion.type === "mcq" ? (
+                    <CreateTestMcqType
+                      currentQuestion={currentQuestion}
+                      setCurrentQuestion={setCurrentQuestion}
+                      onCreateSuccess={onCreateSuccess}
+                      onUpdateSuccess={handleUpdateSuccess}
+                      onCancel={handleQuestionModalCancel}
+                      testId={testId}
+                      questionTypeId={questionTypes["mcq"].id}
+                      setIsEditMode={setIsEditMode}
+                    />
+                  ) : (
+                    <div className="p-4 border border-neutral-200 rounded-lg bg-neutral-50">
+                      <div className="flex flex-col gap-3">
+                        <span className="text-sm font-medium text-neutral-700">
+                          New Question - Multiple Choice
+                        </span>
+                        {/* Question Body Input */}
+                        <p className="flex flex-col gap-2">Question Body</p>
+                        <div className="flex justify-between gap-2">
+                          <button
+                            className="block px-4 py-2 rounded text-neutral-400 border cursor-pointer "
+                            onClick={() => setCurrentQuestion(null)}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            className="block px-4 py-2 rounded text-white bg-primary-blue border-primary-blue border cursor-pointer "
+                            onClick={() => {
+                              setQuestions((prev) => [
+                                ...prev,
+                                currentQuestion,
+                              ]);
+                              setCurrentQuestion(null);
+                            }}
+                          >
+                            Add
+                          </button>
+                        </div>
                       </div>
                     </div>
+                  )}
+                </>
+              )}
+              {/* Question Type Selector - shown when empty or when adding new */}
+              {showQuestionTypeSelector && (
+                <div className="border border-neutral-200 rounded-lg p-4 bg-neutral-50">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm text-neutral-600">
+                      {questions.length === 0
+                        ? "Question 1 - Select question type"
+                        : `Question ${
+                            questions.length + 1
+                          } - Select question type`}
+                    </label>
+                    <select
+                      defaultValue=""
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          handleSelectQuestionType(e.target.value);
+                          e.target.value = ""; // Reset dropdown
+                        }
+                      }}
+                      className="w-full px-3 py-2 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue/20 focus:border-primary-blue transition-colors"
+                    >
+                      <option value="">Select question type...</option>
+                      {questionTypes.data.map((item) => (
+                        <option key={item.type} value={item.type}>
+                          {item.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                )}
-              </>
-            )}
-            {/* Question Type Selector - shown when empty or when adding new */}
-            {showQuestionTypeSelector && (
-              <div className="border border-neutral-200 rounded-lg p-4 bg-neutral-50">
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm text-neutral-600">
-                    {questions.length === 0
-                      ? "Question 1 - Select question type"
-                      : `Question ${
-                          questions.length + 1
-                        } - Select question type`}
-                  </label>
-                  <select
-                    defaultValue=""
-                    onChange={(e) => {
-                      if (e.target.value) {
-                        handleSelectQuestionType(e.target.value);
-                        e.target.value = ""; // Reset dropdown
-                      }
-                    }}
-                    className="w-full px-3 py-2 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue/20 focus:border-primary-blue transition-colors"
-                  >
-                    <option value="">Select question type...</option>
-                    {questionTypes.data.map((item) => (
-                      <option key={item.type} value={item.type}>
-                        {item.label}
-                      </option>
-                    ))}
-                  </select>
+                  {showQuestionTypeSelector && (
+                    <button
+                      type="button"
+                      onClick={() => setShowQuestionTypeSelector(false)}
+                      className="mt-3 text-sm text-neutral-500 hover:text-neutral-700"
+                    >
+                      Cancel
+                    </button>
+                  )}
                 </div>
-                {showQuestionTypeSelector && (
-                  <button
-                    type="button"
-                    onClick={() => setShowQuestionTypeSelector(false)}
-                    className="mt-3 text-sm text-neutral-500 hover:text-neutral-700"
-                  >
-                    Cancel
-                  </button>
-                )}
-              </div>
-            )}
-
-            {/* Add Question Button - shown when questions exist */}
-            {currentQuestion === null && !showQuestionTypeSelector && (
+              )}
+              {/* Add Question Button - shown when questions exist */}
+              {currentQuestion === null && !showQuestionTypeSelector && (
+                <button
+                  type="button"
+                  onClick={() => setShowQuestionTypeSelector(true)}
+                  className="flex items-center justify-center gap-2 px-4 py-2 text-sm text-primary-blue border border-primary-blue rounded-lg hover:bg-primary-blue/5 transition-colors"
+                >
+                  <span>Add Question</span>
+                </button>
+              )}
+            </div>
+            {/* Action Buttons */}
+            <div className="flex items-center justify-between gap-2 pt-2 border-t border-neutral-200">
               <button
                 type="button"
-                onClick={() => setShowQuestionTypeSelector(true)}
-                className="flex items-center justify-center gap-2 px-4 py-2 text-sm text-primary-blue border border-primary-blue rounded-lg hover:bg-primary-blue/5 transition-colors"
+                onClick={onResetTestForm}
+                className="px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
               >
-                <span>Add Question</span>
+                Cancel
               </button>
-            )}
-          </div>
+              <button
+                type="submit"
+                onClick={handleTestSubmit}
+                disabled={questions.length === 0}
+                className="px-4 py-2 text-sm bg-primary-blue text-white rounded-lg hover:bg-primary-blue/90 disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors font-medium"
+              >
+                Save Test
+              </button>
+            </div>
+          </>
         )}
       </div>
-      {/* Action Buttons */}
-      {testId === null ? (
-        <div className="flex items-center justify-between gap-2 pt-2 border-t border-neutral-200">
-          <button
-            type="button"
-            onClick={onResetTestForm}
-            className="px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            disabled={!isFormValid}
-            onClick={handleInitializeTest}
-            className="px-4 py-2 text-sm bg-primary-blue text-white rounded-lg hover:bg-primary-blue/90 disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors font-medium cursor-pointer"
-          >
-            Initialize Test
-          </button>
-        </div>
-      ) : (
-        <div className="flex items-center justify-between gap-2 pt-2 border-t border-neutral-200">
-          <button
-            type="button"
-            onClick={onResetTestForm}
-            className="px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={!isFormValid}
-            className="px-4 py-2 text-sm bg-primary-blue text-white rounded-lg hover:bg-primary-blue/90 disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors font-medium"
-          >
-            Create Test
-          </button>
-        </div>
-      )}
     </form>
   );
 };
