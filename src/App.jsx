@@ -12,7 +12,7 @@ import Boards from "./pages/main/Boards";
 import Contact from "./pages/main/Contact";
 import Login from "./pages/main/Login";
 import Register from "./pages/main/Register";
-import Profile from "./pages/user/components/Profile";
+import Profile from "./pages/user/Profile";
 import EditProfile from "./pages/user/EditProfile";
 import Feeds from "./pages/user/Feeds";
 import Post from "./pages/user/Post";
