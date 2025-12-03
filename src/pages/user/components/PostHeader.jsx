@@ -1,7 +1,7 @@
 import { FiChevronLeft } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import RelativeTime from "../../../components/RelativeTime";
-import { getInitials } from "../../../utils";
+import { getFileUrl, getInitials } from "../../../utils";
 import PostMenu from "./PostMenu";
 
 const getType = {
@@ -22,7 +22,6 @@ const PostHeader = ({ postData, postType, onEdit, onDelete, onReport }) => {
     e.stopPropagation();
     navigate(path);
   };
-
   return (
     <div className="px-4 border-b border-gray-200">
       <div className="flex items-center justify-between gap-2 py-4">
@@ -39,19 +38,24 @@ const PostHeader = ({ postData, postType, onEdit, onDelete, onReport }) => {
             <div
               className="rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white text-xs font-semibold shadow-md hover:shadow-lg transition-shadow cursor-pointer ring-2 ring-white"
               onClick={(e) =>
-                handleAuthorClick(
-                  e,
-                  `/user/${postData.data.author.username}`
-                )
+                handleAuthorClick(e, `/user/${postData.data.author.username}`)
               }
             >
-              <p className="w-11 h-11 flex items-center justify-center rounded-full">
-                {getInitials(postData.data.author.username)}
-              </p>
+              {postData?.data?.author?.avatar !== null ? (
+                <img
+                  src={getFileUrl(postData.data.author.avatar)}
+                  alt="Board avatar"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <p className="w-11 h-11 flex items-center justify-center rounded-full">
+                  {getInitials(postData.data.author.username)}
+                </p>
+              )}
             </div>
             <div>
               <p
-                className="max-w-5/6 w-full text-primary-blue text-base cursor-pointer hover:underline truncate font-medium"
+                className="w-full text-primary-blue text-base cursor-pointer hover:underline truncate font-medium"
                 role="button"
                 tabIndex={0}
                 onClick={(e) =>
@@ -94,7 +98,7 @@ const PostHeader = ({ postData, postType, onEdit, onDelete, onReport }) => {
         </div>
         <div onClick={(e) => e.stopPropagation()}>
           <PostMenu
-            post={postData.data}
+            item={postData.data}
             onEdit={onEdit}
             onDelete={onDelete}
             onReport={onReport}
@@ -106,4 +110,3 @@ const PostHeader = ({ postData, postType, onEdit, onDelete, onReport }) => {
 };
 
 export default PostHeader;
-

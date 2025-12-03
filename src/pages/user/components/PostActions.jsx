@@ -9,7 +9,7 @@ const PostActions = ({
   onShare,
 }) => {
   return (
-    <div className="px-4 py-3 border-t border-gray-200">
+    <div className="px-4 sm:px-6 md:px-8 py-3 border-t border-gray-100">
       <div className="flex items-center gap-4 text-neutral-600 text-sm">
         <button
           onClick={onTogglePostLike}

@@ -211,9 +211,9 @@ const Post = ({ postType }) => {
 
   return (
     <div className="min-h-screen bg-primary-bg">
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="w-full md:max-w-4xl md:mx-auto sm:px-4 md:px-8 md:py-8">
         {/* Main Post Card */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white md:rounded-lg md:border md:border-gray-200 overflow-hidden">
           {/* Post Header */}
           <PostHeader
             postData={postData}
@@ -224,10 +224,10 @@ const Post = ({ postType }) => {
           />
 
           {/* Post Content */}
-          <div className="px-4 border-b border-gray-200">
+          <div className="p-4 sm:px-6 md:px-8">
             <PostContent
-              postData={postData}
-              postType={postType}
+              item={postData}
+              itemType={postType}
               images={images}
               files={files}
             />
@@ -243,7 +243,7 @@ const Post = ({ postType }) => {
           />
 
           {/* Comments Section */}
-          <div className="border-t border-gray-200 p-6 flex flex-col gap-6">
+          <div className="border-t border-gray-200 p-4 sm:p-6 md:p-8 flex flex-col gap-6">
             {/* Add Comment Form */}
             <CommentForm onSubmit={handleCommentSubmit} isLoading={isLoading} />
 
