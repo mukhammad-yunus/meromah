@@ -17,17 +17,17 @@ const preventNavigation = (e) => {
   e.preventDefault();
   e.stopPropagation();
 };
-const getType = {
-  post: ["b", "board"],
-  quiz: ["d", "desc"],
-  test: ["d", "desc"],
-  library: ["b", "board"],
-};
-const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
+const PostCard = ({
+  item,
+  isFirst,
+  isLast,
+  itemType = "post",
+  communityType = "board",
+  communityUrl = "b/"
+}) => {
   const navigate = useNavigate();
   const { isAuthenticated } = useSelector((state) => state.auth);
-  const [liked, setLiked] = useState(post.youLiked);
-  const [imageError, setImageError] = useState(false);
+  const [liked, setLiked] = useState(item.youLiked);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -38,17 +38,17 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
 
   // Separate images and files based on mimetype
   const { images, files } = useMemo(() => {
-    if (!post.files || post.files.length === 0) {
+    if (!item.files || item.files.length === 0) {
       return { images: [], files: [] };
     }
-    const imageFiles = post.files.filter((file) =>
+    const imageFiles = item.files.filter((file) =>
       file.mimetype.startsWith("image/")
     );
-    const nonImageFiles = post.files.filter(
+    const nonImageFiles = item.files.filter(
       (file) => !file.mimetype.startsWith("image/")
     );
     return { images: imageFiles, files: nonImageFiles };
-  }, [post.files]);
+  }, [item.files]);
 
   const handleAuthorClick = (e, path) => {
     preventNavigation(e);
@@ -68,9 +68,9 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
       navigate("/login");
       return;
     }
-    const board = post.board.name;
-    const postId = post.id;
-    const res = await togglePostLike({ board, post: postId }).unwrap();
+    const community = item[communityType].name;
+    const postId = item.id;
+    const res = await togglePostLike({ board: community, item: postId }).unwrap();
     setLiked(res.toggle);
     if (res.toggle) {
       postLikesCountRef.current.textContent =
@@ -95,11 +95,14 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
     preventNavigation(e);
     setIsReportModalOpen(true);
   };
-
+  const handleStart = (e)=> {
+    preventNavigation(e)
+    navigate(`/${communityUrl}${item[communityType].name}/${itemType}/${item.id}/start`)
+  }
   return (
     <>
       <Link
-        to={`/b/${post.board.name}/post/${post.id}`}
+        to={`/${communityUrl}${item[communityType].name}/${itemType}/${item.id}`}
         className={`block bg-white border-x border-b border-gray-200 p-4 hover:bg-primary-bg transition-colors duration-200 ${
           isFirst && "rounded-t-lg border-t"
         } ${isLast && "rounded-b-lg"}`}
@@ -110,21 +113,21 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
             <div
               className="w-10 h-10 rounded-full overflow-hidden"
               onClick={(e) =>
-                handleAuthorClick(e, `/user/${post.author.username}`)
+                handleAuthorClick(e, `/user/${item.author.username}`)
               }
             >
-              {post.author.avatar ? (
+              {item.author.avatar ? (
                 <img
-                  src={getFileUrl(post.author.avatar.file_hash)}
-                  alt={`${post.author.username}'s profile picture`}
+                  src={getFileUrl(item.author.avatar.file_hash)}
+                  alt={`${item.author.username}'s profile picture`}
                   className="w-full h-full object-cover cursor-pointer"
                   onClick={(e) =>
-                    handleAuthorClick(e, `/user/${post.author.username}`)
+                    handleAuthorClick(e, `/user/${item.author.username}`)
                   }
                 />
               ) : (
                 <p className="flex items-center justify-center bg-blue-500 text-white text-xs font-semibold w-full h-full">
-                  {getInitials(post.author.username)}
+                  {getInitials(item.author.username)}
                 </p>
               )}
             </div>
@@ -132,32 +135,45 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
               <p
                 className="w-fit text-primary-blue text-base cursor-pointer hover:underline truncate"
                 onClick={(e) =>
-                handleBoardClick(e, `/${getType[postType][0]}/${post.board.name}`)
+                  handleBoardClick(
+                    e,
+                    `/${communityUrl}${item[communityType].name}`
+                  )
                 }
                 role="button"
                 tabIndex={0}
-              onKeyDown={(e) => e.key === "Enter" && handleBoardClick(e, `/${getType[postType][0]}/${post.board.name}`)}
+                onKeyDown={(e) =>
+                  e.key === "Enter" &&
+                  handleBoardClick(
+                    e,
+                    `/${communityUrl}${item[communityType].name}`
+                  )
+                }
               >
-                {getType[postType][0]}/{post.board.name}
+                {communityUrl}{item[communityType].name}
               </p>
               <p className="text-[12px] flex items-center gap-1">
                 <span
                   onClick={(e) =>
-                    handleAuthorClick(e, `/user/${post.author.username}`)
+                    handleAuthorClick(e, `/user/${item.author.username}`)
                   }
                   className="cursor-pointer hover:underline"
                   role="link"
                   tabIndex={0}
                 >
-                  u/{post.author.username}
+                  u/{item.author.username}
                 </span>
-              <RelativeTime date={post.created_at} className="text-neutral-500"/>
+                <RelativeTime
+                  date={item.created_at}
+                  className="text-neutral-500"
+                />
               </p>
             </div>
           </div>
           <div onClick={preventNavigation}>
             <PostMenu
-              post={post}
+              itemType={itemType}
+              item={item}
               onEdit={handleEdit}
               onDelete={handleDelete}
               onReport={handleReport}
@@ -166,15 +182,15 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
         </div>
 
         {/* Content */}
-        {postType === "test" ? (
+        {itemType === "test" ? (
           <div className="group mb-3 flex justify-between items-center gap-4 border-l-4 border-blue-500 bg-blue-50 p-3 px-4 rounded hover:bg-blue-100 transition-colors duration-200">
             <div className="flex-1 overflow-hidden flex flex-col gap-0.5">
-              <p className="font-medium">{post.title}</p>
-              <p className="text-sm text-neutral-600 truncate">{post.body}</p>
+              <p className="font-medium">{item.title}</p>
+              <p className="text-sm text-neutral-600 truncate">{item.body}</p>
             </div>
             <button
               className="block ml-auto px-4 py-2 rounded bg-primary-blue text-white text-sm hover:bg-primary-blue/90 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer"
-              onClick={(e) => e.stopPropagation()}
+              onClick={handleStart}
             >
               Start
             </button>
@@ -182,8 +198,8 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
         ) : (
           <div className="mb-3">
             <div>
-              <p className="mb-1 font-medium">{post.title}</p>
-              <p className="text-sm text-neutral-600">{post.body}</p>
+              <p className="mb-1 font-medium">{item.title}</p>
+              <p className="text-sm text-neutral-600">{item.body}</p>
             </div>
             {/* Display images if available */}
             {images.length > 0 && <PostImages images={images} />}
@@ -197,21 +213,24 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
           <button
             className="flex items-center gap-2 hover:text-neutral-900 p-2 -m-2 rounded transition-colors duration-200 focus:outline-none"
             title="Comments"
-            aria-label={`${post.comments_count} comments`}
+            aria-label={`${item.comments_count} comments`}
           >
-            <FaRegComment /> {post.comments_count}
+            <FaRegComment /> {item.comments_count}
           </button>
           <button
             className="flex items-center gap-2 hover:text-neutral-900 p-2 -m-2 rounded transition-colors duration-200 focus:outline-none cursor-pointer"
             title={liked ? "Unlike" : "Like"}
-            aria-label={`${post.likes_count} likes. ${
+            aria-label={`${item.likes_count} likes. ${
               liked ? "Unlike" : "Like"
-            } this post`}
+            } this item`}
             onClick={onTogglePostLike}
           >
             {liked ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
-          <span ref={postLikesCountRef} className={liked ? "text-red-500" : ""}>
-              {post.likes_count}
+            <span
+              ref={postLikesCountRef}
+              className={liked ? "text-red-500" : ""}
+            >
+              {item.likes_count}
             </span>
           </button>
           <button
@@ -231,32 +250,33 @@ const PostCard = ({ post, isFirst, isLast, postType = "post" }) => {
       <ShareModal
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
-        postUrl={`${window.location.origin}/b/${post.board.name}/post/${post.id}`}
-        postTitle={post.title}
+        itemUrl={`${window.location.origin}/b/${item[communityType].name}/${itemType}/${item.id}`}
+        itemTitle={item.title}
       />
 
       {/* Edit Post Modal */}
       <EditPostModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        post={post}
-        boardName={post.board.name}
+        post={item}
+        boardName={item[communityType].name}
       />
 
       {/* Report Post Modal */}
       <ReportModal
         isOpen={isReportModalOpen}
         onClose={() => setIsReportModalOpen(false)}
-        item={post}
-        itemType="post"
+        item={item}
+        itemType={itemType}
       />
 
       {/* Delete Post Modal */}
       <DeletePostModal
+        communityType={communityType}
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        board={post.board.name}
-        postId={post.id}
+        communityName={item[communityType].name}
+        itemId={item.id}
       />
     </>
   );

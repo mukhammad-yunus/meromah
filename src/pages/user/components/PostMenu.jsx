@@ -2,8 +2,9 @@ import React, { useState, useRef, useEffect } from "react";
 import { HiDotsVertical } from "react-icons/hi";
 import { useSelector } from "react-redux";
 
-const PostMenu = ({ 
-  post, 
+const PostMenu = ({
+  itemType = "post",
+  item, 
   onEdit, 
   onDelete, 
   onReport,
@@ -14,11 +15,11 @@ const PostMenu = ({
   const buttonRef = useRef(null);
   const { profileData } = useSelector((state) => state.myProfile);
 
-  // Check if current user is the post author
+  // Check if current user is the item author
   const isAuthor = profileData && (
-    profileData.id === post.author_id || 
-    profileData.username === post.author?.username ||
-    profileData.id === post.author?.id
+    profileData.id === item.author_id || 
+    profileData.username === item.author?.username ||
+    profileData.id === item.author?.id
   );
 
   useEffect(() => {
@@ -91,20 +92,20 @@ const PostMenu = ({
                 onClick={(e) => handleMenuAction(e, onEdit)}
                 className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
               >
-                Edit post
+                Edit {itemType}
               </button>
               <button
                 onClick={(e) => handleMenuAction(e, onDelete)}
                 className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150 cursor-pointer"
               >
-                Delete post
+                Delete {itemType}
               </button>
             </>
           ): (<button
           onClick={(e) => handleMenuAction(e, onReport)}
           className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
         >
-          Report post
+          Report {itemType}
         </button>)}
           
         </div>

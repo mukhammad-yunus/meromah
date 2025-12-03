@@ -3,7 +3,7 @@ import { FaTimes, FaLink, FaCopy } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { FaFacebook, FaTelegram, FaWhatsapp } from "react-icons/fa";
 
-const ShareModal = ({ isOpen, onClose, postUrl, postTitle }) => {
+const ShareModal = ({ isOpen, onClose, itemUrl, itemTitle }) => {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -31,7 +31,7 @@ const ShareModal = ({ isOpen, onClose, postUrl, postTitle }) => {
   const handleCopyLink = async (e) => {
     e.stopPropagation();
     try {
-      await navigator.clipboard.writeText(postUrl);
+      await navigator.clipboard.writeText(itemUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -52,28 +52,36 @@ const ShareModal = ({ isOpen, onClose, postUrl, postTitle }) => {
       name: "Twitter",
       icon: FaXTwitter,
       color: "bg-black hover:bg-gray-800 text-white",
-      url: `https://twitter.com/intent/tweet?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(postTitle || "")}`,
+      url: `https://twitter.com/intent/tweet?url=${encodeURIComponent(
+        itemUrl
+      )}&text=${encodeURIComponent(itemTitle || "")}`,
     },
     {
       id: "facebook",
       name: "Facebook",
       icon: FaFacebook,
       color: "bg-blue-600 hover:bg-blue-700 text-white",
-      url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`,
+      url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+        itemUrl
+      )}`,
     },
     {
       id: "telegram",
       name: "Telegram",
       icon: FaTelegram,
       color: "bg-blue-500 hover:bg-blue-600 text-white",
-      url: `https://t.me/share/url?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(postTitle || "")}`,
+      url: `https://t.me/share/url?url=${encodeURIComponent(
+        itemUrl
+      )}&text=${encodeURIComponent(itemTitle || "")}`,
     },
     {
       id: "whatsapp",
       name: "WhatsApp",
       icon: FaWhatsapp,
       color: "bg-green-500 hover:bg-green-600 text-white",
-      url: `https://wa.me/?text=${encodeURIComponent((postTitle || "") + " " + postUrl)}`,
+      url: `https://wa.me/?text=${encodeURIComponent(
+        (itemTitle || "") + " " + itemUrl
+      )}`,
     },
   ];
 
@@ -110,7 +118,9 @@ const ShareModal = ({ isOpen, onClose, postUrl, postTitle }) => {
         {/* Modal Header */}
         <div className="px-6 pt-6 pb-4 border-b border-gray-200">
           <h2 className="text-xl font-bold text-gray-900">Share this post</h2>
-          <p className="text-sm text-gray-500 mt-1">Choose how you want to share</p>
+          <p className="text-sm text-gray-500 mt-1">
+            Choose how you want to share
+          </p>
         </div>
 
         {/* Share Options */}
@@ -127,7 +137,9 @@ const ShareModal = ({ isOpen, onClose, postUrl, postTitle }) => {
                   <Icon className="w-6 h-6" />
                   <span className="text-sm font-medium">{option.name}</span>
                   {option.id === "copy" && copied && (
-                    <span className="text-xs text-green-600 font-semibold">Copied!</span>
+                    <span className="text-xs text-green-600 font-semibold">
+                      Copied!
+                    </span>
                   )}
                 </button>
               );
@@ -139,7 +151,7 @@ const ShareModal = ({ isOpen, onClose, postUrl, postTitle }) => {
         <div className="px-6 pb-6">
           <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
             <p className="text-xs text-gray-500 mb-1">Link to share:</p>
-            <p className="text-sm text-gray-700 break-all">{postUrl}</p>
+            <p className="text-sm text-gray-700 break-all">{itemUrl}</p>
           </div>
         </div>
       </div>
@@ -148,4 +160,3 @@ const ShareModal = ({ isOpen, onClose, postUrl, postTitle }) => {
 };
 
 export default ShareModal;
-
