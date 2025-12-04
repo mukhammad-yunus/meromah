@@ -1,51 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
 import { FiChevronDown } from "react-icons/fi";
 
-const useSortBy = (isAuthenticated, username = null) => {
-  // we now can add/edit/remove sorting options, by simply modifying this array
-  const sortOptionsConfig = useMemo(
-    () => [
-      {
-        id: "latest=1",
-        label: "Latest",
-        requiresAuth: false,
-        emptyStateTitle: "No posts yet",
-        emptyStateMessage: "Be the first to share something in this board!",
-      },
-      {
-        id: "oldest=1",
-        label: "Oldest",
-        requiresAuth: false,
-        emptyStateTitle: "No posts yet",
-        emptyStateMessage: "Be the first to share something in this board!",
-      },
-      {
-        id: "popular=1",
-        label: "Popular",
-        requiresAuth: false,
-        emptyStateTitle: "No posts yet",
-        emptyStateMessage: "Be the first to share something in this board!",
-      },
-      {
-        id: "random=1",
-        label: "Random",
-        requiresAuth: false,
-        emptyStateTitle: "No posts yet",
-        emptyStateMessage: "Be the first to share something in this board!",
-      },
-      {
-        id: `author=${username}`,
-        label: "My Posts",
-        requiresAuth: true,
-        emptyStateTitle: "No posts from you yet",
-        emptyStateMessage: "Start sharing your thoughts!",
-      },
-    ],
-    []
-  );
-
+const useSortBy = (isAuthenticated, username = null, sortOptionsConfig) => {
   // Sorting/Filtering State
   const [sortBy, setSortBy] = useState(sortOptionsConfig[0].id);
+  const [label, setLabel] = useState(sortOptionsConfig[0].label)
   const [showSortDropdown, setShowSortDropdown] = useState(false);
 
   // Get current sort option configuration
@@ -69,8 +28,9 @@ const useSortBy = (isAuthenticated, username = null) => {
   }, [isAuthenticated, sortBy, sortOptionsConfig]);
 
   // Handle sorting/filtering
-  const handleSortChange = (sortType) => {
+  const handleSortChange = ({sortType, label}) => {
     setSortBy(sortType)
+    setLabel(label)
     setShowSortDropdown(false);
   };
 
@@ -110,7 +70,7 @@ const useSortBy = (isAuthenticated, username = null) => {
             {availableSortOptions.map((option) => (
               <button
                 key={option.id}
-                onClick={() => handleSortChange(option.id)}
+                onClick={() => handleSortChange({sortType: option.id, label: option.label})}
                 className={`w-full text-left px-4 py-2 text-sm hover:bg-neutral-50 transition-colors ${
                   sortBy === option.id
                     ? "text-primary-blue font-medium bg-primary-blue/5"
@@ -126,7 +86,7 @@ const useSortBy = (isAuthenticated, username = null) => {
     </div>
   );
 
-  return { sortBy, SortByComponent, emptyStateMessages };
+  return { sortBy, label, SortByComponent, emptyStateMessages };
 };
 
 export default useSortBy;
