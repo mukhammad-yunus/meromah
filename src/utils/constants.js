@@ -1,18 +1,77 @@
 // Mock data for explore items
 export const exploreData = {
   posts: [
-    { id: 'p1', type: 'post', author: { name: 'Alice', username: 'alice', avatar: 'https://api.dicebear.com/8.x/identicon/svg?seed=alice' }, text: 'Greedy vs DP?', board: 'algorithms-101', comments: 1, likes: 4, shares: 0, date: '1d' },
+    {
+      id: "p1",
+      type: "post",
+      author: {
+        name: "Alice",
+        username: "alice",
+        avatar: "https://api.dicebear.com/8.x/identicon/svg?seed=alice",
+      },
+      text: "Greedy vs DP?",
+      board: "algorithms-101",
+      comments: 1,
+      likes: 4,
+      shares: 0,
+      date: "1d",
+    },
   ],
   boards: [
-    { id: 'p2', type: 'post', author: { name: 'Board Bot', username: 'boards', avatar: 'https://api.dicebear.com/8.x/identicon/svg?seed=board' }, text: 'Welcome to Algorithms 101 board', board: 'algorithms-101', comments: 0, likes: 1, shares: 0, date: '2d' },
+    {
+      id: "p2",
+      type: "post",
+      author: {
+        name: "Board Bot",
+        username: "boards",
+        avatar: "https://api.dicebear.com/8.x/identicon/svg?seed=board",
+      },
+      text: "Welcome to Algorithms 101 board",
+      board: "algorithms-101",
+      comments: 0,
+      likes: 1,
+      shares: 0,
+      date: "2d",
+    },
   ],
   libraries: [
-    { id: 'p3', type: 'library', author: { name: 'Kate', username: 'kate', avatar: 'https://api.dicebear.com/8.x/identicon/svg?seed=kate' }, text: 'Sorting Cheatsheet', description: 'Quick reference for sorting', file: { name: 'sorting.pdf' }, board: 'algorithms-101', comments: 0, likes: 2, shares: 0, date: '2d' },
+    {
+      id: "p3",
+      type: "library",
+      author: {
+        name: "Kate",
+        username: "kate",
+        avatar: "https://api.dicebear.com/8.x/identicon/svg?seed=kate",
+      },
+      text: "Sorting Cheatsheet",
+      description: "Quick reference for sorting",
+      file: { name: "sorting.pdf" },
+      board: "algorithms-101",
+      comments: 0,
+      likes: 2,
+      shares: 0,
+      date: "2d",
+    },
   ],
   quizzes: [
-    { id: 'p4', type: 'quiz', author: { name: 'Quiz Bot', username: 'quiz', avatar: 'https://api.dicebear.com/8.x/identicon/svg?seed=quiz' }, text: 'Greedy vs DP MCQ', description: '5 questions', board: 'algorithms-101', comments: 0, likes: 3, shares: 0, date: '3d' },
+    {
+      id: "p4",
+      type: "quiz",
+      author: {
+        name: "Quiz Bot",
+        username: "quiz",
+        avatar: "https://api.dicebear.com/8.x/identicon/svg?seed=quiz",
+      },
+      text: "Greedy vs DP MCQ",
+      description: "5 questions",
+      board: "algorithms-101",
+      comments: 0,
+      likes: 3,
+      shares: 0,
+      date: "3d",
+    },
   ],
-}
+};
 
 // Mock data for posts
 export const mockPosts = [
@@ -188,8 +247,8 @@ export const mockUserProfile = {
   stats: {
     posts: 12,
     quizzes: 5,
-    libraryItems: 8
-  }
+    libraryItems: 8,
+  },
 };
 
 // Mock user posts data
@@ -327,7 +386,8 @@ export const mockUserLibrary = [
       avatar: "https://api.dicebear.com/8.x/identicon/svg?seed=alice",
     },
     text: "Data Structures Notes",
-    description: "Comprehensive notes on arrays, linked lists, stacks, and queues",
+    description:
+      "Comprehensive notes on arrays, linked lists, stacks, and queues",
     file: { name: "data-structures-notes.pdf", type: "PDF", size: "3.8MB" },
     board: "algorithms-101",
     comments: 1,
@@ -344,7 +404,8 @@ export const mockUserLibrary = [
       avatar: "https://api.dicebear.com/8.x/identicon/svg?seed=alice",
     },
     text: "Graph Algorithms Examples",
-    description: "Python implementations of BFS, DFS, and shortest path algorithms",
+    description:
+      "Python implementations of BFS, DFS, and shortest path algorithms",
     file: { name: "graph-algorithms.py", type: "Python", size: "1.2MB" },
     board: "discrete-math",
     comments: 2,
@@ -359,43 +420,53 @@ export const boardsData = [
   {
     id: "algorithms-101",
     name: "Algorithms 101",
-    description: "Practice and discussion for UniMe's Algorithms course. Share notes, solutions, and ask questions.",
-    coverImage: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&h=300&fit=crop",
+    description:
+      "Practice and discussion for UniMe's Algorithms course. Share notes, solutions, and ask questions.",
+    coverImage:
+      "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&h=300&fit=crop",
     memberCount: 124,
-    postCount: 42
+    postCount: 42,
   },
   {
     id: "discrete-math",
     name: "Discrete Math",
-    description: "Mathematical foundations for computer science. Logic, proofs, combinatorics, and graph theory.",
-    coverImage: "https://images.unsplash.com/photo-1635070041408-e43c894d7a3b?w=800&h=300&fit=crop",
+    description:
+      "Mathematical foundations for computer science. Logic, proofs, combinatorics, and graph theory.",
+    coverImage:
+      "https://images.unsplash.com/photo-1635070041408-e43c894d7a3b?w=800&h=300&fit=crop",
     memberCount: 89,
-    postCount: 28
+    postCount: 28,
   },
   {
     id: "general",
     name: "General Discussion",
-    description: "General chat, announcements, and community discussions for all UniMe students.",
-    coverImage: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=300&fit=crop",
+    description:
+      "General chat, announcements, and community discussions for all UniMe students.",
+    coverImage:
+      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=300&fit=crop",
     memberCount: 256,
-    postCount: 156
+    postCount: 156,
   },
   {
     id: "tech",
     name: "Technology",
-    description: "Latest tech trends, programming languages, frameworks, and development tools discussion.",
-    coverImage: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=300&fit=crop",
+    description:
+      "Latest tech trends, programming languages, frameworks, and development tools discussion.",
+    coverImage:
+      "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=300&fit=crop",
     memberCount: 178,
-    postCount: 73
+    postCount: 73,
   },
   {
     id: "design",
     name: "Design",
-    description: "UI/UX design, graphic design, and creative projects. Share your designs and get feedback.",
-    coverImage: "https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=800&h=300&fit=crop",
+    description:
+      "UI/UX design, graphic design, and creative projects. Share your designs and get feedback.",
+    coverImage:
+      "https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=800&h=300&fit=crop",
     memberCount: 67,
-    postCount: 34
-  }
+    postCount: 34,
+  },
 ];
 
 // Default placeholders
@@ -405,7 +476,7 @@ export const DEFAULT_PLACEHOLDERS = {
   joinDate: "Unknown",
   noPosts: "No posts yet",
   noQuizzes: "No quizzes created yet",
-  noLibrary: "No library items yet"
+  noLibrary: "No library items yet",
 };
 
 export const SUCCESS_MESSAGES_FOR_UPDATES = {
@@ -416,3 +487,58 @@ export const SUCCESS_MESSAGES_FOR_UPDATES = {
   sex: "Sex updated successfully!",
   enrollment_year_id: "Enrollment year updated successfully!",
 };
+
+export const SORT_BY = (username)=> [
+  {
+    id: "latest=1",
+    label: "Latest",
+    requiresAuth: false,
+    emptyStateTitle: "Nothing yet!",
+    emptyStateMessage: "Be the first to share something!",
+  },
+  {
+    id: "oldest=1",
+    label: "Oldest",
+    requiresAuth: false,
+    emptyStateTitle: "Nothing yet!",
+    emptyStateMessage: "Be the first to share something!",
+  },
+  {
+    id: "popular=1",
+    label: "Popular",
+    requiresAuth: false,
+    emptyStateTitle: "Nothing yet!",
+    emptyStateMessage: "Be the first to share something!",
+  },
+  {
+    id: `author=${username}`,
+    label: "My Posts",
+    requiresAuth: true,
+    emptyStateTitle: `Nothing from you yet!`,
+    emptyStateMessage: "Start sharing your thoughts!",
+  },
+];
+
+export const SORT_BY_TYPE = [
+  {
+    id: "all",
+    label: "All",
+    requiresAuth: false,
+    emptyStateTitle: "Nothing yet here!",
+    emptyStateMessage: "Be the first to share something!",
+  },
+  {
+    id: "posts",
+    label: "Posts",
+    requiresAuth: false,
+    emptyStateTitle: "No posts yet!",
+    emptyStateMessage: "Be the first to share something!",
+  },
+  {
+    id: "tests",
+    label: "Tests",
+    requiresAuth: false,
+    emptyStateTitle: "No tests yet!",
+    emptyStateMessage: "Be the first to share something!",
+  },
+];
