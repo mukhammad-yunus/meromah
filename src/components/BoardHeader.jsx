@@ -29,7 +29,7 @@ const extractErrorMessage = (error) => {
   );
 };
 
-const BoardHeader = ({ board }) => {
+const BoardHeader = ({ board, isSubscribed=false }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [toast, setToast] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -153,14 +153,14 @@ const BoardHeader = ({ board }) => {
           
           <div
             className={`flex w-full items-center justify-center rounded-lg border ${
-              board.youSubscribed
+              isSubscribed
                 ? "border-red-500"
                 : "bg-primary-blue hover:bg-blue-700 border-primary-blue hover:border-blue-700"
             }
             ${(isSubscribing || isUnsubscribing) && "animate-pulse"}
             `}
           >
-            {board.youSubscribed ? (
+            {isSubscribed ? (
               <button
                 className="w-full px-5 py-2.5 text-red-500 active:scale-95 transition-all duration-200 font-medium text-sm whitespace-nowrap cursor-pointer"
                 onClick={onUnSubscribe}
@@ -201,14 +201,14 @@ const BoardHeader = ({ board }) => {
             </div>
             <div
               className={`flex w-fit items-center justify-center rounded-lg border ${
-                board.youSubscribed
+                isSubscribed
                   ? "border-red-500"
                   : "bg-primary-blue hover:bg-blue-700 border-primary-blue hover:border-blue-700"
               }
               ${(isSubscribing || isUnsubscribing) && "animate-pulse"}
               `}
             >
-              {board.youSubscribed ? (
+              {isSubscribed ? (
                 <button
                   className="px-5 py-2.5 text-red-500 active:scale-95 transition-all duration-200 font-medium text-sm whitespace-nowrap cursor-pointer"
                   onClick={onUnSubscribe}

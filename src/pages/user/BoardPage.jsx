@@ -4,10 +4,7 @@ import PostCard from "./components/PostCard";
 import BoardHeader from "../../components/BoardHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { addRecentCommunity } from "../../app/recentCommunitiesSlice";
-import {
-  useCreatePostMutation,
-  useGetPostsForBoardQuery,
-} from "../../services/postsApi";
+import { useGetPostsForBoardQuery } from "../../services/postsApi";
 import Loading from "../../components/Loading";
 import NotFound from "../../components/NotFound";
 import ErrorDisplay from "../../components/ErrorDisplay";
@@ -58,9 +55,10 @@ const BoardPage = () => {
   const [toast, setToast] = useState(null);
 
   // Use custom hook for sorting
-  const { sortBy, SortByComponent, emptyStateMessages } = useSortBy(
-    {isAuthenticated, sortOptionsConfig: SORT_BY}
-  );
+  const { sortBy, SortByComponent, emptyStateMessages } = useSortBy({
+    isAuthenticated,
+    sortOptionsConfig: SORT_BY,
+  });
   const {
     data: boardData,
     error: boardError,
@@ -73,8 +71,10 @@ const BoardPage = () => {
     isLoading: isPostLoading,
     isError: isPostError,
   } = useGetPostsForBoardQuery({ board: boardId, queryParams: sortBy });
-  const [createPost] = useCreatePostMutation();
-  
+  const subscribedIds = useMemo(() => {
+    if (!boardData?.subscribedBoardIds) return new Set();
+    return new Set(boardData.subscribedBoardIds);
+  }, [boardData]);
   useEffect(() => {
     if (!boardId || !pathname || boardData === undefined) return;
     dispatch(
@@ -87,10 +87,10 @@ const BoardPage = () => {
   }, [boardId, pathname, boardData, dispatch]);
 
   const onShowCreatePost = () => {
-    if (!isAuthenticated){
+    if (!isAuthenticated) {
       navigate("/login");
       return;
-    };
+    }
     setShowCreatePost(true);
   };
 
@@ -108,7 +108,10 @@ const BoardPage = () => {
     <div className="min-h-screen bg-primary-bg">
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Board Header */}
-        <BoardHeader board={boardData.data} />
+        <BoardHeader
+          board={boardData.data}
+          isSubscribed={subscribedIds.has(boardData.data.id)}
+        />
 
         {/* Create Post Section */}
         <div className="bg-white rounded-lg shadow-sm border border-neutral-200 mb-6">
@@ -144,7 +147,7 @@ const BoardPage = () => {
           ) : isAuthenticated ? (
             <CreatePost
               boardId={boardId}
-              onCancel={()=>setShowCreatePost(false)}
+              onCancel={() => setShowCreatePost(false)}
               onError={(errorMessage) => {
                 setToast({
                   message: errorMessage,
