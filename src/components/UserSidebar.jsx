@@ -166,7 +166,7 @@ const UserSidebar = () => {
   }, []);
   return (
     <div className="md:flex md:justify-between md:items-center">
-      <div className="md:hidden flex sticky top-0 justify-between items-center border-b border-neutral-200 bg-white">
+      <div className="md:hidden flex sticky top-0 justify-between items-center border-b border-neutral-200 bg-white z-30">
         {/* Logo Header - For Mobile devices */}
         <Link to="/home" className="flex-shrink-0 px-4 py-4">
           <div className="flex items-center gap-2">
