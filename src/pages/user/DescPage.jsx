@@ -10,11 +10,11 @@ import ErrorDisplay from "../../components/ErrorDisplay";
 import Toast from "../../components/Toast";
 import { useGetDescQuery } from "../../services/descsApi";
 import { FaRegFileAlt } from "react-icons/fa";
-import { IoMdAttach } from "react-icons/io";
 import useSortBy from "../../hooks/useSortBy";
 import CreateTest from "./components/CreateTest";
 import DescHeader from "./components/DescHeader";
 import { IoAdd } from "react-icons/io5";
+import { SORT_BY } from "../../utils";
 
 // Helper function to extract error message from API error response
 const extractErrorMessage = (error) => {
@@ -55,10 +55,10 @@ const DescPage = () => {
     };
   }, [showCreateTest]);
   // Use custom hook for sorting
-  const { sortBy, SortByComponent, emptyStateMessages } = useSortBy(
+  const { sortBy, SortByComponent, emptyStateMessages } = useSortBy({
     isAuthenticated,
-    username
-  );
+    sortOptionsConfig: SORT_BY,
+  });
 
   const {
     data: descData,
@@ -73,7 +73,10 @@ const DescPage = () => {
     isLoading: isTestLoading,
     isError: isTestError,
   } = useGetTestsForDescQuery({ desc: descId, queryParams: sortBy });
-
+  const subscribedIds = useMemo(() => {
+    if (!descData?.subscribed) return new Set();
+    return new Set(descData.subscribed);
+  }, [descData]);
   useEffect(() => {
     if (!descId || !pathname || descData === undefined) return;
     dispatch(
@@ -115,12 +118,11 @@ const DescPage = () => {
     comments_count: 0, // Tests don't have comments in the template
     youLiked: testData.likedTests?.includes(test.id) || false,
   }));
-
   return (
     <div className="min-h-screen bg-primary-bg">
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Desc Header */}
-        <DescHeader desc={descData.data} />
+        <DescHeader desc={descData?.data} isSubscribed={subscribedIds.has(descData?.data.id)} />
 
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-semibold text-neutral-900">Tests</h2>
@@ -175,10 +177,10 @@ const DescPage = () => {
                 return (
                   <PostCard
                     key={test.id}
-                    post={test}
+                    item={test}
                     isFirst={isFirst}
                     isLast={isLast}
-                    postType="test"
+                    itemType="test"
                     communityType="desc"
                     communityUrl="d/"
                   />

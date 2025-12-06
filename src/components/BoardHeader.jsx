@@ -29,7 +29,7 @@ const extractErrorMessage = (error) => {
   );
 };
 
-const BoardHeader = ({ board, isSubscribed=false }) => {
+const BoardHeader = ({ board, isSubscribed = false }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [toast, setToast] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -128,7 +128,7 @@ const BoardHeader = ({ board, isSubscribed=false }) => {
             className="pr-2 pt-2 z-50 top-2 right-2"
           />
         </div>
-        
+
         {/* Mobile Layout (< sm) */}
         <div className="sm:hidden relative px-4">
           <div className="flex justify-between items-start -mt-8 mb-3">
@@ -146,11 +146,11 @@ const BoardHeader = ({ board, isSubscribed=false }) => {
               )}
             </div>
           </div>
-          
+
           <h1 className="text-2xl font-bold text-neutral-900 mb-3">
             b/{board.name}
           </h1>
-          
+
           <div
             className={`flex w-full items-center justify-center rounded-lg border ${
               isSubscribed
@@ -195,12 +195,12 @@ const BoardHeader = ({ board, isSubscribed=false }) => {
                   </div>
                 )}
               </div>
-              <h1 className="text-xl lg:text-3xl font-bold text-neutral-900 whitespace-nowrap">
+              <h1 className="text-lg lg:text-xl xl::text-3xl font-bold text-neutral-900 whitespace-nowrap">
                 b/{board.name}
               </h1>
             </div>
             <div
-              className={`flex w-fit items-center justify-center rounded-lg border ${
+              className={`flex w-fit items-center justify-center rounded-full border ${
                 isSubscribed
                   ? "border-red-500"
                   : "bg-primary-blue hover:bg-blue-700 border-primary-blue hover:border-blue-700"
@@ -214,7 +214,7 @@ const BoardHeader = ({ board, isSubscribed=false }) => {
                   onClick={onUnSubscribe}
                   disabled={isUnsubscribing}
                 >
-                  <span>Unsubscribe</span>
+                  <span>Joined</span>
                 </button>
               ) : (
                 <button
@@ -222,7 +222,7 @@ const BoardHeader = ({ board, isSubscribed=false }) => {
                   onClick={onSubscribe}
                   disabled={isSubscribing}
                 >
-                  <span>Subscribe</span>
+                  <span>Join</span>
                 </button>
               )}
             </div>

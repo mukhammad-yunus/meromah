@@ -25,12 +25,12 @@ const extractErrorMessage = (error) => {
   );
 };
 
-const DescHeader = ({ desc }) => {
+const DescHeader = ({ desc, isSubscribed = false }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [toast, setToast] = useState(null);
   const { isAuthenticated } = useSelector((state) => state.auth);
   const navigate = useNavigate();
-  
+
   const avatarUrl = useMemo(
     () => (desc?.avatar ? getFileUrl(desc?.avatar?.file_hash) : null),
     [desc]
@@ -40,10 +40,8 @@ const DescHeader = ({ desc }) => {
     [desc]
   );
 
-  const [
-    subscribeToDesc,
-    { isLoading: isSubscribing, error: subscribeError },
-  ] = useSubscribeToDescMutation();
+  const [subscribeToDesc, { isLoading: isSubscribing, error: subscribeError }] =
+    useSubscribeToDescMutation();
   const [
     unsubscribeFromDesc,
     { isLoading: isUnsubscribing, error: unsubscribeError },
@@ -79,7 +77,7 @@ const DescHeader = ({ desc }) => {
       // Error will be handled by useEffect above
     }
   };
-  
+
   const onUnSubscribe = async () => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -91,7 +89,6 @@ const DescHeader = ({ desc }) => {
       // Error will be handled by useEffect above
     }
   };
-
   return (
     <div className="bg-white rounded-xl shadow-sm border border-neutral-200 mb-6 overflow-hidden">
       {/* Cover Image */}
@@ -107,7 +104,7 @@ const DescHeader = ({ desc }) => {
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500 via-purple-600 to-pink-600 opacity-100 transition-opacity flex items-center justify-center"></div>
           )}
         </div>
-        
+
         {/* Mobile Layout (< sm) */}
         <div className="sm:hidden relative px-4">
           <div className="flex justify-between items-start -mt-8 mb-3">
@@ -125,21 +122,21 @@ const DescHeader = ({ desc }) => {
               )}
             </div>
           </div>
-          
+
           <h1 className="text-2xl font-bold text-neutral-900 mb-3">
             d/{desc.name}
           </h1>
-          
+
           <div
             className={`flex w-full items-center justify-center rounded-lg border ${
-              desc.youSubscribed
+              isSubscribed
                 ? "border-red-500"
                 : "bg-primary-blue hover:bg-blue-700 border-primary-blue hover:border-blue-700"
             }
             ${(isSubscribing || isUnsubscribing) && "animate-pulse"}
             `}
           >
-            {desc.youSubscribed ? (
+            {isSubscribed ? (
               <button
                 className="w-full px-5 py-2.5 text-red-500 active:scale-95 transition-all duration-200 font-medium text-sm whitespace-nowrap cursor-pointer"
                 onClick={onUnSubscribe}
@@ -158,7 +155,7 @@ const DescHeader = ({ desc }) => {
             )}
           </div>
         </div>
-        
+
         {/* Desktop Layout (>= sm) */}
         <div className="hidden sm:block relative">
           <div className="absolute -top-14 left-2 right-2 flex items-end justify-between">
@@ -181,21 +178,21 @@ const DescHeader = ({ desc }) => {
               </h1>
             </div>
             <div
-              className={`flex w-fit items-center justify-center rounded-lg border ${
-                desc.youSubscribed
+              className={`flex w-fit items-center justify-center rounded-full border ${
+                isSubscribed
                   ? "border-red-500"
                   : "bg-primary-blue hover:bg-blue-700 border-primary-blue hover:border-blue-700"
               }
               ${(isSubscribing || isUnsubscribing) && "animate-pulse"}
               `}
             >
-              {desc.youSubscribed ? (
+              {isSubscribed ? (
                 <button
                   className="px-5 py-2.5 text-red-500 active:scale-95 transition-all duration-200 font-medium text-sm whitespace-nowrap cursor-pointer"
                   onClick={onUnSubscribe}
                   disabled={isUnsubscribing}
                 >
-                  <span>Unsubscribe</span>
+                  <span>Joined</span>
                 </button>
               ) : (
                 <button
@@ -203,7 +200,7 @@ const DescHeader = ({ desc }) => {
                   onClick={onSubscribe}
                   disabled={isSubscribing}
                 >
-                  <span>Subscribe</span>
+                  <span>Join</span>
                 </button>
               )}
             </div>
@@ -211,7 +208,7 @@ const DescHeader = ({ desc }) => {
           <div className="h-14" />
         </div>
       </div>
-      
+
       <div className="p-6">
         {/* Stats */}
         <div className="flex items-center gap-6 mb-4 pb-4 border-b border-neutral-200">
@@ -259,11 +256,15 @@ const DescHeader = ({ desc }) => {
                 <span className="font-semibold text-neutral-900">
                   Description:{" "}
                 </span>
-                <span className="text-neutral-600">{desc.description || "No description provided."}</span>
+                <span className="text-neutral-600">
+                  {desc.description || "No description provided."}
+                </span>
               </div>
               {desc.author && (
                 <div className="flex items-center gap-1.5 text-neutral-600">
-                  <span className="font-semibold text-neutral-900">Author:</span>
+                  <span className="font-semibold text-neutral-900">
+                    Author:
+                  </span>
                   <Link
                     to={`/user/${desc.author.username}`}
                     className="hover:underline hover:text-purple-600 cursor-pointer transition-colors"
@@ -294,4 +295,3 @@ const DescHeader = ({ desc }) => {
 };
 
 export default DescHeader;
-

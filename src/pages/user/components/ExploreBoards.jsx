@@ -12,9 +12,9 @@ import { useMemo } from "react";
 const ExploreBoards = () => {
   const { data: result, isLoading, error } = useGetBoardsQuery();
   const subscribedIds = useMemo(() => {
-      if (!result?.subscribedBoardIds) return new Set();
-      return new Set(result.subscribedBoardIds);
-    }, [result]);
+    if (!result?.subscribed) return new Set();
+    return new Set(result.subscribed);
+  }, [result]);
   const { isAuthenticated } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const [subscribeToBoard, { isLoading: isSubscribing }] =
@@ -120,7 +120,7 @@ const ExploreBoards = () => {
       {/* List */}
       <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-4">
         <div className="space-y-3">
-          {result?.data?.data?.map((element) => (
+          {result?.data?.map((element) => (
             <div
               key={element.id}
               className="flex items-start justify-between gap-3 p-2 hover:bg-neutral-50 rounded-lg transition-colors"
@@ -166,21 +166,21 @@ const ExploreBoards = () => {
                 }
                 ${(isSubscribing || isUnsubscribing) && "animate-pulse"} `}
               >
-                {subscribedIds.has(element.id)? (
+                {subscribedIds.has(element.id) ? (
                   <button
                     className="px-3 py-2 text-red-500 active:scale-95 transition-all duration-200 font-medium text-sm whitespace-nowrap cursor-pointer"
                     onClick={(e) => onUnSubscribe(e, element)}
                     disabled={isUnsubscribing}
                   >
-                    <span>Unsubscribe</span>
+                    <span>Joined</span>
                   </button>
                 ) : (
                   <button
-                    className="px-3 py-2 text-primary-blue active:scale-95 transition-all duration-200 font-medium text-sm whitespace-nowrap cursor-pointer"
+                    className="px-5 py-2 text-primary-blue active:scale-95 transition-all duration-200 font-medium text-sm whitespace-nowrap cursor-pointer"
                     onClick={(e) => onSubscribe(e, element)}
                     disabled={isSubscribing}
                   >
-                    <span>Subscribe</span>
+                    <span>Join</span>
                   </button>
                 )}
               </div>

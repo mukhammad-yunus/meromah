@@ -72,8 +72,8 @@ const BoardPage = () => {
     isError: isPostError,
   } = useGetPostsForBoardQuery({ board: boardId, queryParams: sortBy });
   const subscribedIds = useMemo(() => {
-    if (!boardData?.subscribedBoardIds) return new Set();
-    return new Set(boardData.subscribedBoardIds);
+    if (!boardData?.subscribed) return new Set();
+    return new Set(boardData.subscribed);
   }, [boardData]);
   useEffect(() => {
     if (!boardId || !pathname || boardData === undefined) return;

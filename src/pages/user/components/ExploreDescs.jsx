@@ -17,8 +17,8 @@ const ExploreDescs = () => {
   const [unsubscribeFromDesc, { isLoading: isUnsubscribing }] =
     useUnsubscribeFromDescMutation();
   const subscribedIds = useMemo(() => {
-    if (!result?.subbedIds) return new Set();
-    return new Set(result.subbedIds);
+    if (!result?.subscribed) return new Set();
+    return new Set(result.subscribed);
   }, [result]);
   const onSubscribe = async (e, desc) => {
     e.preventDefault();
@@ -128,7 +128,7 @@ const ExploreDescs = () => {
       {/* List */}
       <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-4">
         <div className="space-y-3">
-          {result?.data?.data?.map((element) => (
+          {result?.data?.map((element) => (
             <div
               key={element.id}
               className="flex items-start justify-between gap-3 p-2 hover:bg-neutral-50 rounded-lg transition-colors"
@@ -180,15 +180,15 @@ const ExploreDescs = () => {
                     onClick={(e) => onUnSubscribe(e, element)}
                     disabled={isUnsubscribing}
                   >
-                    <span>Unsubscribe</span>
+                    <span>Joined</span>
                   </button>
                 ) : (
                   <button
-                    className="px-3 py-2 text-primary-blue active:scale-95 transition-all duration-200 font-medium text-sm whitespace-nowrap cursor-pointer"
+                    className="px-5 py-2 text-primary-blue active:scale-95 transition-all duration-200 font-medium text-sm whitespace-nowrap cursor-pointer"
                     onClick={(e) => onSubscribe(e, element)}
                     disabled={isSubscribing}
                   >
-                    <span>Subscribe</span>
+                    <span>Join</span>
                   </button>
                 )}
               </div>
