@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { FiChevronDown } from "react-icons/fi";
 
-const useSortBy = (isAuthenticated, username = null, sortOptionsConfig) => {
+const useSortBy = ({isAuthenticated, sortOptionsConfig}) => {
   // Sorting/Filtering State
   const [sortBy, setSortBy] = useState(sortOptionsConfig[0].id);
   const [label, setLabel] = useState(sortOptionsConfig[0].label)
@@ -85,8 +85,12 @@ const useSortBy = (isAuthenticated, username = null, sortOptionsConfig) => {
       )}
     </div>
   );
-
-  return { sortBy, label, SortByComponent, emptyStateMessages };
+  const resetSortBy = ()=> {
+    setSortBy(sortOptionsConfig[0].id)
+    setLabel(sortOptionsConfig[0].label)
+    setShowSortDropdown(false)
+  }
+  return { sortBy, label, SortByComponent, emptyStateMessages, resetSortBy};
 };
 
 export default useSortBy;
