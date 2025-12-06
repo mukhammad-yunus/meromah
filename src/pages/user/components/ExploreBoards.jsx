@@ -120,7 +120,7 @@ const ExploreBoards = () => {
       {/* List */}
       <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-4">
         <div className="space-y-3">
-          {result?.data?.map((element) => (
+          {result?.data?.data?.map((element) => (
             <div
               key={element.id}
               className="flex items-start justify-between gap-3 p-2 hover:bg-neutral-50 rounded-lg transition-colors"
