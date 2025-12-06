@@ -37,6 +37,7 @@ const PrivatePostApi = baseApi.injectEndpoints({
       invalidatesTags: (result, error, { board }) => [
         { type: "boardPosts", id: `board-${board}` },
         { type: "Board", id: `board-${board}` },
+        { type: "Post", id: "getPostsByFilter" }
       ],
 
     }),
@@ -48,6 +49,7 @@ const PrivatePostApi = baseApi.injectEndpoints({
       invalidatesTags: (result, error, { board }) => [
         { type: "boardPosts", id: `board-${board}` },
         { type: "Board", id: `board-${board}` },
+        { type: "Post", id: "getPostsByFilter" }
       ],
     }),
     togglePostLike: builder.mutation({
@@ -72,8 +74,9 @@ const PublicPostApi = baseApi.injectEndpoints({
     getPostFromBoardByPostId: builder.query({
       query: ({ board, postId }) => `/boards/${board}/posts/${postId}`,
     }),
-    globalPostSearch: builder.query({
+    getPostsByFilter: builder.query({
       query: ({ queryParams }) => `/posts${toQueryString(queryParams)}`,
+      providesTags: [{ type: "Post", id: "getPostsByFilter" }]
     }),
   }),
   overrideExisting: true,
@@ -90,5 +93,5 @@ export const {
 export const {
   useGetPostsForBoardQuery,
   useGetPostFromBoardByPostIdQuery,
-  useGlobalPostSearchQuery,
+  useGetPostsByFilterQuery,
 } = PublicPostApi;

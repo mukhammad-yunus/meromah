@@ -19,11 +19,19 @@ const PrivateTestsApi = baseApi.injectEndpoints({
         url: `/tests/my${toQueryString(queryParams)}`,
       }),
     }),
+    getTestsByFilter: builder.query({
+      query: ({ queryParams }) => `/tests${toQueryString(queryParams)}`,
+      // providesTags: [{ type: "Post", id: "GlobalPostSearch" }]
+      transformResponse: (response)=>({...response, type: "test"})
+    }),
     // GET /descs/{desc}/tests/{test}
     getTestFromDescById: builder.query({
       query: ({ desc, test }) => `/descs/${desc}/tests/${test}`,
     }),
 
+    getTestDrafts: builder.query({
+      query: ({desc})=> `/descs/${desc}`,
+    }),
     // POST /descs/{desc}/tests
     createTest: builder.mutation({
       query: ({ desc, bodyData }) => ({
@@ -76,6 +84,8 @@ export const {
   useGetTestsForDescQuery,
   useGetAllMyTestsQuery,
   useGetTestFromDescByIdQuery,
+  useGetTestDraftsQuery,
+  useGetTestsByFilterQuery,
   useCreateTestMutation,
   useUpdateTestMutation,
   useDeleteTestMutation,

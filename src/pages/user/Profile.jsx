@@ -11,7 +11,7 @@ import {
   useGetMyProfileQuery,
   useGetUserByUsernameQuery,
 } from "../../services/userApi.js";
-import { useGlobalPostSearchQuery } from "../../services/postsApi.js";
+import { useGetPostsByFilterQuery } from "../../services/postsApi.js";
 import { useGetUserCommentQuery } from "../../services/commentsApi.js";
 import ProfileMenu from "./components/profile/ProfileMenu.jsx";
 import ProfilePosts from "./components/profile/ProfilePosts.jsx";
@@ -57,7 +57,7 @@ const Profile = ({ isMyProfile = false }) => {
     data: postsData,
     isLoading: isPostsLoading,
     isSuccess: isPostsSuccess,
-  } = useGlobalPostSearchQuery(
+  } = useGetPostsByFilterQuery(
     { queryParams: `author=${currentUsername}` },
     { skip: !currentUsername }
   );

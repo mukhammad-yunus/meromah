@@ -488,7 +488,7 @@ export const SUCCESS_MESSAGES_FOR_UPDATES = {
   enrollment_year_id: "Enrollment year updated successfully!",
 };
 
-export const SORT_BY = (username)=> [
+export const SORT_BY = [
   {
     id: "latest=1",
     label: "Latest",
@@ -511,12 +511,12 @@ export const SORT_BY = (username)=> [
     emptyStateMessage: "Be the first to share something!",
   },
   {
-    id: `author=${username}`,
-    label: "My Posts",
-    requiresAuth: true,
-    emptyStateTitle: `Nothing from you yet!`,
-    emptyStateMessage: "Start sharing your thoughts!",
-  },
+    id: "hot=1",
+    label: "Hot",
+    requiresAuth: false,
+    emptyStateTitle: "Nothing yet!",
+    emptyStateMessage: "Be the first to share something!",
+  }
 ];
 
 export const SORT_BY_TYPE = [
