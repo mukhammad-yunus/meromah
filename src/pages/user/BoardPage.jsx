@@ -17,6 +17,7 @@ import { FaRegFileAlt } from "react-icons/fa";
 import { IoMdAttach } from "react-icons/io";
 import useSortBy from "../../hooks/useSortBy";
 import CreatePost from "./components/CreatePost";
+import { SORT_BY } from "../../utils";
 
 // Helper function to extract error message from API error response
 const extractErrorMessage = (error) => {
@@ -58,8 +59,7 @@ const BoardPage = () => {
 
   // Use custom hook for sorting
   const { sortBy, SortByComponent, emptyStateMessages } = useSortBy(
-    isAuthenticated,
-    username
+    {isAuthenticated, sortOptionsConfig: SORT_BY}
   );
   const {
     data: boardData,
@@ -183,10 +183,12 @@ const BoardPage = () => {
                 return (
                   <PostCard
                     key={post.id}
-                    post={post}
+                    item={post}
                     isFirst={isFirst}
                     isLast={isLast}
-                    postType="post"
+                    itemType="post"
+                    communityType="board"
+                    communityUrl="b/"
                   />
                 );
               })}
