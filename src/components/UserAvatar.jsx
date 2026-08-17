@@ -1,6 +1,6 @@
 import { getFileUrl } from "../utils";
 
-export const DEFAULT_USER_AVATAR = "/images/default/user-avatar.png";
+export const DEFAULT_USER_AVATAR = "/images/default/user-avatar.svg";
 
 const UserAvatar = ({
   hash,
