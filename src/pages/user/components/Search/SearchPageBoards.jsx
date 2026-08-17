@@ -2,8 +2,8 @@ import React, { useMemo } from "react";
 import SearchPageHeader from "./SearchPageHeader";
 import CommunitySkeleton from "../Skeleton/CommunitySkeleton";
 import { Link, useNavigate } from "react-router-dom";
-import { getFileUrl, getInitials } from "../../../../utils";
 import { useSearchBoardsQuery } from "../../../../services/boardsApi";
+import CommunityAvatar from "../../../../components/CommunityAvatar";
 import { useSelector } from "react-redux";
 import { useSubscribeToBoardMutation, useUnsubscribeFromBoardMutation } from "../../../../services/boardSubscriptionsApi";
 import { Inbox } from "lucide-react";
@@ -81,17 +81,13 @@ const SearchPageBoards = ({ activeTab, onSelectTab, query }) => {
               className="flex items-center gap-3 flex-1 min-w-0"
             >
               <div className="w-12 h-12  rounded-full overflow-hidden border-4 border-white bg-white dark:border-neutral-900 dark:bg-neutral-900">
-                {element?.avatar === null ? (
-                  <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-                    {getInitials(element.name)}
-                  </div>
-                ) : (
-                  <img
-                    src={getFileUrl(element.avatar?.file_hash)}
-                    alt="Board avatar"
-                    className="w-full h-full object-cover"
-                  />
-                )}
+                <CommunityAvatar
+                  hash={element?.avatar?.file_hash}
+                  name={element.name}
+                  alt="Board avatar"
+                  gradientClassName="bg-gradient-to-br from-purple-500 to-pink-500"
+                  sizeClassName="font-bold text-lg"
+                />
               </div>
               {/* Info */}
               <div className="flex-1 min-w-0">

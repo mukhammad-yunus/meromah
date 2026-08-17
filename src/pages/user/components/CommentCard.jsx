@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Send, Plus, Minus, Heart } from "lucide-react";
 import { useSelector } from "react-redux";
 import RelativeTime from "../../../components/RelativeTime";
-import { getInitials, extractErrorMessage, getFileUrl } from "../../../utils";
+import { extractErrorMessage } from "../../../utils";
 import CommentMenu from "./CommentMenu";
+import UserAvatar from "../../../components/UserAvatar";
 import {
   useToggleCommentLikeByCommentIdMutation,
   useToggleTestCommentLikeByCommentIdMutation,
@@ -165,18 +166,11 @@ const CommentCard = ({
           <button
             className="w-10 h-10 rounded-full overflow-hidden shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
           >
-            {comment?.author?.avatar?.file_hash ? (
-              <img
-                src={getFileUrl(comment.author.avatar.file_hash)}
-                alt={`${comment.author.username}'s profile picture`}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            ) : (
-              <span className="flex items-center justify-center bg-blue-500 text-white text-xs font-semibold w-full h-full">
-                {comment?.author ? getInitials(comment?.author.username) : ""}
-              </span>
-            )}
+            <UserAvatar
+              hash={comment?.author?.avatar?.file_hash}
+              alt={`${comment?.author?.username}'s profile picture`}
+              loading="lazy"
+            />
           </button>
 
           {/* Vertical Line for nested comments */}

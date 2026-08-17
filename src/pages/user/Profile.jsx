@@ -5,7 +5,8 @@ import Loading from "../../components/Loading.jsx";
 import ErrorDisplay from "../../components/ErrorDisplay.jsx";
 import NotFound from "../../components/NotFound.jsx";
 import ReportModal from "./components/ReportModal.jsx";
-import { DEFAULT_PLACEHOLDERS, getFileUrl, getInitials } from "../../utils/index.js";
+import { DEFAULT_PLACEHOLDERS, getFileUrl } from "../../utils/index.js";
+import UserAvatar from "../../components/UserAvatar.jsx";
 import {
   useGetMeQuery,
   useGetMyProfileQuery,
@@ -23,7 +24,6 @@ import { useGetTestsByFilterQuery } from "../../services/testsApi.js";
 const Profile = ({ isMyProfile = false }) => {
   const { username } = useParams();
   const [activeTab, setActiveTab] = useState("overview");
-  const [imageError, setImageError] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
 
   // Fetch data based on isMyProfile
@@ -87,11 +87,6 @@ const Profile = ({ isMyProfile = false }) => {
       { id: "comments", label: "Comments", icon: MessageCircle },
     ],
     []
-  );
-
-  const avatarUrl = useMemo(
-    () => (user?.avatar?.file_hash ? getFileUrl(user.avatar.file_hash) : null),
-    [user]
   );
 
   const bannerUrl = useMemo(
@@ -199,18 +194,10 @@ const Profile = ({ isMyProfile = false }) => {
               <div className="flex flex-col items-start sm:flex-row sm:items-end gap-4 -mt-14">
                 {/* Avatar */}
                 <div className="w-28 h-28 rounded-full border-4 border-white dark:border-neutral-900 bg-white dark:bg-neutral-900 overflow-hidden flex-shrink-0">
-                  {!imageError && avatarUrl ? (
-                    <img
-                      src={avatarUrl}
-                      alt={user?.username || "user-avatar"}
-                      className="w-full h-full object-cover"
-                      onError={() => setImageError(true)}
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold">
-                      {getInitials(user?.name || user?.username || "User")}
-                    </div>
-                  )}
+                  <UserAvatar
+                    hash={user?.avatar?.file_hash}
+                    alt={user?.username || "user-avatar"}
+                  />
                 </div>
 
                 {/* User info */}

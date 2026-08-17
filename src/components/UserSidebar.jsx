@@ -24,7 +24,7 @@ import ExpandableSection from "../pages/user/components/ExpandableSection";
 import { useLogoutMutation } from "../services/authApi.js";
 import { useGetMyDescSubscriptionsQuery } from "../services/descSubscriptionsApi.js";
 import { useGetMyBoardSubscriptionsQuery } from "../services/boardSubscriptionsApi.js";
-import { getFileUrl } from "../utils/helpers";
+import UserAvatar from "./UserAvatar";
 import { FileEdit } from "lucide-react";
 import { Info } from "lucide-react";
 import { Search } from "lucide-react";
@@ -213,14 +213,6 @@ const UserSidebar = () => {
   const handleLogout = async () => {
     await logout();
   };
-  const getInitials = useCallback((name) => {
-    if (!name) return "";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase();
-  }, []);
   useLayoutEffect(() => {
     if (!sidebarMobileRef.current) return;
 
@@ -432,19 +424,11 @@ const UserSidebar = () => {
                 disabled={isProfileDataLoading}
               >
                 {/* User Avatar */}
-                {profileData?.avatar?.file_hash ? (
-                  <img
-                    src={getFileUrl(profileData.avatar.file_hash)}
-                    alt={profileData?.name || "User"}
-                    className="w-8 h-8 rounded-full object-cover flex-shrink-0"
-                  />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                    <span className="text-white text-xs font-bold">
-                      {getInitials(profileData?.name || "User")}
-                    </span>
-                  </div>
-                )}
+                <UserAvatar
+                  hash={profileData?.avatar?.file_hash}
+                  alt={profileData?.name || "User"}
+                  className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                />
                 <div className="flex-1 min-w-0 text-left">
                   <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">
                     {profileData?.name || "User"}

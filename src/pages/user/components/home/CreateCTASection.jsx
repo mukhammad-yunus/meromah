@@ -1,8 +1,8 @@
 import React from "react";
-import { getFileUrl, getInitials } from "../../../../utils";
 import { useSelector } from "react-redux";
 import { Paperclip } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import UserAvatar from "../../../../components/UserAvatar";
 
 const CreateCTASection = ({ ref = null }) => {
   const navigate = useNavigate();
@@ -19,19 +19,11 @@ const CreateCTASection = ({ ref = null }) => {
         onClick={() => navigate(`/profile`)}
         className="rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white text-xs font-semibold shadow-md hover:shadow-lg transition-shadow cursor-pointer ring-2 ring-white dark:ring-neutral-900 flex-shrink-0"
       >
-        {profileData?.avatar?.file_hash ? (
-          <img
-            src={getFileUrl(profileData.avatar.file_hash)}
-            alt={profileData?.name || "User"}
-            className="w-8 h-8 rounded-full object-cover flex-shrink-0"
-          />
-        ) : (
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-xs font-bold">
-              {getInitials(profileData?.name || "User")}
-            </span>
-          </div>
-        )}
+        <UserAvatar
+          hash={profileData?.avatar?.file_hash}
+          alt={profileData?.name || "User"}
+          className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+        />
       </div>
 
       {/* Placeholder Text */}

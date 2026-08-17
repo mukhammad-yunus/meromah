@@ -11,8 +11,9 @@ import Toast from "./Toast";
 import BoardMenu from "../pages/user/components/BoardMenu";
 import DeleteBoardModal from "../pages/user/components/DeleteBoardModal";
 import ReportModal from "../pages/user/components/ReportModal";
-import { getFileUrl, getInitials } from "../utils";
+import { getFileUrl } from "../utils";
 import MarkdownViewer from "./markdownViewer/MarkdownViewer";
+import CommunityAvatar from "./CommunityAvatar";
 
 // Helper function to extract error message from API error response
 const extractErrorMessage = (error) => {
@@ -36,13 +37,9 @@ const BoardHeader = ({ board, isSubscribed = false }) => {
   const { isAuthenticated } = useSelector((state) => state.auth);
   const { profileData } = useSelector((state) => state.myProfile);
   const navigate = useNavigate();
-  const avatarUrl = useMemo(
-    () => (board?.avatar ? getFileUrl(board?.avatar?.file_hash) : null),
-    [board]
-  );
   const bannerUrl = useMemo(
     () => (board?.banner ? getFileUrl(board?.banner?.file_hash) : null),
-    [board]
+    [board],
   );
   const [
     subscribeToBoard,
@@ -135,21 +132,15 @@ const BoardHeader = ({ board, isSubscribed = false }) => {
         <div className="sm:hidden relative px-4">
           <div className="flex justify-between items-start -mt-8 mb-3">
             <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-white bg-white dark:border-neutral-900 dark:bg-neutral-900">
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt="Board avatar"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center text-white font-black text-xl justify-center bg-gradient-to-br from-blue-500 to-purple-600">
-                  {getInitials(board.name)}
-                </div>
-              )}
+              <CommunityAvatar
+                hash={board?.avatar?.file_hash}
+                name={board.name}
+                alt="Board avatar"
+              />
             </div>
           </div>
 
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">
+          <h1 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">
             b/{board.name}
           </h1>
 
@@ -185,17 +176,12 @@ const BoardHeader = ({ board, isSubscribed = false }) => {
           <div className="absolute -top-14 left-2 right-2 flex items-end justify-between">
             <div className="flex items-end gap-4">
               <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white bg-white dark:bg-neutral-900 dark:border-neutral-900 group">
-                {avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt="Board avatar"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center text-white font-black text-3xl justify-center bg-gradient-to-br from-blue-500 to-purple-600 transition-all">
-                    {getInitials(board.name)}
-                  </div>
-                )}
+                <CommunityAvatar
+                  hash={board?.avatar?.file_hash}
+                  name={board.name}
+                  alt="Board avatar"
+                  sizeClassName="font-black text-3xl"
+                />
               </div>
               <h1 className="text-lg lg:text-xl xl::text-3xl font-bold text-neutral-900 dark:text-neutral-100 whitespace-nowrap">
                 b/{board.name}

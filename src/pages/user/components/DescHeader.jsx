@@ -8,8 +8,9 @@ import {
 } from "../../../services/descSubscriptionsApi";
 import { useSelector } from "react-redux";
 import Toast from "../../../components/Toast";
-import { getFileUrl, getInitials } from "../../../utils";
+import { getFileUrl } from "../../../utils";
 import DescMenu from "./DescMenu";
+import CommunityAvatar from "../../../components/CommunityAvatar";
 import DeleteDescModal from "./DeleteDescModal";
 import ReportModal from "./ReportModal";
 import MarkdownViewer from "../../../components/markdownViewer/MarkdownViewer";
@@ -37,10 +38,6 @@ const DescHeader = ({ desc, isSubscribed = false }) => {
   const { profileData } = useSelector((state) => state.myProfile);
   const navigate = useNavigate();
 
-  const avatarUrl = useMemo(
-    () => (desc?.avatar ? getFileUrl(desc?.avatar?.file_hash) : null),
-    [desc]
-  );
   const bannerUrl = useMemo(
     () => (desc?.banner ? getFileUrl(desc?.banner?.file_hash) : null),
     [desc]
@@ -135,21 +132,16 @@ const DescHeader = ({ desc, isSubscribed = false }) => {
         <div className="sm:hidden relative px-4">
           <div className="flex justify-between items-start -mt-8 mb-3">
             <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-white bg-white dark:border-neutral-900 dark:bg-neutral-900">
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt="Desc avatar"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center text-white font-black text-xl justify-center bg-gradient-to-br from-purple-500 to-pink-600">
-                  {getInitials(desc.name)}
-                </div>
-              )}
+              <CommunityAvatar
+                hash={desc?.avatar?.file_hash}
+                name={desc.name}
+                alt="Desc avatar"
+                gradientClassName="bg-gradient-to-br from-purple-500 to-pink-600"
+              />
             </div>
           </div>
 
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">
+          <h1 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">
             d/{desc.name}
           </h1>
 
@@ -189,19 +181,15 @@ const DescHeader = ({ desc, isSubscribed = false }) => {
           <div className="absolute -top-14 left-2 right-2 flex items-end justify-between">
             <div className="flex items-end gap-4">
               <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white bg-white dark:bg-neutral-900 dark:border-neutral-900 group">
-                {avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt="Desc avatar"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center text-white font-black text-3xl justify-center bg-gradient-to-br from-purple-500 to-pink-600 transition-all">
-                    {getInitials(desc.name)}
-                  </div>
-                )}
+                <CommunityAvatar
+                  hash={desc?.avatar?.file_hash}
+                  name={desc.name}
+                  alt="Desc avatar"
+                  gradientClassName="bg-gradient-to-br from-purple-500 to-pink-600"
+                  sizeClassName="font-black text-3xl"
+                />
               </div>
-              <h1 className="text-xl lg:text-3xl font-bold text-neutral-900 dark:text-neutral-100 whitespace-nowrap">
+              <h1 className="text-xl lg:text-2xl font-bold text-neutral-900 dark:text-neutral-100 whitespace-nowrap">
                 d/{desc.name}
               </h1>
             </div>

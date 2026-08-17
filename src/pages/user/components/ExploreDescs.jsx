@@ -9,10 +9,11 @@ import {
   useUnsubscribeFromDescMutation,
 } from "../../../services/descSubscriptionsApi";
 import { useSelector } from "react-redux";
-import { getFileUrl, getInitials, SORT_BY_DESC_TYPE } from "../../../utils";
+import { SORT_BY_DESC_TYPE } from "../../../utils";
 import { useMemo } from "react";
 import useSortBy from "../../../hooks/useSortBy";
 import ExploreCommunitySkeleton from "./Skeleton/ExploreCommunitySkeleton";
+import CommunityAvatar from "../../../components/CommunityAvatar";
 
 const ExploreDescs = () => {
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -184,17 +185,13 @@ const ExploreDescs = () => {
                   className="flex items-center gap-3 flex-1 min-w-0"
                 >
                   <div className="w-12 h-12 rounded-full overflow-hidden border-4 border-white bg-white dark:border-neutral-900 dark:bg-neutral-900">
-                    {element?.avatar ? (
-                      <img
-                        src={getFileUrl(element?.avatar?.file_hash)}
-                        alt="Desc avatar"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-                        {getInitials(element.name)}
-                      </div>
-                    )}
+                    <CommunityAvatar
+                      hash={element?.avatar?.file_hash}
+                      name={element.name}
+                      alt="Desc avatar"
+                      gradientClassName="bg-gradient-to-br from-purple-500 to-pink-500"
+                      sizeClassName="font-bold text-lg"
+                    />
                   </div>
 
                   {/* Info */}

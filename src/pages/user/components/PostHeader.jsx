@@ -1,9 +1,8 @@
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import RelativeTime from "../../../components/RelativeTime";
-import { getFileUrl, getInitials } from "../../../utils";
 import PostMenu from "./PostMenu";
-import { useMemo } from "react";
+import CommunityAvatar from "../../../components/CommunityAvatar";
 
 const PostHeader = ({
   itemData,
@@ -43,23 +42,13 @@ const PostHeader = ({
                 handleAuthorClick(e, `/u/${itemData.data.author.username}`)
               }
             >
-              {itemData?.data?.[community]?.avatar?.file_hash ? (
-                <img
-                  src={getFileUrl(
-                    itemData?.data?.[community].avatar?.file_hash
-                  )}
-                  alt="Board avatar"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div
-                  className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0"
-                >
-                  {itemData?.data?.author
-                    ? getInitials(itemData.data[community].name)
-                    : ""}
-                </div>
-              )}
+              <CommunityAvatar
+                hash={itemData?.data?.[community]?.avatar?.file_hash}
+                name={itemData?.data?.[community]?.name}
+                alt="Board avatar"
+                gradientClassName="bg-gradient-to-br from-purple-500 to-pink-500"
+                sizeClassName="font-bold text-lg"
+              />
             </div>
             <div>
               <p

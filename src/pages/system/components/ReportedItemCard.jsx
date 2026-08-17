@@ -3,8 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useGetReportByIdQuery } from "../../../services/reportsApi";
 import { AlertCircle, Ban, Calendar, CheckCircle, Clock, Edit3, ExternalLink, FileText, HelpCircle, MessageSquare, Shield, Trash2, User, Users, XCircle } from "lucide-react";
 import RelativeTime from "../../../components/RelativeTime";
-import { getFileUrl, getInitials } from "../../../utils";
 import MarkdownViewer from "../../../components/markdownViewer/MarkdownViewer";
+import UserAvatar from "../../../components/UserAvatar";
 
 const getStatusIcon = (status) => {
   switch (status) {
@@ -241,17 +241,11 @@ const ReportedItemCard = ({ report, onUpdateReport }) => {
           <div className="space-y-2">
             {target_type === "user" && (
               <div className="flex items-center gap-3">
-                {itemData.avatar?.file_hash ? (
-                  <img
-                    src={getFileUrl(itemData.avatar.file_hash)}
-                    alt={itemData.username}
-                    className="w-10 h-10 rounded-full"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
-                    {getInitials(itemData.name || itemData.username || "U")}
-                  </div>
-                )}
+                <UserAvatar
+                  hash={itemData.avatar?.file_hash}
+                  alt={itemData.username}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
                 <div>
                   <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
                     u/{itemData.username}
