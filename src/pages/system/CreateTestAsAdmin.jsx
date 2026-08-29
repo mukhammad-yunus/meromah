@@ -8,10 +8,10 @@ import GenerateFromJSON from "./GenerateFromJSON";
 const CreateTestAsAdmin = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useSelector((state) => state.auth);
-  const [mode, setMode] = useState(null); // null = not selected, "manual" or "json"
+  const [mode, setMode] = useState(null); // reserved for future modes
 
-  const handleJSONSuccess = () => {
-    navigate("/system");
+  const handleJSONSuccess = ({ desc, testId }) => {
+    navigate(`/d/${desc}/test/${testId}`);
   };
 
   const handleCancel = () => {

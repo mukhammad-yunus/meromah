@@ -108,8 +108,9 @@ const useGetHomeData = ({ sortBy, type }) => {
   /* useEffects */
   /* ----------------------------------*/
 
-  //Reset feed data for one of the dependencies changes
+  //Reset feed data when sort or tab changes; reset hasMore so the new filter request is not skipped
   useEffect(() => {
+    setHasMore((prev) => ({ ...prev, [type]: true }));
     dispatch(resetTab({ sortBy, itemType: type }));
   }, [sortBy, type, dispatch]);
   //Update liked data

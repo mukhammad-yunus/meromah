@@ -23,8 +23,7 @@ const ProfileOverview = ({ profile, user, formatJoinDate }) => (
           </label>
           <p className="text-neutral-900 dark:text-neutral-100 mt-1">
             {formatJoinDate(
-              user?.created_at ||
-                user?.createdAt ||
+              user?.joined_on ||
                 DEFAULT_PLACEHOLDERS.joinDate
             )}
           </p>

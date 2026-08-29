@@ -66,7 +66,6 @@ const Profile = ({ isMyProfile = false }) => {
   const {
     data: testsData,
     isLoading: isTestsLoading,
-    isSuccess: isTestsSuccess,
   } = useGetTestsByFilterQuery(
     { queryParams: {author: currentUsername, latest: 1} },
     { skip: !currentUsername }

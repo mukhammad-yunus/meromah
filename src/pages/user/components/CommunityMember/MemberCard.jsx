@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import MemberMenu from "./MemberMenu";
 import { useSelector } from "react-redux";
 
@@ -18,7 +19,11 @@ const MemberCard = ({
     >
       <div className="flex items-center justify-between gap-4">
         {/* User Info */}
-        <div className="flex-1 min-w-0">
+        <Link
+          to={`/u/${subscriber.username}`}
+          className="flex-1 min-w-0 hover:opacity-80 transition-opacity"
+          onClick={(e) => e.stopPropagation()}
+        >
           <p
             className={`text-sm font-semibold truncate ${
               blockedUsers.has(subscriber.id) ? "text-red-500" : "text-gray-900"
@@ -31,7 +36,7 @@ const MemberCard = ({
             }`}>
             u/{subscriber.username}
           </p>
-        </div>
+        </Link>
 
         {/* Menu */}
         <div

@@ -6,6 +6,7 @@ import {
   Play,
   FileQuestion,
   Clock,
+  CheckCircle2,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTogglePostLikeMutation } from "../../../services/postsApi";
@@ -222,6 +223,12 @@ const PostCard = ({
                   <div className="flex items-center gap-1">
                     <Clock className="w-4 h-4" />
                     <span>{item.duration} min</span>
+                  </div>
+                )}
+                {item.submissions_count !== undefined && (
+                  <div className="flex items-center gap-1">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>{item.submissions_count} {item.submissions_count === 1 ? 'submission' : 'submissions'}</span>
                   </div>
                 )}
               </div>

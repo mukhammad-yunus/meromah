@@ -22,11 +22,11 @@ const CommunityMembers = ({
   const [selectedMember, setSelectedMember] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const page = useMemo(
-    () => Number(searchParams.get("page")) || 0,
+    () => Number(searchParams.get("page")) || 1,
     [searchParams.get("page")]
   );
   const limit = useMemo(
-    () => Number(searchParams.get("limit")) || 0,
+    () => Number(searchParams.get("limit")) || 50,
     [searchParams.get("limit")]
   );
   const {
@@ -36,7 +36,7 @@ const CommunityMembers = ({
     error: membersError,
   } = useGetCommunityMembers({
     [communityType]: communityId,
-    queryParams: { page, limit },
+    queryParams: { page, limit: limit > 0 ? limit : 50 },
   });
   const {
     data: communityData,
@@ -52,9 +52,10 @@ const CommunityMembers = ({
   const { totalPage, totalMembers } = useMemo(() => {
     if (communityData === undefined) return { totalPage: 0, totalMembers: 0 };
     const totalMembers = Number(communityData?.data?.subscribers_count);
-    const totalPage = Math.ceil(totalMembers / limit);
+    const validLimit = limit > 0 ? limit : 50;
+    const totalPage = Math.ceil(totalMembers / validLimit);
     return { totalPage, totalMembers };
-  }, [communityData]);
+  }, [communityData, limit]);
   const isLoading = useMemo(
     () => isMembersLoading || isCommunityLoading || false,
     [isMembersLoading, isCommunityLoading]

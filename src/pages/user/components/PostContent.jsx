@@ -2,7 +2,7 @@ import PostImages from "./PostImages";
 import PostFiles from "./PostFiles";
 import { useNavigate } from "react-router-dom";
 import MarkdownViewer from "../../../components/markdownViewer/MarkdownViewer";
-import { FileQuestion, Clock, Play } from "lucide-react";
+import { FileQuestion, Clock, Play, CheckCircle2 } from "lucide-react";
 
 const PostContent = ({ item, itemType, images, files }) => {
   const navigate = useNavigate();
@@ -26,6 +26,8 @@ const PostContent = ({ item, itemType, images, files }) => {
                 <div className="flex items-center gap-1">
                   <FileQuestion className="w-4 h-4" />
                   <span>{item.data.questions_count} questions</span>
+                  <CheckCircle2 className="w-4 h-4"/>
+                  <span>{item.data.submissions_count} submissions</span>
                 </div>
               )}
               {item.data.duration && (

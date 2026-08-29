@@ -6,7 +6,7 @@ import {
   usePostTestStartMutation,
 } from "../../../services/testsApi";
 import Loading from "../../../components/Loading";
-import { Clock, FileText, User, Users } from "lucide-react";
+import { Clock, FileText, User, Users, CheckCircle2, ArrowLeft } from "lucide-react";
 import { useGetQuestionsForTestQuery } from "../../../services/questionsApi";
 import { useDispatch, useSelector } from "react-redux";
 import { initializeSession, startSession } from "../../../app/testSessionSlice";
@@ -54,6 +54,10 @@ export const TestInstructions = () => {
       setError({ hasError: true, message: err.data.message });
     }
   };
+
+  const handleBack = () => {
+    navigate(`/d/${descId}`);
+  };
   useEffect(() => {
     if (
       !testInfo?.data ||
@@ -97,6 +101,15 @@ export const TestInstructions = () => {
         <div className="w-full max-w-2xl bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-800 overflow-hidden">
           {/* Header Section */}
           <div className="bg-gradient-to-br from-primary-blue via-primary-blue to-primary-blue/90 dark:from-neutral-800 dark:via-neutral-800 dark:to-neutral-900 p-8">
+            {/* Back Button */}
+            <button
+              onClick={handleBack}
+              className="mb-4 flex items-center gap-2 text-white/90 dark:text-neutral-300 hover:text-white dark:hover:text-neutral-100 transition-colors text-sm font-medium"
+              aria-label="Go back"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back</span>
+            </button>
             <h1 className="text-3xl font-bold text-white dark:text-neutral-100 mb-2">
               {testInfo.data.title}
             </h1>
@@ -161,6 +174,21 @@ export const TestInstructions = () => {
                   </p>
                 </div>
               </div>
+              {'submissions_count' in testInfo.data && (
+                <div className="flex items-center gap-3 p-4 bg-neutral-100 dark:bg-neutral-950/50 rounded-xl border border-neutral-200 dark:border-neutral-800">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
+                    <CheckCircle2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                      Submissions
+                    </p>
+                    <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                      {testInfo.data.submissions_count ?? 0} {(testInfo.data.submissions_count ?? 0) === 1 ? 'submission' : 'submissions'}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
             {/* Test Style Selection */}
             <div className="pt-2">

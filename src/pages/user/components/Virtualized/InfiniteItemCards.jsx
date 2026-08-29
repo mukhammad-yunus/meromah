@@ -182,6 +182,8 @@ export default function InfiniteItemCards({
   layoutVersion,
   layoutSchemaVersion,
   onNearBottom,
+  onScrollPositionChange,
+  initialScrollPosition,
 }) {
   const { sidebarMobileHeight } = useSelector((state) => state.ui);
 
@@ -449,6 +451,11 @@ export default function InfiniteItemCards({
       onNearBottom();
     }
 
+    // Save scroll position for restoration
+    if (onScrollPositionChange && containerRef.current) {
+      onScrollPositionChange(containerRef.current.scrollTop);
+    }
+
     recomputeRange();
   }, [
     prefixSums,
@@ -457,6 +464,7 @@ export default function InfiniteItemCards({
     recomputeRange,
     type,
     items.length,
+    onScrollPositionChange,
   ]);
 
   // Throttled scroll with cleanup
@@ -501,6 +509,34 @@ export default function InfiniteItemCards({
     setMeasuringPhase(true);
     setMeasuredCount(0);
   }, [layoutVersion, INITIAL_MEASURE_COUNT]);
+
+  // Restore scroll position when data is ready
+  const hasRestoredScrollRef = useRef(false);
+  useEffect(() => {
+    if (
+      !measuringPhase &&
+      initialScrollPosition !== undefined &&
+      initialScrollPosition > 0 &&
+      containerRef.current &&
+      !hasRestoredScrollRef.current &&
+      prefixSums &&
+      items.length > 0
+    ) {
+      // Small delay to ensure DOM is ready
+      const timeoutId = setTimeout(() => {
+        if (containerRef.current) {
+          containerRef.current.scrollTop = initialScrollPosition;
+          hasRestoredScrollRef.current = true;
+        }
+      }, 100);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [measuringPhase, initialScrollPosition, prefixSums, items.length]);
+
+  // Reset restoration flag when type changes
+  useEffect(() => {
+    hasRestoredScrollRef.current = false;
+  }, [type]);
 
   // Attach scroll listener with cleanup
   useEffect(() => {

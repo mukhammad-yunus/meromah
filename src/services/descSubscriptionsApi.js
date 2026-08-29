@@ -35,8 +35,8 @@ const PrivateDescSubscriptionsApi = baseApi.injectEndpoints({
 
     // GET /desc/{desc}/subscribers - Author-only list
     getDescSubscribersPrivileged: builder.query({
-      query: ({ desc }) => ({
-        url: `/desc/${desc}/subscribers`,
+      query: ({ desc, queryParams }) => ({
+        url: `/desc/${desc}/subscribers${toQueryString(queryParams)}`,
       }),
     }),
 

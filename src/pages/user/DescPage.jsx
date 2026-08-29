@@ -71,6 +71,30 @@ const DescPage = () => {
     isLoading: isTestLoading,
     isError: isTestError,
   } = useGetTestsForDescQuery({ desc: descId, queryParams: sortBy });
+
+  // Simple scroll position tracking
+  const scrollKey = `desc.${descId}.${sortBy}`;
+  const [scrollPosition, setScrollPosition] = useState(() => {
+    try {
+      const saved = localStorage.getItem(scrollKey);
+      return saved ? parseFloat(saved) : 0;
+    } catch {
+      return 0;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(scrollKey);
+      setScrollPosition(saved ? parseFloat(saved) : 0);
+    } catch {}
+  }, [descId, sortBy]);
+
+  const handleScroll = (top) => {
+    try {
+      localStorage.setItem(scrollKey, top.toString());
+    } catch {}
+  };
   const subscribedIds = useMemo(() => {
     if (!descData?.subscribed) return new Set();
     return new Set(descData.subscribed);
@@ -126,6 +150,8 @@ const DescPage = () => {
         layoutVersion={sortBy}
         tab={"desc"}
         key={descData?.data.name}
+        onScrollPositionChange={handleScroll}
+        initialScrollPosition={scrollPosition}
         headerElements={[
           (ref) => (
             <div ref={ref} className="w-full mx-auto px-4 py-8">

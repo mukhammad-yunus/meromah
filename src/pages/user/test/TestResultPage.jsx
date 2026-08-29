@@ -5,6 +5,7 @@ import McqResult from "./McqResult";
 import CodeResult from "./CodeResult";
 import { useNavigate, useParams } from "react-router-dom";
 import { resetSession } from "../../../app/testSessionSlice";
+import { ChevronUp } from "lucide-react";
 
 export const TestResultPage = () => {
   const { descId, testId } = useParams();
@@ -22,6 +23,11 @@ export const TestResultPage = () => {
     dispatch(resetSession())
     navigate(`/d/${descId}/test/${testId}`);
   };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <div className="min-h-screen p-4 sm:p-8 transition-colors duration-300">
       <div className="max-w-3xl mx-auto space-y-8">
@@ -85,6 +91,15 @@ export const TestResultPage = () => {
           })}
         </div>
       </div>
+
+      {/* Sticky scroll-to-top button */}
+      <button
+        onClick={scrollToTop}
+        className="fixed bottom-6 right-6 z-50 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
+        aria-label="Scroll to top"
+      >
+        <ChevronUp className="w-6 h-6" />
+      </button>
     </div>
   );
 };

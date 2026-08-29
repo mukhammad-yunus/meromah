@@ -745,7 +745,7 @@ const GenerateFromJSON = ({ onSuccess, onCancel }) => {
 
       setShowPublishConfirm(false);
       if (onSuccess) {
-        onSuccess();
+        onSuccess({ desc, testId: createdTestId });
       }
     } catch (err) {
       const errorMessage =

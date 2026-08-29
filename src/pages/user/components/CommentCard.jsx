@@ -10,6 +10,7 @@ import {
   useToggleCommentLikeByCommentIdMutation,
   useToggleTestCommentLikeByCommentIdMutation,
   useUpdateCommentByBoardPostMutation,
+  useUpdateCommentByDescTestMutation
 } from "../../../services/commentsApi";
 
 const CommentCard = ({
@@ -47,6 +48,7 @@ const CommentCard = ({
     useToggleTestCommentLikeByCommentIdMutation();
   const [updateComment, { isLoading: isUpdating, error: updateCommentError }] =
     useUpdateCommentByBoardPostMutation();
+  const [updateTestComment, {isLoading: testCommentIsUpdating, error: testCommentUpdateError}] = useUpdateCommentByDescTestMutation();
   const isReplying = activeReplyId === comment.id;
 
   // Handle comment mutation errors
@@ -130,12 +132,22 @@ const CommentCard = ({
       return;
     }
     try {
-      await updateComment({
-        board: community,
-        post: itemId,
-        comment: comment.id,
-        bodyData: { body: editText.trim() },
-      }).unwrap();
+      if (itemType == "test") {
+        await updateTestComment({
+          desc: community,
+          test: itemId,
+          comment: comment.id,
+          bodyData: { body: editText.trim() },
+        }).unwrap();
+      }
+      else {
+        await updateComment({
+          board: community,
+          post: itemId,
+          comment: comment.id,
+          bodyData: { body: editText.trim() },
+        }).unwrap();
+      }
       setIsEditing(false);
       // The API will refresh the comments list via invalidatesTags
     } catch (err) {
