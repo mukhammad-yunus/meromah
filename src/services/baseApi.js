@@ -2,9 +2,15 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// base api - uses HTTP-only cookies for authentication
+const getBaseUrl = () => {
+  if (import.meta.env.DEV) {
+    return '/api';
+  }
+  return `${VITE_API_BASE_URL}/api`;
+};
+
 const baseBaseQuery = fetchBaseQuery({
-  baseUrl: `${VITE_API_BASE_URL}/api`,
+  baseUrl: getBaseUrl(),
   credentials: 'include', // Include cookies (HTTP-only) in every request
 });
 
