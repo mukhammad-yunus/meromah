@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 5173",
+    "dev:next": "next dev --port 3000",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -14,6 +15,7 @@
     "@tailwindcss/vite": "^4.1.13",
     "inquirer": "^12.10.0",
     "lucide-react": "^0.562.0",
+    "next": "^16.3.4",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-error-boundary": "^6.0.1",
