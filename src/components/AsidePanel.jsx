@@ -12,9 +12,9 @@ import {
   useUnsubscribeFromDescMutation,
 } from "../services/descSubscriptionsApi";
 import { useMemo, useState } from "react";
-import RecommendedCommunitySkeleton from "../pages/user/components/Skeleton/RecommendedCommunitySkeleton";
+import RecommendedCommunitySkeleton from "../routes/user/components/Skeleton/RecommendedCommunitySkeleton";
 import Toast from "./Toast";
-import Announcements from "../pages/user/components/Announcements";
+import Announcements from "../routes/user/components/Announcements";
 const CommunityElement = ({ community, subscribed, setError }) => {
   const navigate = useNavigate();
   const { isAuthenticated } = useSelector((state) => state.auth);

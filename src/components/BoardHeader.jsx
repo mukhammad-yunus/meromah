@@ -8,9 +8,9 @@ import {
 } from "../services/boardSubscriptionsApi";
 import { useSelector } from "react-redux";
 import Toast from "./Toast";
-import BoardMenu from "../pages/user/components/BoardMenu";
-import DeleteBoardModal from "../pages/user/components/DeleteBoardModal";
-import ReportModal from "../pages/user/components/ReportModal";
+import BoardMenu from "../routes/user/components/BoardMenu";
+import DeleteBoardModal from "../routes/user/components/DeleteBoardModal";
+import ReportModal from "../routes/user/components/ReportModal";
 import { getFileUrl } from "../utils";
 import MarkdownViewer from "./markdownViewer/MarkdownViewer";
 import CommunityAvatar from "./CommunityAvatar";

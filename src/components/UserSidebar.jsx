@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import ExpandableSection from "../pages/user/components/ExpandableSection";
+import ExpandableSection from "../routes/user/components/ExpandableSection";
 import { useLogoutMutation } from "../services/authApi.js";
 import { useGetMyDescSubscriptionsQuery } from "../services/descSubscriptionsApi.js";
 import { useGetMyBoardSubscriptionsQuery } from "../services/boardSubscriptionsApi.js";
