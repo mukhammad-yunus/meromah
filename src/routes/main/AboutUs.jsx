@@ -14,24 +14,26 @@ const AboutUs = () => {
 
       <section className="mb-12 bg-white dark:bg-neutral-900 rounded-2xl p-6 sm:p-10 border border-neutral-200 dark:border-neutral-700">
         <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-4">Our Story</h2>
-        <div className="text-neutral-700 dark:text-neutral-300 space-y-4">
-          <p>
-            The idea for Unime.Space existed before the name itself. It started when I noticed that my friends struggled to pass the DSA exam. I decided to build a website to help them prepare, which led to the creation of the original project, Metame.it.
-          </p>
-          <p>
-            The site ran for a few months and gained modest traction, reaching around 1,000+ visits during its lifetime. However, when the exam format changed, the project lost relevance. At the same time, I was heavily focused on my own exams, so development stopped. I also failed to renew the server monthly plan and pay the due bills, which resulted in the loss of most of the database.
-          </p>
-          <p>
-            This year, I decided to revive the project — not as a simple reboot, but as a more serious and scalable platform with a new identity. The goal shifted from a solo project to a team-driven effort, which is when I decided to start building a team. One of the first people I could rely on was my friend Muhammadyunus.
-          </p>
-          <p className="italic text-neutral-600 dark:text-neutral-400">
+        <figure className="text-neutral-700 dark:text-neutral-300 space-y-4">
+          <blockquote className="space-y-4">
+            <p>
+              The idea for Unime.Space existed before the name itself. It started when I noticed that my friends struggled to pass the DSA exam. I decided to build a website to help them prepare, which led to the creation of the original project, Metame.it.
+            </p>
+            <p>
+              The site ran for a few months and gained modest traction, reaching around 1,000+ visits during its lifetime. However, when the exam format changed, the project lost relevance. At the same time, I was heavily focused on my own exams, so development stopped. I also failed to renew the server monthly plan and pay the due bills, which resulted in the loss of most of the database.
+            </p>
+            <p>
+              This year, I decided to revive the project — not as a simple reboot, but as a more serious and scalable platform with a new identity. The goal shifted from a solo project to a team-driven effort, which is when I decided to start building a team. One of the first people I could rely on was my friend Muhammadyunus.
+            </p>
+          </blockquote>
+          <figcaption className="italic text-neutral-600 dark:text-neutral-400">
             — Meromah
-          </p>
-        </div>
+          </figcaption>
+        </figure>
       </section>
 
-      <section className="mb-12 bg-white dark:bg-neutral-900 rounded-2xl p-6 sm:p-10 border border-neutral-200 dark:border-neutral-700">
-        <div className="text-neutral-700 dark:text-neutral-300 space-y-4">
+      <figure className="mb-12 bg-white dark:bg-neutral-900 rounded-2xl p-6 sm:p-10 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 space-y-4">
+        <blockquote className="space-y-4">
           <p>
             Unime.Space really started to make sense when Meromah said we should stop trying to fix the old version and just make something different. Like, actually different. The idea was bigger and honestly harder to build, but it felt stronger overall — the concept was better, it would work better, feel better to use, be faster, and safer too.
           </p>
@@ -41,11 +43,11 @@ const AboutUs = () => {
           <p>
             So you'd have tests, quizzes, coding questions, MCQs, and also a social space where students can post stuff, share files, upload photos of their notes, talk about exams, make their own tests, comment, and ask for help without it feeling complicated or awkward.
           </p>
-          <p className="italic text-neutral-600 dark:text-neutral-400">
-            — Muhammadyunus
-          </p>
-        </div>
-      </section>
+        </blockquote>
+        <figcaption className="italic text-neutral-600 dark:text-neutral-400">
+          — Muhammadyunus
+        </figcaption>
+      </figure>
 
       <section className="bg-white dark:bg-neutral-900 rounded-2xl p-6 sm:p-10 border border-neutral-200 dark:border-neutral-700">
         <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-4">Acknowledgement</h2>
