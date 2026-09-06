@@ -65,7 +65,7 @@ It is used for **practice** and **checking knowledge**, **not** for posts or lon
     answer:
       "Descs are communities. You can create one from the sidebar and then share posts/tests inside it.",
     isTutorial: true,
-    tutorial: `## Create a Desc (community)
+    tutorial: `### Create a Desc (community)
 
 1. Open the left sidebar and click **Create new**.
 2. Select **Community**.
@@ -76,7 +76,7 @@ It is used for **practice** and **checking knowledge**, **not** for posts or lon
 
 4. Fill in the desc name and description, then click **Create** to submit.
 
-### Tip
+#### Tip
 - Pick a clear name and description so others can find it easily
 - Descs are perfect for organizing tests and practice sessions`,
   },
@@ -88,7 +88,7 @@ It is used for **practice** and **checking knowledge**, **not** for posts or lon
     answer:
       "Boards help you organize content inside a community (e.g., “Announcements”, “DSA”, “Exam resources”).",
     isTutorial: true,
-    tutorial: `## Create a Board
+    tutorial: `### Create a Board
 
 1. Open the left sidebar and click **Create new**.
 2. Select **Community**.
@@ -99,7 +99,7 @@ It is used for **practice** and **checking knowledge**, **not** for posts or lon
 
 4. Fill in the board name and description, then click **Create** to submit.
 
-### Good board ideas
+#### Good board ideas
 - Announcements
 - Lecture notes
 - DSA practice
@@ -113,7 +113,7 @@ It is used for **practice** and **checking knowledge**, **not** for posts or lon
     answer:
       "Posts can include text, links, and files/images depending on your permissions and the community settings.",
     isTutorial: true,
-    tutorial: `## Create a Post
+    tutorial: `### Create a Post
 
 1. Open the left sidebar and click **Create new** → **Post**.
 
@@ -123,7 +123,7 @@ It is used for **practice** and **checking knowledge**, **not** for posts or lon
 3. Or go to the board you want to publish the post, click \`What is on your mind\` input, and fill out the form in the 2nd step without searching for a board
 ![Create post in board](${createPostInBoard.src ?? createPostInBoard})
 
-### Tip
+#### Tip
 - Use headings and short paragraphs for readability.`,
   },
   {
@@ -135,9 +135,9 @@ It is used for **practice** and **checking knowledge**, **not** for posts or lon
     answer:
       "Tests can include multiple question types. You can draft tests and continue editing later. Use the question menu to navigate and manage your questions.",
     isTutorial: true,
-    tutorial: `## Create a Test
+    tutorial: `### Create a Test
 
-### Step 1: Initialize the Test
+#### Step 1: Initialize the Test
 
 1. Open the left sidebar and click **Create new** → **Test**.
 
@@ -147,12 +147,12 @@ It is used for **practice** and **checking knowledge**, **not** for posts or lon
 3. After initializing, you'll have the test editor. Click \`Add question\` button to create a question.
 ![After create](${createTestAfterInit.src ?? createTestAfterInit})
 
-### Step 2: Add Questions
+#### Step 2: Add Questions
 
 4. After clicking \`Add question\` button, you will have a dropdown to select question type. Choose the question type you want to add.
 ![Choose question type](${chooseQuestionType.src ?? chooseQuestionType})
 
-#### Adding Multiple Choice Questions
+##### Adding Multiple Choice Questions
 
 5. Select **Multiple Choice** from the Step 2.4 and fill out the form with your question and options.
 ![Create MCQ](${createMcq.src ?? createMcq})
@@ -160,13 +160,13 @@ It is used for **practice** and **checking knowledge**, **not** for posts or lon
 - Mark the correct answer(s)
 - Add multiple options as needed
 
-#### Adding Code Questions
+##### Adding Code Questions
 
 6. Select **Code Question** and fill out the form.
 ![Create code question](${createCodeQuestion.src ?? createCodeQuestion})
 Note that for \`Function Name\`, just write the name of the function without declaration.
 
-### Step 3: Manage Questions
+#### Step 3: Manage Questions
 
 7. Use the **question menu** (three vertical dots) to edit, preview (in code questions), or remove the question.
 ![Question menu](${questionMenu.src ?? questionMenu})
@@ -177,7 +177,7 @@ Note that for \`Function Name\`, just write the name of the function without dec
 9. If needed, edit the code question
 ![Edit code](${editCode.src ?? editCode})
 
-### Step 4: Save or Continue Later
+#### Step 4: Save or Continue Later
 
 10. Your test is automatically saved as a draft. You can return to it anytime from **Create new** → **Drafts**, or \`Drafts\` button in the **Create Test** page. Inside **Drafts** page, you can select the test to continue or remove them.
 ![Draft tests page](${draftTestsPage.src ?? draftTestsPage})
@@ -186,7 +186,7 @@ Note that for \`Function Name\`, just write the name of the function without dec
 ![Save test](${saveTest.src ?? saveTest})
 
 
-### Tips
+#### Tips
 
 - Keep questions focused and add clear constraints + examples where possible
 - Use the question menu to manage your question

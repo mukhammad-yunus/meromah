@@ -98,9 +98,9 @@ const FaqItem = ({ item, isOpen, onToggle }) => {
       >
         <div className="flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-sm sm:text-base font-semibold text-neutral-900 dark:text-neutral-100 leading-6">
+            <h2 className="text-sm sm:text-base font-semibold text-neutral-900 dark:text-neutral-100 leading-6">
               {item.question}
-            </h3>
+            </h2>
             {item.isTutorial ? (
               <span className="text-[11px] px-2 py-0.5 rounded-full bg-primary-blue/10 text-primary-blue dark:bg-blue-400/10 dark:text-blue-300 border border-primary-blue/20 dark:border-blue-400/20">
                 Tutorial
@@ -136,9 +136,9 @@ const FaqItem = ({ item, isOpen, onToggle }) => {
 
           {item.isTutorial && item.tutorial ? (
             <div className="mt-4">
-              <div className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 mb-2">
+              <h3 className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 mb-2">
                 Steps
-              </div>
+              </h3>
               <div className="bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl p-4">
                 <MarkdownViewer>{item.tutorial}</MarkdownViewer>
               </div>
