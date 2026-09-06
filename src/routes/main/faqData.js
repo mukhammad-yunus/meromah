@@ -69,10 +69,10 @@ It is used for **practice** and **checking knowledge**, **not** for posts or lon
 
 1. Open the left sidebar and click **Create new**.
 2. Select **Community**.
-![Create new menu](${createNew})
+![Create new menu](${createNew.src ?? createNew})
 
 3. In the community form, choose **Desc** as the type.
-![Create desc form](${createDesc})
+![Create desc form](${createDesc.src ?? createDesc})
 
 4. Fill in the desc name and description, then click **Create** to submit.
 
@@ -92,10 +92,10 @@ It is used for **practice** and **checking knowledge**, **not** for posts or lon
 
 1. Open the left sidebar and click **Create new**.
 2. Select **Community**.
-![Create new menu](${createNew})
+![Create new menu](${createNew.src ?? createNew})
 
 3. In the community form, choose **Board** as the type.
-![Create board](${createBoard})
+![Create board](${createBoard.src ?? createBoard})
 
 4. Fill in the board name and description, then click **Create** to submit.
 
@@ -118,10 +118,10 @@ It is used for **practice** and **checking knowledge**, **not** for posts or lon
 1. Open the left sidebar and click **Create new** → **Post**.
 
 2. Search and select the board you want to publish the post, then write your post content.
-![Create post editor](${createPost})
+![Create post editor](${createPost.src ?? createPost})
 
 3. Or go to the board you want to publish the post, click \`What is on your mind\` input, and fill out the form in the 2nd step without searching for a board
-![Create post in board](${createPostInBoard})
+![Create post in board](${createPostInBoard.src ?? createPostInBoard})
 
 ### Tip
 - Use headings and short paragraphs for readability.`,
@@ -142,20 +142,20 @@ It is used for **practice** and **checking knowledge**, **not** for posts or lon
 1. Open the left sidebar and click **Create new** → **Test**.
 
 2. Search and select desc, fill in the test title and description, then initialize the test.
-![Create test](${createTest})
+![Create test](${createTest.src ?? createTest})
 
 3. After initializing, you'll have the test editor. Click \`Add question\` button to create a question.
-![After create](${createTestAfterInit})
+![After create](${createTestAfterInit.src ?? createTestAfterInit})
 
 ### Step 2: Add Questions
 
 4. After clicking \`Add question\` button, you will have a dropdown to select question type. Choose the question type you want to add.
-![Choose question type](${chooseQuestionType})
+![Choose question type](${chooseQuestionType.src ?? chooseQuestionType})
 
 #### Adding Multiple Choice Questions
 
 5. Select **Multiple Choice** from the Step 2.4 and fill out the form with your question and options.
-![Create MCQ](${createMcq})
+![Create MCQ](${createMcq.src ?? createMcq})
 
 - Mark the correct answer(s)
 - Add multiple options as needed
@@ -163,27 +163,27 @@ It is used for **practice** and **checking knowledge**, **not** for posts or lon
 #### Adding Code Questions
 
 6. Select **Code Question** and fill out the form.
-![Create code question](${createCodeQuestion})
+![Create code question](${createCodeQuestion.src ?? createCodeQuestion})
 Note that for \`Function Name\`, just write the name of the function without declaration.
 
 ### Step 3: Manage Questions
 
 7. Use the **question menu** (three vertical dots) to edit, preview (in code questions), or remove the question.
-![Question menu](${questionMenu})
+![Question menu](${questionMenu.src ?? questionMenu})
 
 8. Preview the code question to verify formatting, test cases and the logic.
-![Code preview](${codePreview})
+![Code preview](${codePreview.src ?? codePreview})
 
 9. If needed, edit the code question
-![Edit code](${editCode})
+![Edit code](${editCode.src ?? editCode})
 
 ### Step 4: Save or Continue Later
 
 10. Your test is automatically saved as a draft. You can return to it anytime from **Create new** → **Drafts**, or \`Drafts\` button in the **Create Test** page. Inside **Drafts** page, you can select the test to continue or remove them.
-![Draft tests page](${draftTestsPage})
+![Draft tests page](${draftTestsPage.src ?? draftTestsPage})
 
 11. Click \`Save Test \` to publish your test. Until you save the test, it will not be published.
-![Save test](${saveTest})
+![Save test](${saveTest.src ?? saveTest})
 
 
 ### Tips
