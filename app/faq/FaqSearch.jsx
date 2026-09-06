@@ -114,6 +114,7 @@ const FaqItem = ({ item, isOpen, onToggle }) => {
           ) : null}
         </div>
         <ChevronDown
+          aria-hidden="true"
           className={`w-5 h-5 mt-0.5 text-neutral-500 dark:text-neutral-400 transition-transform duration-300 ease-in-out ${
             isOpen ? "rotate-180" : ""
           }`}
@@ -233,11 +234,15 @@ const FaqSearch = () => {
       <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-2xl p-4 sm:p-5 mb-6">
         <div className="flex flex-col gap-3">
           <div className="relative">
-            <Search className="w-4 h-4 text-neutral-500 dark:text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search
+              aria-hidden="true"
+              className="w-4 h-4 text-neutral-500 dark:text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2"
+            />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search questions…"
+              aria-label="Search questions"
               className="w-full pl-9 pr-3 py-2.5 text-sm bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-4 focus:ring-primary-blue/15"
             />
           </div>

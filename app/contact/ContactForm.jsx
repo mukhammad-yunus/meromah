@@ -158,10 +158,12 @@ const ContactForm = () => {
       </form>
 
       <button
+        type="button"
+        aria-label="Go back"
         className="absolute top-4 left-4 cursor-pointer"
         onClick={() => router.back()}
       >
-        <ChevronLeft className="w-7 h-7 text-neutral-800 dark:text-neutral-200 hover:text-neutral-600 dark:hover:text-neutral-400" />
+        <ChevronLeft aria-hidden="true" className="w-7 h-7 text-neutral-800 dark:text-neutral-200 hover:text-neutral-600 dark:hover:text-neutral-400" />
       </button>
 
       {submitted && (
